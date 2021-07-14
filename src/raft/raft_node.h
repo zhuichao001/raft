@@ -60,7 +60,7 @@ public:
     }
 
 private:
-    Session * session_;
+    RpcClient * dialer_;
     int next_idx_;
     int match_idx_;
     int flags_;

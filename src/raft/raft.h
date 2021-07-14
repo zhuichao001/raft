@@ -33,7 +33,7 @@ private: //for leader
 private: //for follower
     void forwardFollower(){
 
-    void electionStart();
+    void startElection();
 
     void becomeCandidate();
 
@@ -43,6 +43,8 @@ private: //for candidate
     void forwardCandidate();
 
     void sendAppendEntries();
+
+    void becomeLeader();
 
 private:
     int applyEntry();
@@ -55,26 +57,23 @@ private:
         return 0; //TODO
     }
 
+
 privarte:
     RaftLog log_;
 
     int current_term_;
     int voted_for_;
+    int state_; //FOLLOWER,LEADER,CANDIDATE
 
     int commit_idx_;
     int applied_idx_;
     int reconf_idx_;
 
-    int state_;
     int time_elapsed_; //since last time
-    int last_time_;
-
-    std::map<int, RaftNode*> nodes_;
-    int num_nodes_;
-
     int timeout_election_;
     int timeout_request_;
 
+    std::map<int, RaftNode*> nodes_;
     RaftNode * leader_;
     RaftNode * local_;
 
