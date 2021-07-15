@@ -85,7 +85,7 @@ void Raft::sendAppendentries(RaftNode *node){
 
 int Raft::appendEntry(LogEntry *e) {
     if(e->isConfigChange()){
-        reconf_idx_ = _log.getCurrentIndex();
+        reconf_idx_ = getCurrentIndex();
     }
     return _log.appendEntry(e);
 }
@@ -127,8 +127,8 @@ int Raft::recvAppendentries (
 
     if (msg->prev_log_idx > 0) {
         LogEntry *e = log_.getEntry(msg->prev_log_idx);
-        if (!e || msg->prev_log_idx > log_.getCurrentIndex()) { //second condition will be false?
-            rsp->current_idx = log_.getCurrentIndex();
+        if (!e || msg->prev_log_idx > getCurrentIndex()) { //second condition will be false?
+            rsp->current_idx = getCurrentIndex();
             return -1;
         }
 
@@ -142,7 +142,7 @@ int Raft::recvAppendentries (
         }
     }
 
-    if (msg->n_entries == 0 && 0 < msg->prev_log_idx && msg->prev_log_idx + 1 < log_.getCurrentIndex())
+    if (msg->n_entries == 0 && 0 < msg->prev_log_idx && msg->prev_log_idx + 1 < getCurrentIndex())
     {
         assert(commit_idx_ < msg->prev_log_idx + 1);
         log_.delFrom(msg->prev_log_idx + 1);
@@ -174,8 +174,8 @@ int Raft::recvAppendentries (
         rsp->current_idx_ = msg->prev_log_idx + 1 + i;
     }
 
-    if (log_.getCurrentIndex() < msg->leader_commit) {
-        int last_log_idx = max(log_.getCurrentIndex(), 1);
+    if (getCurrentIndex() < msg->leader_commit) {
+        int last_log_idx = max(getCurrentIndex(), 1);
         commit_idx_ = min(last_log_idx, msg->leader_commit);
     }
 
@@ -206,7 +206,7 @@ void Raft::becomeCandidate(){
     raft_vote(me_, me->node);
     leader = NULL;
 
-    setState(RAFT_STATE_CANDIDATE);
+    setState(RAFT_STATE::CANDIDATE);
 
     timeout_elapsed = rand() % me->election_timeout;
 
@@ -217,10 +217,10 @@ void Raft::becomeCandidate(){
     }
 }
 
-
+//for candidator
 void Raft::becomeLeader(){
     fprintf(stderr, "becoming leader term:%d", current_term_);
-    state_ =  RAFT_STATE::LEADER;
+    setState(RAFT_STATE::LEADER);
 
     for (auto & it : nodes_) {
         RaftNode * node = it.second;
@@ -228,10 +228,15 @@ void Raft::becomeLeader(){
             continue;
         }
 
-        node->SetNextIndex(log_.getCurrentIndex() + 1);
+        node->SetNextIndex(getCurrentIndex() + 1);
         node->setMatchIndex(0);
         sendAppendentries(node);
     }
+}
+
+void Raft::becomeFollower(){
+    fprintf(stderr, "becoming follower term:%d", current_term_);
+    setState(RAFT_STATE::FOLLOWER);
 }
 
 void Raft::sendRequestVode(RaftNode * node){
@@ -273,32 +278,80 @@ int Raft::Propose(RaftEntry *e){
 
     e->term = current_term;
     appendEntry(e);
+    return 0;
 }
 
+int Raft::OnReceive(LogEntryRequest *e, LogEntryResponse *r){
+    assert(e!=nullptr && r!=nullptr);
+
+    if (e.isConfigChange()) {
+        if (-1 != reconf_idx_) {
+            return -1;
+        }
+    }
+
+    if (!isLeader()) {
+        return -1;
+    }
+            
+    fprintf(stderr, NULL, "received entry t:%d id: %d idx: %d",
+        current_term_, e->id, getCurrentIndex() + 1);
+
+    e->term = current_term_;
+    appendEntry(e);
+
+    for ( auto &it : nodes_) {
+        RaftNode * node = it.second;
+        if (local_ == node || !node || !node->IsVoting()){
+            continue;
+        }
+
+        int next_idx = node->GetNextIndex();
+        if (next_idx == getCurrentIndex()){
+            sendAppendentries(node);
+        }
+    }
+
+    if (nodes_.size()==1) {
+        commit_idx_ = getCurrentIndex();
+    }
+
+    r->id = e->id;
+    r->idx = getCurrentIndex();
+    r->term = current_term_;
+
+    if (e->isConfigChange()) {
+        reconf_idx_ = getCurrentIndex();
+    }
+    return 0;
+}
+
+
 int Raft::applyEntry()
-    if (applied_idx >= commit_idx) {
+    if (applied_idx_ >= commit_idx_) {
         return -1;
     }
 
-    int log_idx = applied_idx + 1;
+    int log_idx = applied_idx_ + 1;
     raft_entry_t* e = getEntry(log_idx);
     if (!e) {
         return -1;
     }
 
-    fprintf(stderr, "applying log: %d, id: %d size: %d", applied_idx, e->id, e->data.len);
+    fprintf(stderr, "applying log: %d, id: %d size: %d", 
+            applied_idx_, e->id, e->data.len);
 
-    Apply(e);
-    applied_idx++;
+    app_.Apply(e);
+    ++applied_idx_;
 
-    if (log_idx == reconf_log_idx){
-        reconf_log_idx = -1;
+    if (log_idx == reconf_log_idx_){
+        reconf_log_idx_ = -1;
     }
     return 0;
 }
 
 void Raft::startElection(){
     fprintf(stderr, "election starting: %d %d, term: %d ci: %d",
-        timeout_election_, time_elapsed, term_, log_.getCurrentIndex());
+        timeout_election_, time_elapsed, term_, getCurrentIndex());
     becomeCandidate();
 }

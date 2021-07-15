@@ -17,9 +17,9 @@ public:
     int Forward();
 
     //for application
-    int Propose(std::string udata);
+    int Propose(LogEntry *e);
 
-    int Process(LogEntry *e);
+    int OnReceive(LogEntryRequest *e, LogEntryResponse *r);
 
 private: //for leader
     void forwardLeader();
@@ -46,6 +46,8 @@ private: //for candidate
 
     void becomeLeader();
 
+    void becomeFollower();
+
 private:
     int applyEntry();
 
@@ -54,9 +56,20 @@ private:
     void sinceLastPeriod();
 
     int getCurrentIndex(){
-        return 0; //TODO
+        return log_.getCurrentIndex();
     }
 
+    bool isLeader(){
+        return RAFT_STATE::LEADER == state_;
+    }
+
+    bool isFollower(){
+        return RAFT_STATE::FOLLOWER == state_;
+    }
+
+    bool isCandidate(){
+        return RAFT_STATE::CANDIDATE == state_;
+    }
 
 privarte:
     RaftLog log_;
