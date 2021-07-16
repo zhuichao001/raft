@@ -17,14 +17,14 @@ public:
     int Forward();
 
     //for application
-    int Propose(LogEntry *e);
+    int Propose(RaftEntry *e);
 
-    int OnReceive(LogEntryRequest *e, LogEntryResponse *r);
+    int OnReceive(RaftEntryRequest *e, RaftEntryResponse *r);
 
 private: //for leader
     void forwardLeader();
 
-    void appendEntry(LogEntry *e);
+    void appendEntry(RaftEntry *e);
 
     void sendAppendentries() ;
 

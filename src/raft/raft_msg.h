@@ -18,15 +18,15 @@ typedef struct {
     bool isConfigChange(){
         return (logtype & (RAFT_LOGTYPE_ADD_NODE | RAFT_LOGTYPE_REMOVE_NODE)) !=0;
     }
-} LogEntry;
+} RaftEntry;
 
-typedef LogEntry LogEntryRequest;
+typedef RaftEntry RaftEntryRequest;
 
 typedef struct {
     unsigned int id;
     int term;
     int idx;
-} LogEntryResponse;
+} RaftEntryResponse;
 
 typedef struct {
     int raft_port;
@@ -62,7 +62,7 @@ typedef struct {
     int prev_log_term;
     int leader_commit;
 
-    LogEntry* entries;
+    RaftEntry* entries;
     int n_entries;
 } AppendEntriesRequest;
 
