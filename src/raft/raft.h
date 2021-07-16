@@ -16,7 +16,6 @@ public:
 
     int Forward();
 
-    //for application
     int Propose(RaftEntry *e);
 
     int OnReceive(RaftEntryRequest *e, RaftEntryResponse *r);
