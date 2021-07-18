@@ -1,7 +1,7 @@
 
 #include<time.h>
 
-enum RAFT_STATE{
+enum RAFT_STATE {
     NONE = 0,
     FOLLOWER ,
     CANDIDATE,
@@ -18,8 +18,6 @@ public:
 
     int Propose(RaftEntry *e);
 
-    int OnReceive(RaftEntryRequest *e, RaftEntryResponse *r);
-
 private: //for leader
     void forwardLeader();
 
@@ -27,7 +25,7 @@ private: //for leader
 
     void sendAppendEntries();
 
-    void sendAppendEntriesTo(RaftNode *node);
+    void sendAppendEntries(RaftNode *node);
 
     void recvAppendEntriesResponse();
 
@@ -38,7 +36,7 @@ private: //for follower
 
     void becomeCandidate();
 
-    void raftVoteFor(RaftNode *node);
+    void voteFor(int nodeid);
 
     int recvAppendEntries(AppendEntriesRequest *msg, AppendEntriesResponse *rsp);
 
@@ -55,17 +53,32 @@ private: //for candidate
 
     int getVotesNum();
 
+    int sendVoteRequest(RaftNode *node);
+
     int recvVoteResponse(VoteResponse *rsp);
 
 private:
     int applyEntry();
 
+    RaftNode *addNode(int nodeid, bool is_self, bool is_voting);
+
     void setState(int st);
 
     void sinceLastPeriod();
-
+    
     int getCurrentIndex(){
         return log_.getCurrentIndex();
+    }
+
+    int getLastLogTerm(){
+        int current_idx = getCurrentIndex();
+        if (current_idx>0) {
+            RatEntry *e = getEntryFromIndex(current_idx);
+            if (e) {
+                return e->term;
+            }
+        }
+        return 0;
     }
 
     bool isLeader(){
@@ -87,6 +100,8 @@ private:
     bool shouldGrantVote(VoteRequest* req);
 
     void voteFor(int nodeid);
+
+    RaftNode *addNode(int nodeid, bool is_self, bool is_voting);
 
 privarte:
     RaftLog log_;

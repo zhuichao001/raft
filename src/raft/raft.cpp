@@ -47,47 +47,12 @@ void Raft::forwardLeader(){
     }
 }
 
-void Raft::sendAppendentries() {
-     me->timeout_elapsed = 0;
-     for (i = 0; i < num_nodes; i++) {
-         if (nodes[i] != local) {
-             sendAppendentriesTo(nodes[i]);
-         }
-    }
-}
-
-void Raft::sendAppendentries(RaftNode *node){
-    assert(node);
-    assert(node != local);
-
-    AppendEntriesRequest req;
-    req.term = this->term_;
-    req.leader_commit = this->commit_idx_;
-
-    int next_idx = node->GetNextIndex();
-    RaftEntry* e = getEntry(next_idx);
-    if (e) {
-        req.entries = e;
-        req.n_entries = 1; //TODO send more than 1
-    }
-
-    if (next_idx>1) {
-        RaftEntry* prev = getEntry(next_idx - 1);
-        req.prev_log_idx = next_idx - 1;
-        if (prev) {
-            req.prev_log_term = prev->term;
-        }
-    }
-
-    node->sendAppendentries(&req);
-    return 0;
-}
-
 int Raft::appendEntry(RaftEntry *e) {
     if(e->isConfigChange()){
         reconf_idx_ = getCurrentIndex();
     }
-    return _log.appendEntry(e);
+    _log.appendEntry(e);
+    return 0;
 }
 
 int Raft::recvAppendEntries(RaftNode *from, AppendEntriesRequest *msg, AppendEntriesResponse *rsp) {
@@ -208,7 +173,7 @@ void Raft::becomeCandidate(){
 
     for (i = 0; i < me->num_nodes; i++) {
         if (nodes[i]!=local && nodes[i]->isVoting()){
-            sendRequestVote(nodes[i]);
+            sendVoteRequest(nodes[i]);
         }
     }
 }
@@ -261,6 +226,45 @@ void Raft::forwardCandidate(){
 }
 
 void Raft::sendAppendEntries(){
+    time_elapsed_ = 0;
+    for (auto &it : nodes_) {
+        RaftNode *node = it.second;
+        if (node == local_) {
+            continue;
+        }
+        AppendEntriesRequest req;
+        req.term = term_;
+        req.leader_commit = commit_idx_;
+
+        RaftEntry e;
+        int next_idx = node->GetNextIndex();
+        RaftEntry* re = getEntryFromIndex(next_idx);
+        if (re) {
+            e.term = re->term;
+            e.id = re->id;
+            e.type = re->type;
+            e.data = re->data;
+            req.entries = &e; //TODO send more than 1
+            req.n_entries = 1;
+        }
+
+        if (1 < next_idx) {
+            req.prev_log_idx = next_idx - 1;
+            RaftEntry * prev = getEntryFromIndex(next_idx - 1);
+            if (prev) {
+                req.prev_log_term = prev->term;
+            }
+        }
+
+        fprintf(stderr, "sending appendentries node: ci:%d t:%d lc:%d pli:%d plt:%d",
+                getCurrentIndex(),
+                req.term,
+                req.leader_commit,
+                req.prev_log_idx,
+                req.prev_log_term);
+
+        node->SendAppendEntries(&req);
+    }
 }
 
 int Raft::Propose(RaftEntry *e){
@@ -276,51 +280,6 @@ int Raft::Propose(RaftEntry *e){
     appendEntry(e);
     return 0;
 }
-
-int Raft::OnReceive(RaftEntryRequest *e, RaftEntryResponse *r){
-    assert(e!=nullptr && r!=nullptr);
-
-    if (e.isConfigChange()) {
-        if (-1 != reconf_idx_) {
-            return -1;
-        }
-    }
-
-    if (!isLeader()) {
-        return -1;
-    }
-            
-    fprintf(stderr, NULL, "received entry t:%d id: %d idx: %d", term_, e->id, getCurrentIndex() + 1);
-
-    e->term = term_;
-    appendEntry(e);
-
-    for ( auto &it : nodes_) {
-        RaftNode * node = it.second;
-        if (local_ == node || !node || !node->IsVoting()){
-            continue;
-        }
-
-        int next_idx = node->GetNextIndex();
-        if (next_idx == getCurrentIndex()){
-            sendAppendentries(node);
-        }
-    }
-
-    if (nodes_.size()==1) {
-        commit_idx_ = getCurrentIndex();
-    }
-
-    r->id = e->id;
-    r->idx = getCurrentIndex();
-    r->term = term_;
-
-    if (e->isConfigChange()) {
-        reconf_idx_ = getCurrentIndex();
-    }
-    return 0;
-}
-
 
 int Raft::applyEntry()
     if (applied_idx_ >= commit_idx_) {
@@ -403,10 +362,8 @@ int Raft::recvAppendentriesResponse(RaftNode* node, AppendEntriesResponse *r) {
         me->cb.node_has_sufficient_logs(me_, me->udata, node); //TODO
     }
 
-    /* Update commit idx */
-    int votes = 1; /* include me */
-    int point = r->current_idx;
-    int i;
+    // Update commit idx
+    int votes = 1; // include me
     for (auto &it : nodes_) {
         RaftNode *node = it->second;
         if (local_ == node || !node->isVoting()) {
@@ -414,16 +371,16 @@ int Raft::recvAppendentriesResponse(RaftNode* node, AppendEntriesResponse *r) {
         }
 
         int match_idx = node->getMatchIndex();
-        if (0 < match_idx) {
+        if (match_idx > 0) {
             RaftEntry *e = getEntryFromIndex(match_idx);
-            if (e->term == term_ && point <= match_idx) {
+            if (e->term == term_ && r->current_idx <= match_idx) {
                 votes++;
             }
         }
     }
 
-    if (nodes.size() / 2 < votes && getCommitIndex() < point) {
-        commit_idx_ = point;
+    if (nodes.size() / 2 < votes && commit_idx_ < r->current_idx) {
+        commit_idx_ = r->current_idx;
     }
 
     if (getEntryFromIndex(node->GetNextIndex())) {
@@ -526,4 +483,32 @@ int Raft::recvVoteResponse(VoteResponse *rsp) {
     }
 
     return 0;
+}
+
+int Raft::sendVoteRequest(RaftNode *to_node){
+    assert(to_node);
+    assert(to_node != local);
+
+    VoteReqeust req
+
+    fprintf(stderr, "sending vote request to: %d", to_node->GetNodeId());
+
+    req.term = term_;
+    req.last_log_idx = getCurrentIndex();
+    req.last_log_term = getLastLogTerm();
+    req.candidate_id = local->GetNodeId();
+    node->SendVoteRequest(&req);
+    return 0;
+}
+
+RaftNode *Raft::addNode(int nodeid, bool is_self, bool is_voting){
+    if (nodes_.find(nodeid) != nodes_.end()){
+        return nodes_[nodeid];
+    }
+    nodes_[nodeid] = new RaftNode(nodeid);
+    nodes_[nodeid]->SetVoting(is_voting);
+    if(is_self){
+        local_ nodes_[nodeid];
+    }
+    return nodes_[nodeid];
 }
