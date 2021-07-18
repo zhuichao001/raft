@@ -7,9 +7,9 @@ public:
         RAFT_FLAG_NEWLOG = 4,
     };
 
-    RaftNode(Session *se, int id) : 
-        session_(se),
-        id_(id) {
+    RaftNode(RpcClient * cli, int id) : 
+        dialer_(cli),
+        node_id_(id) {
         next_idx_ = 1;
         match_idx_ = 0;
         flags = RAFT_NODE_VOTING; //TODO
@@ -23,7 +23,7 @@ public:
         }
     }
 
-    bool IsVoteForMe(){
+    bool HasVoteForMe(){
         return (flags_  & RAFT_FLAG_VOTEDME)!=0;
     }
 
@@ -40,7 +40,7 @@ public:
     }
 
     int NodeId(){
-        return id_;
+        return node_id_;
     }
 
     int GetNextIndex(){
@@ -64,5 +64,5 @@ private:
     int next_idx_;
     int match_idx_;
     int flags_;
-    int id_;
+    int node_id_;
 };

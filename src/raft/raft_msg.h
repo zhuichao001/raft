@@ -1,7 +1,6 @@
 #include <string>
 
 
-
 enum RaftLogType {
     RAFT_LOGTYPE_NORMAL,
     RAFT_LOGTYPE_ADD_NONVOTING_NODE,
@@ -35,7 +34,7 @@ typedef struct {
 } HandshakeRequest;
 
 typedef struct {
-    int success;
+    bool success;
 
     int leader_port;
     std::string leader_host;
@@ -53,22 +52,23 @@ typedef struct {
 
 typedef struct {
     int term;
-    int granting; // true or false
+    bool grant_for; // true or false
 } VoteResponse;
 
 typedef struct {
     int term;
-    int prev_log_idx;
-    int prev_log_term;
     int leader_commit;
+
+    int prev_log_term;
+    int prev_log_idx;
 
     RaftEntry* entries;
     int n_entries;
 } AppendEntriesRequest;
 
 typedef struct {
+    bool success; //true if match prev_log
     int term;
-    int success; //true if match prev_log
     int current_idx;
     int first_idx;
 } AppendEntriesResponse;

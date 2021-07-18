@@ -25,9 +25,11 @@ private: //for leader
 
     void appendEntry(RaftEntry *e);
 
-    void sendAppendentries() ;
+    void sendAppendEntries();
 
-    void sendAppendentriesTo(RaftNode *node);
+    void sendAppendEntriesTo(RaftNode *node);
+
+    void recvAppendEntriesResponse();
 
 private: //for follower
     void forwardFollower(){
@@ -38,6 +40,10 @@ private: //for follower
 
     void raftVoteFor(RaftNode *node);
 
+    int recvAppendEntries(AppendEntriesRequest *msg, AppendEntriesResponse *rsp);
+
+    int recvVoteRequest(VoteRequest *req, VoteResponse *rsp);
+
 private: //for candidate
     void forwardCandidate();
 
@@ -46,6 +52,10 @@ private: //for candidate
     void becomeLeader();
 
     void becomeFollower();
+
+    int getVotesNum();
+
+    int recvVoteResponse(VoteResponse *rsp);
 
 private:
     int applyEntry();
@@ -70,10 +80,18 @@ private:
         return RAFT_STATE::CANDIDATE == state_;
     }
 
+    bool isAlreadyVoted(){
+        return voted_for_ != -1;
+    }
+
+    bool shouldGrantVote(VoteRequest* req);
+
+    void voteFor(int nodeid);
+
 privarte:
     RaftLog log_;
 
-    int current_term_;
+    int term_;
     int voted_for_;
     int state_; //FOLLOWER,LEADER,CANDIDATE
 
