@@ -14,13 +14,9 @@ class Raft{
 public:
     Raft(RaftFSM *app);
 
-    int Forward();
-
     int Propose(RaftEntry *e);
 
 private: //for leader
-    void forwardLeader();
-
     void appendEntry(RaftEntry *e);
 
     void sendAppendEntries();
@@ -30,7 +26,7 @@ private: //for leader
     void recvAppendEntriesResponse();
 
 private: //for follower
-    void forwardFollower(){
+    void tick();
 
     void startElection();
 
@@ -43,10 +39,6 @@ private: //for follower
     int recvVoteRequest(VoteRequest *req, VoteResponse *rsp);
 
 private: //for candidate
-    void forwardCandidate();
-
-    void sendAppendEntries();
-
     void becomeLeader();
 
     void becomeFollower();
@@ -64,8 +56,6 @@ private:
 
     void setState(int st);
 
-    void sinceLastPeriod();
-    
     int getCurrentIndex(){
         return log_.getCurrentIndex();
     }

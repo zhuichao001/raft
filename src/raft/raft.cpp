@@ -16,46 +16,17 @@ Raft::Raft(RaftFSM *app): app_(app){
     local_ = NULL;
 }
 
-void Raft::sinceLastPeriod(){
-    usec_since_last = nowtime_us();
-    time_elapsed += usec_since_last;
-}
-
-int Raft::Forward(){
-    sinceLastPeriod();
-
-    if (state == RAFT_STATE_LEADER) {
-        forwardLeader();
-    } else if (state == RAFT_STATE_FOLLOWER) {
-        forwardFollower();
-    } else if (state == RAFT_STATE_CANDIDATE) {
-        forwardCandidate();
-    }
-
-    if (applied_idx < commit_idx) {
-        if (-1 == applyEntry()) {
-            return -1;
-        }
-    }
-    return 0;
-}
-
 //for leader
-void Raft::forwardLeader(){
-    if (time_elapsed >= request_timeout) {
-        sendAppendEntries();
-    }
-}
-
 int Raft::appendEntry(RaftEntry *e) {
     if(e->isConfigChange()){
         reconf_idx_ = getCurrentIndex();
     }
     _log.appendEntry(e);
+    sendAppendEntries();
     return 0;
 }
 
-int Raft::recvAppendEntries(RaftNode *from, AppendEntriesRequest *msg, AppendEntriesResponse *rsp) {
+int Raft::recvAppendEntries(RaftNode *node_from, AppendEntriesRequest *msg, AppendEntriesResponse *rsp) {
     time_elapsed_ = 0;
 
     rsp->success = false;
@@ -103,6 +74,8 @@ int Raft::recvAppendEntries(RaftNode *from, AppendEntriesRequest *msg, AppendEnt
         }
     }
 
+    leader_ = node_from;
+
     if (msg->n_entries==0 && msg->prev_log_idx>0 && msg->prev_log_idx+1<getCurrentIndex()) {
         assert(commit_idx_ < msg->prev_log_idx + 1);
         log_.delFrom(msg->prev_log_idx + 1);
@@ -126,7 +99,7 @@ int Raft::recvAppendEntries(RaftNode *from, AppendEntriesRequest *msg, AppendEnt
         }
     }
 
-    for (; i < msg->n_entries; i++) {
+    for (int i=0; i < msg->n_entries; i++) {
         int res = log_.appendEntry(&msg->entries[i]);
         if (-1 == res) {
             rsp->current_idx = msg->prev_log_idx - 1;
@@ -140,7 +113,7 @@ int Raft::recvAppendEntries(RaftNode *from, AppendEntriesRequest *msg, AppendEnt
         commit_idx_ = min(last_log_idx, msg->leader_commit);
     }
 
-    leader_ = from;
+    applyEntry();
 
     rsp->success = true;
     rsp->first_idx = msg->prev_log_idx + 1;
@@ -148,7 +121,7 @@ int Raft::recvAppendEntries(RaftNode *from, AppendEntriesRequest *msg, AppendEnt
 }
 
 //for follower
-void Raft::forwardFollower(){
+void Raft::tick(){
     if (time_elapsed >= election_timeout) {
         if (1 < num_nodes) {
             electionStart();
@@ -168,8 +141,6 @@ void Raft::becomeCandidate(){
     leader = NULL;
 
     setState(RAFT_STATE::CANDIDATE);
-
-    timeout_elapsed = rand() % timeout_election;
 
     for (i = 0; i < me->num_nodes; i++) {
         if (nodes[i]!=local && nodes[i]->isVoting()){
@@ -219,10 +190,6 @@ void Raft::sendRequestVode(RaftNode * node){
 void Raft::raftVoteFor(RaftNode *node){
     vote_for = node->NodeId();
     persist_vote(vote_for); //TODO
-}
-
-void Raft::forwardCandidate(){
-    //TODO
 }
 
 void Raft::sendAppendEntries(){
@@ -278,6 +245,7 @@ int Raft::Propose(RaftEntry *e){
 
     e->term = current_term;
     appendEntry(e);
+    sendAppendEntries();
     return 0;
 }
 
@@ -387,8 +355,7 @@ int Raft::recvAppendentriesResponse(RaftNode* node, AppendEntriesResponse *r) {
         node->sendAppendEntries(node);
     }
 
-    /* periodic applies committed entries lazily */
-
+    applyEntry(); //TODO optimize
     return 0;
 }
 
