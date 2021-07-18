@@ -14,7 +14,7 @@ typedef struct {
     unsigned int term;
     unsigned int id;
     std::string data;
-    bool isConfigChange(){
+    bool isForReconfig() {
         return (logtype & (RAFT_LOGTYPE_ADD_NODE | RAFT_LOGTYPE_REMOVE_NODE)) !=0;
     }
 } RaftEntry;

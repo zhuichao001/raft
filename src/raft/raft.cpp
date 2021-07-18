@@ -18,7 +18,10 @@ Raft::Raft(RaftFSM *app): app_(app){
 
 //for leader
 int Raft::appendEntry(RaftEntry *e) {
-    if(e->isConfigChange()){
+    if(!isLeader()){
+        return -1;
+    }
+    if(e->isForReconfig()){
         reconf_idx_ = getCurrentIndex();
     }
     _log.appendEntry(e);
@@ -33,7 +36,7 @@ int Raft::recvAppendEntries(RaftNode *node_from, AppendEntriesRequest *msg, Appe
     rsp->first_idx = 0;
     rsp->term = term_;
 
-    if (0 < msg->n_entries) { //print request
+    if (msg->n_entries>0) { //print request
        fprintf(stderr, "Receive appendentries from: %lx, t:%d ci:%d lc:%d pli:%d plt:%d #%d",
            local->NodeId(),
            msg->term,

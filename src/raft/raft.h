@@ -32,6 +32,8 @@ private: //for follower
 
     void becomeCandidate();
 
+    bool shouldGrantVote(VoteRequest* req);
+
     void voteFor(int nodeid);
 
     int recvAppendEntries(AppendEntriesRequest *msg, AppendEntriesResponse *rsp);
@@ -52,18 +54,18 @@ private: //for candidate
 private:
     int applyEntry();
 
-    RaftNode *addNode(int nodeid, bool is_self, bool is_voting);
-
-    void setState(int st);
+    void setState(int st) {
+        state_ = st;
+    }
 
     int getCurrentIndex(){
         return log_.getCurrentIndex();
     }
 
     int getLastLogTerm(){
-        int current_idx = getCurrentIndex();
-        if (current_idx>0) {
-            RatEntry *e = getEntryFromIndex(current_idx);
+        int idx = log_.getCurrentIndex();
+        if (idx>0) {
+            RatEntry *e = getEntryFromIndex(idx);
             if (e) {
                 return e->term;
             }
@@ -87,24 +89,20 @@ private:
         return voted_for_ != -1;
     }
 
-    bool shouldGrantVote(VoteRequest* req);
-
-    void voteFor(int nodeid);
-
-    RaftNode *addNode(int nodeid, bool is_self, bool is_voting);
+    RaftNode *addNode(int nodeid, bool is_self, bool is_voting=true);
 
 privarte:
     RaftLog log_;
 
     int term_;
     int voted_for_;
-    int state_; //FOLLOWER,LEADER,CANDIDATE
+    int state_;         //FOLLOWER,LEADER,CANDIDATE
 
     int commit_idx_;
     int applied_idx_;
     int reconf_idx_;
 
-    int time_elapsed_; //since last time
+    int time_elapsed_;  //since last time
     int timeout_election_;
     int timeout_request_;
 
