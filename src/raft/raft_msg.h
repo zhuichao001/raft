@@ -59,8 +59,8 @@ typedef struct {
     int term;
     int leader_commit;
 
-    int prev_log_term;
-    int prev_log_idx;
+    int prev_logterm;
+    int prev_logidx;
 
     RaftEntry* entries;
     int n_entries;

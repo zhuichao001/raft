@@ -134,20 +134,21 @@ void Raft::tick(){
 
 void Raft::becomeCandidate(){
     fprintf(stderr, "becoming candidate");
-    local->incr_current_term();
+    term_ += 1;
 
     for (int i = 0; i < num_nodes; i++) {
-        nodes[i]->VoteForMe(0);
+        nodes[i]->VoteForMe(0); //clear flag
     }
 
-    raft_vote(me_, me->node);
-    leader = NULL;
+    voteFor(local_->NodeId());
+    leader = nullptr;
 
     setState(RAFT_STATE::CANDIDATE);
 
-    for (i = 0; i < me->num_nodes; i++) {
-        if (nodes[i]!=local && nodes[i]->isVoting()){
-            sendVoteRequest(nodes[i]);
+    for (auto &it : nodes_) {
+        RaftNode *node = it.second;
+        if (node!=local_ && node->isVoting()){
+            sendVoteRequest(node);
         }
     }
 }
@@ -444,8 +445,8 @@ int Raft::recvVoteResponse(VoteResponse *rsp) {
         return 0;
     }
 
-    if (r->granted_for) {   
-        voteFor(local_);
+    if (rsp->granted_for) {   
+        voteFor(local_->NodeId());
         int votes = getVotesNum();
         if (votes > nodes.size()/2) {
             becomeLeader();
@@ -459,10 +460,9 @@ int Raft::sendVoteRequest(RaftNode *to_node){
     assert(to_node);
     assert(to_node != local);
 
-    VoteReqeust req
-
     fprintf(stderr, "sending vote request to: %d", to_node->GetNodeId());
 
+    VoteReqeust req
     req.term = term_;
     req.last_log_idx = getCurrentIndex();
     req.last_log_term = getLastLogTerm();
