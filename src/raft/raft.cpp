@@ -17,7 +17,7 @@ Raft::Raft(RaftFSM *app): app_(app){
 }
 
 //for leader
-int Raft::appendEntry(RaftEntry *e) {
+int Raft::appendEntry(LogEntry *e) {
     if(!isLeader()){
         return -1;
     }
@@ -61,7 +61,7 @@ int Raft::recvAppendEntries(RaftNode *node_from, AppendEntriesRequest *msg, Appe
     }
 
     if (msg->prev_log_idx > 0) {
-        RaftEntry *e = log_.getEntry(msg->prev_log_idx);
+        LogEntry *e = log_.getEntry(msg->prev_log_idx);
         if (!e || msg->prev_log_idx > getCurrentIndex()) { //second condition will be false?
             rsp->current_idx = getCurrentIndex();
             return -1;
@@ -87,11 +87,11 @@ int Raft::recvAppendEntries(RaftNode *node_from, AppendEntriesRequest *msg, Appe
     rsp->current_idx = msg->prev_log_idx;
 
     for (int i = 0; i < msg->n_entries; ++i) {
-        RaftEntry* e = &msg->entries[i];
+        LogEntry* e = &msg->entries[i];
         int index = msg->prev_log_idx + 1 + i;
         rsp->current_idx = index;
 
-        RaftEntry* existing = log_.getEntry(index);
+        LogEntry* existing = log_.getEntry(index);
         if (!existing) {
             break;
         }
@@ -207,9 +207,9 @@ void Raft::sendAppendEntries(){
         req.term = term_;
         req.leader_commit = commit_idx_;
 
-        RaftEntry e;
+        LogEntry e;
         int next_idx = node->GetNextIndex();
-        RaftEntry* re = getEntryFromIndex(next_idx);
+        LogEntry* re = getEntryFromIndex(next_idx);
         if (re) {
             e.term = re->term;
             e.id = re->id;
@@ -221,7 +221,7 @@ void Raft::sendAppendEntries(){
 
         if (1 < next_idx) {
             req.prev_log_idx = next_idx - 1;
-            RaftEntry * prev = getEntryFromIndex(next_idx - 1);
+            LogEntry * prev = getEntryFromIndex(next_idx - 1);
             if (prev) {
                 req.prev_log_term = prev->term;
             }
@@ -238,7 +238,7 @@ void Raft::sendAppendEntries(){
     }
 }
 
-int Raft::Propose(RaftEntry *e){
+int Raft::Propose(LogEntry *e){
     if(e.isReconfig() && reconfig_idx!=-1){
         return -1;
     }
@@ -259,7 +259,7 @@ int Raft::applyEntry()
     }
 
     int log_idx = applied_idx_ + 1;
-    RaftEntry *e = getEntry(log_idx);
+    LogEntry *e = getEntry(log_idx);
     if (!e) {
         return -1;
     }
@@ -344,7 +344,7 @@ int Raft::recvAppendentriesResponse(RaftNode* node, AppendEntriesResponse *r) {
 
         int match_idx = node->getMatchIndex();
         if (match_idx > 0) {
-            RaftEntry *e = getEntryFromIndex(match_idx);
+            LogEntry *e = getEntryFromIndex(match_idx);
             if (e->term == term_ && r->current_idx <= match_idx) {
                 votes++;
             }
@@ -377,7 +377,7 @@ bool Raft::shouldGrantVote(VoteRequest* req) {
     }
 
     int current_idx = getCurrentIndex();
-    RaftEntry* e = getEntryFromIndex(current_idx);
+    LogEntry* e = getEntryFromIndex(current_idx);
     if (e->term < req->last_log_term) {
         return true;
     }

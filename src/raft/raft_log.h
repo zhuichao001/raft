@@ -7,7 +7,7 @@ public:
         base_idex = 0;
     }
 
-    int appendEntry(RaftEntry *e){
+    int appendEntry(LogEntry *e){
         if(e->id <= 0){
             return -1;
         }
@@ -19,7 +19,7 @@ public:
         return 0;
     }
 
-    RaftEntry *getEntry(int idx){
+    LogEntry *getEntry(int idx){
         assert(idx>0);
         if(idx>=base_idx+entries.size() || idx<base_idx){
             return nullptr;
@@ -39,6 +39,6 @@ public:
     }
 
 private:
-    std::dequeue<RaftEntry*> entries;
+    std::dequeue<LogEntry*> entries;
     int base_idx; //start index
 };

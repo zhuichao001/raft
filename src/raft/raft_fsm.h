@@ -1,7 +1,7 @@
 
 class RaftFSM{
 public:
-    virtual Apply(RaftEntry *e);
+    virtual Apply(LogEntry *e);
     virtual Snapshort();
     virtual Restore();
 };

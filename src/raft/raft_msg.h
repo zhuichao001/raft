@@ -17,15 +17,15 @@ typedef struct {
     bool isForReconfig() {
         return (logtype & (RAFT_LOGTYPE_ADD_NODE | RAFT_LOGTYPE_REMOVE_NODE)) !=0;
     }
-} RaftEntry;
+} LogEntry;
 
-typedef RaftEntry RaftEntryRequest;
+typedef LogEntry LogEntryRequest;
 
 typedef struct {
     unsigned int id;
     int term;
     int idx;
-} RaftEntryResponse;
+} LogEntryResponse;
 
 typedef struct {
     int raft_port;
@@ -62,7 +62,7 @@ typedef struct {
     int prev_logterm;
     int prev_logidx;
 
-    RaftEntry* entries;
+    LogEntry* entries;
     int n_entries;
 } AppendEntriesRequest;
 

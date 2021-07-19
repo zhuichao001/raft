@@ -14,10 +14,10 @@ class Raft{
 public:
     Raft(RaftFSM *app);
 
-    int Propose(RaftEntry *e);
+    int Propose(LogEntry *e);
 
 private: //for leader
-    void appendEntry(RaftEntry *e);
+    void appendEntry(LogEntry *e);
 
     void sendAppendEntries();
 
