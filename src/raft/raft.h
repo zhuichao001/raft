@@ -89,7 +89,7 @@ private:
         return voted_for_ != -1;
     }
 
-    RaftNode *addNode(int nodeid, bool is_self, bool is_voting=true);
+    RaftNode *addRaftNode(int nodeid, bool is_self, bool is_voting=true);
 
 privarte:
     RaftLog log_;

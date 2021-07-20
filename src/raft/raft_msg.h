@@ -59,8 +59,8 @@ typedef struct {
     int term;
     int leader_commit;
 
-    int prev_logterm;
-    int prev_logidx;
+    int log_term;
+    int log_idx;
 
     LogEntry* entries;
     int n_entries;

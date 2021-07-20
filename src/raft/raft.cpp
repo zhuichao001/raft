@@ -25,6 +25,7 @@ int Raft::Propose(LogEntry *e){
     }
 
     e->term = current_term;
+
     appendEntry(e);
     sendAppendEntries();
     return 0;
@@ -43,21 +44,22 @@ void Raft::sendAppendEntries(){
 
         LogEntry e;
         int next_idx = node->GetNextIndex();
-        LogEntry* re = getEntryFromIndex(next_idx);
-        if (re) {
-            e.term = re->term;
-            e.id = re->id;
-            e.type = re->type;
-            e.data = re->data;
+        LogEntry* suc = getEntryFromIndex(next_idx);
+        if (suc) {
+            e.term = suc->term;
+            e.id   = suc->id;
+            e.type = suc->type;
+            e.data = suc->data;
+
             req.entries = &e; //TODO send more than 1
             req.n_entries = 1;
         }
 
-        if (1 < next_idx) {
-            req.prev_log_idx = next_idx - 1;
+        if (next_idx > 1) {
+            req.log_idx = next_idx - 1;
             LogEntry * prev = getEntryFromIndex(next_idx - 1);
             if (prev) {
-                req.prev_log_term = prev->term;
+                req.log_term = prev->term;
             }
         }
 
@@ -65,17 +67,14 @@ void Raft::sendAppendEntries(){
                 getCurrentIndex(),
                 req.term,
                 req.leader_commit,
-                req.prev_log_idx,
-                req.prev_log_term);
+                req.log_idx,
+                req.log_term);
 
         node->SendAppendEntries(&req);
     }
 }
 
 int Raft::appendEntry(LogEntry *e) {
-    if(!isLeader()){
-        return -1;
-    }
     if(e->isForReconfig()){
         reconf_idx_ = getCurrentIndex();
     }
@@ -90,16 +89,15 @@ int Raft::recvAppendEntries(RaftNode *node_from, AppendEntriesRequest *msg, Appe
     rsp->first_idx = 0;
     rsp->term = term_;
 
-    if (msg->n_entries>0) { //print request
-       fprintf(stderr, "Receive appendentries from: %lx, t:%d ci:%d lc:%d pli:%d plt:%d #%d",
-           local->NodeId(),
-           msg->term,
-           getCurrentIndex(),
-           msg->leader_commit,
-           msg->prev_log_idx,
-           msg->prev_log_term,
-           msg->n_entries);
-    }
+    //print request
+    fprintf(stderr, "Receive AppendEntries from: %lx, t:%d ci:%d lc:%d pli:%d plt:%d #%d",
+        local->NodeId(),
+        msg->term,
+        getCurrentIndex(),
+        msg->leader_commit,
+        msg->log_idx,
+        msg->log_term,
+        msg->n_entries);
 
     if (isCandidate() && term_ == msg->term) {
         voted_for_ = -1;
@@ -109,40 +107,40 @@ int Raft::recvAppendEntries(RaftNode *node_from, AppendEntriesRequest *msg, Appe
         rsp->term = msg->term;
         becomeFollower();
     } else if (term_ > msg->term) {
-        fprintf(stderr, "msg's term:%d < term_:%d", msg->term, current_term);
+        fprintf(stderr, "msg's term:%d < local term_:%d", msg->term, current_term);
         rsp->current_idx = getCurrentIndex();
         return -1;
     }
 
-    if (msg->prev_log_idx > 0) {
-        LogEntry *e = log_.getEntry(msg->prev_log_idx);
-        if (!e || msg->prev_log_idx > getCurrentIndex()) { //second condition will be false?
+    if (msg->log_idx > 0) {
+        LogEntry *e = log_.getEntry(msg->log_idx);
+        if (!e || msg->log_idx > getCurrentIndex()) { //second condition will be false?
             rsp->current_idx = getCurrentIndex();
             return -1;
         }
 
-        if (e->term != msg->prev_log_term) {
+        if (e->term != msg->log_term) {
             fprintf("msg term doesn't match prev_term (ie. %d vs %d) ci:%d pli:%d", 
-                    e->term, msg->prev_log_term, getCurrentIndex(), msg->prev_log_idx);
-            assert(commit_idx_ < msg->prev_log_idx);
-            log_.delFrom(msg->prev_log_idx);
-            rsp->current_idx = msg->prev_log_idx - 1;
+                    e->term, msg->log_term, getCurrentIndex(), msg->log_idx);
+            assert(commit_idx_ < msg->log_idx);
+            log_.delFrom(msg->log_idx);
+            rsp->current_idx = msg->log_idx - 1;
             return -1;
         }
     }
 
     leader_ = node_from;
 
-    if (msg->n_entries==0 && msg->prev_log_idx>0 && msg->prev_log_idx+1<getCurrentIndex()) {
-        assert(commit_idx_ < msg->prev_log_idx + 1);
-        log_.delFrom(msg->prev_log_idx + 1);
+    if (msg->n_entries==0 && msg->log_idx>0 && msg->log_idx+1<getCurrentIndex()) {
+        assert(commit_idx_ < msg->log_idx + 1);
+        log_.delFrom(msg->log_idx + 1);
     }
 
-    rsp->current_idx = msg->prev_log_idx;
+    rsp->current_idx = msg->log_idx;
 
     for (int i = 0; i < msg->n_entries; ++i) {
         LogEntry* e = &msg->entries[i];
-        int index = msg->prev_log_idx + 1 + i;
+        int index = msg->log_idx + 1 + i;
         rsp->current_idx = index;
 
         LogEntry* existing = log_.getEntry(index);
@@ -156,13 +154,13 @@ int Raft::recvAppendEntries(RaftNode *node_from, AppendEntriesRequest *msg, Appe
         }
     }
 
-    for (int i=0; i < msg->n_entries; i++) {
+    for (int i=0; i < msg->n_entries; ++i) {
         int res = log_.appendEntry(&msg->entries[i]);
-        if (-1 == res) {
-            rsp->current_idx = msg->prev_log_idx - 1;
+        if (res == -1) {
+            rsp->current_idx = msg->log_idx - 1;
             return -1;
         }
-        rsp->current_idx_ = msg->prev_log_idx + 1 + i;
+        rsp->current_idx_ = msg->log_idx + 1 + i;
     }
 
     if (getCurrentIndex() < msg->leader_commit) {
@@ -173,7 +171,7 @@ int Raft::recvAppendEntries(RaftNode *node_from, AppendEntriesRequest *msg, Appe
     applyEntry();
 
     rsp->success = true;
-    rsp->first_idx = msg->prev_log_idx + 1;
+    rsp->first_idx = msg->log_idx + 1;
     return 0;
 }
 
@@ -204,7 +202,7 @@ int Raft::recvAppendentriesResponse(RaftNode* node, AppendEntriesResponse *r) {
         return 0;
     }
 
-    if (0 == r->success) {
+    if (r->success) {
         int next_idx = node->getNextIndex();
         if (r->current_idx < next_idx - 1) {
             node->setNextIndex(min(r->current_idx + 1, getCurrentIndex()));
@@ -218,15 +216,15 @@ int Raft::recvAppendentriesResponse(RaftNode* node, AppendEntriesResponse *r) {
 
     assert(r->current_idx <= getCurrentIndex());
 
-    node->setNextIndex(r->current_idx + 1);
     node->setMatchIndex(r->current_idx);
+    node->setNextIndex(r->current_idx + 1);
 
-    if (!node->Isvoting() &&
-            -1 == reconf_idx_ &&
+    if (!node->IsVoting() &&
+            reconf_idx_ == -1 &&
             getCurrentIndex() <= r->current_idx + 1 &&
-            0 == node->HasNewLog()) {
+            !node->HasNewLog()) {
         node->setHasNewLog();
-        me->cb.node_has_sufficient_logs(me_, me->udata, node); //TODO
+        //me->cb.node_has_sufficient_logs(me_, me->udata, node); //TODO
     }
 
     // Update commit idx
@@ -251,7 +249,7 @@ int Raft::recvAppendentriesResponse(RaftNode* node, AppendEntriesResponse *r) {
     }
 
     if (getEntryFromIndex(node->GetNextIndex())) {
-        node->sendAppendEntries(node);
+        node->sendAppendEntries();
     }
 
     applyEntry(); //TODO optimize
@@ -263,19 +261,21 @@ int Raft::applyEntry()
         return -1;
     }
 
-    int log_idx = applied_idx_ + 1;
-    LogEntry *e = getEntry(log_idx);
-    if (!e) {
-        return -1;
-    }
+    while(applied_idx_ < commmit_idx_){
+        int log_idx = applied_idx_ + 1;
+        LogEntry *e = getEntry(log_idx);
+        if (!e) {
+            return -1;
+        }
 
-    fprintf(stderr, "applying log: %d, id: %d size: %d", applied_idx_, e->id, e->data.len);
+        fprintf(stderr, "applying log: %d, id: %d size: %d", applied_idx_, e->id, e->data.len);
 
-    app_.Apply(e);
-    ++applied_idx_;
+        app_.Apply(e);
+        ++applied_idx_;
 
-    if (log_idx == reconf_log_idx_){
-        reconf_log_idx_ = -1;
+        if (log_idx == reconf_log_idx_){
+            reconf_idx_ = -1;
+        }
     }
     return 0;
 }
@@ -466,7 +466,7 @@ int Raft::getVotesNum() {
     return votes;
 }
 
-RaftNode *Raft::addNode(int nodeid, bool is_self, bool is_voting){
+RaftNode *Raft::addRaftNode(int nodeid, bool is_self, bool is_voting){
     if (nodes_.find(nodeid) != nodes_.end()){
         return nodes_[nodeid];
     }
