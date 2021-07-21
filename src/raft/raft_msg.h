@@ -46,8 +46,8 @@ typedef struct {
 typedef struct {
     int term;
     int candidate_id;
-    int last_log_idx;
-    int last_log_term;
+    int log_idx; //last log index
+    int log_term; //last log term
 } VoteRequest;
 
 typedef struct {
