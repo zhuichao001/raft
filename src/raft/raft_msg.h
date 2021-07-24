@@ -2,11 +2,11 @@
 
 
 enum RaftLogType {
-    RAFT_LOGTYPE_NORMAL,
-    RAFT_LOGTYPE_ADD_NONVOTING_NODE,
-    RAFT_LOGTYPE_ADD_NODE,
-    RAFT_LOGTYPE_REMOVE_NODE,
-    RAFT_LOGTYPE_NUM,
+    LOGTYPE_NORMAL,
+    LOGTYPE_ADD_NONVOTING_NODE,
+    LOGTYPE_ADD_NODE,
+    LOGTYPE_REMOVE_NODE,
+    LOGTYPE_NUM,
 };
 
 typedef struct {
@@ -15,7 +15,7 @@ typedef struct {
     unsigned int id;
     std::string data;
     bool isForReconfig() {
-        return (logtype & (RAFT_LOGTYPE_ADD_NODE | RAFT_LOGTYPE_REMOVE_NODE)) !=0;
+        return (logtype & (LOGTYPE_ADD_NODE | LOGTYPE_REMOVE_NODE)) !=0;
     }
 } LogEntry;
 

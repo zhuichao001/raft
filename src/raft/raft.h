@@ -14,7 +14,9 @@ class Raft{
 public:
     Raft(RaftFSM *app);
 
-    int Propose(LogEntry *e);
+    int Propose(std::string data);
+
+    int ChangeMember(int action, std::string addr); //1:add, -1:remove
 
 private: //for leader
     void appendEntry(LogEntry *e);

@@ -15,19 +15,37 @@ Raft::Raft(RaftFSM *app): app_(app){
     local_ = NULL;
 }
 
-int Raft::Propose(LogEntry *e){
-    if(e.isReconfig() && reconfig_idx!=-1){
-        return -1;
-    }
-
+int Raft::Propose(std::string data){
     if(!isLeader()){
         return -1;
     }
 
+    LogEntry *e = new LogEntry();
     e->term = current_term;
+    e->id = getCurrentIndex();
+    e->data = data;
 
     appendEntry(e);
     sendAppendEntries();
+    return 0;
+}
+
+int Raft::ChangeMember(int action, std::string addr) {
+    if(e.isReconfig() && reconfig_idx!=-1){
+        return -1;
+    }
+
+    LogEntry *e = new LogEntry();
+    e->logtype = action>0 ? LOGTYPE_ADD_NODE : LOGTYPE_REMOVE_NODE;
+    e->term = current_term;
+    e->id = getCurrentIndex();
+    e->data = addr;
+
+    reconfig_idx = e->id;
+
+    appendEntry(e);
+    sendAppendEntries();
+
     return 0;
 }
 
