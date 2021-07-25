@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package raft;
+
+
+message LogEntry {
+    enum RaftLogType {
+        LOGTYPE_NORMAL = 0;
+        LOGTYPE_ADD_NONVOTING_NODE = 1;
+        LOGTYPE_ADD_NODE = 2;
+        LOGTYPE_REMOVE_NODE = 3;
+        LOGTYPE_NUM = 4;
+    }
+    RaftLogType type = 1;
+
+    uint64 term = 2;
+    uint64 index = 3;
+    bytes data = 4;
+};
+
+message LogEntryResponse {
+    uint64 term = 1;
+    uint64 index = 2;
+};
+
+message HandshakeRequest {
+    int32 raft_port = 1;
+    int32 http_port = 2;
+    uint64 node_id = 3;
+    uint64 term = 4;
+}
+
+message HandshakeResponse {
+    bool success = 1;
+    uint64 node_id = 2;
+}
+
+message VoteRequest {
+    uint64 term = 1;
+    uint64 candidate = 2; //node id
+    uint64 log_index = 3; //last log index
+    uint64 log_term = 4;  //last log term
+}
+
+message VoteResponse {
+    uint64 term = 1;
+    bool grant_for = 2; // true or false
+}
+
+message AppendEntriesRequest {
+    uint64 term = 1;
+    uint64 commit = 2; // commited log index
+
+    uint64 last_term = 3; // last log term
+    uint64 last_index = 4; //last log index
+
+    repeated LogEntry entries = 5;
+}
+
+message AppendEntriesResponse {
+    bool success = 1; //true if match prev_log
+    uint64 term = 2;
+    uint64 current_index = 3;
+    uint64 first_index = 4;
+}
+
+
+message RaftMessage {
+    enum RaftMessageType {
+        MSGTYPE_HANDSHAKE = 0;
+        MSGTYPE_VOTE = 1;
+        MSGTYPE_APPENDLOG = 2;
+    }
+    RaftMessageType type = 1;
+
+    oneof msg {
+        HandshakeRequest hs_req = 2;
+        HandshakeResponse hs_rsp = 3;
+
+        VoteRequest vt_req = 4;
+        VoteResponse vt_rsp = 5;
+
+        AppendEntriesRequest ae_req = 6;
+        AppendEntriesResponse ae_rsp = 7;
+    }
+}
