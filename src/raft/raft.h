@@ -1,5 +1,6 @@
 
-#include<time.h>
+#include <time.h>
+#include "raft_sm.h"
 
 enum RAFT_STATE {
     NONE = 0,
@@ -12,9 +13,9 @@ enum RAFT_STATE {
 
 class Raft{
 public:
-    Raft(RaftFSM *app);
+    Raft(RaftStateMachine *app);
 
-    int Propose(std::string data);
+    int Propose(const std::string &data);
 
     int ChangeMember(int action, std::string addr); //1:add, -1:remove
 
@@ -109,8 +110,8 @@ privarte:
     int timeout_request_;
 
     std::map<int, RaftNode*> nodes_;
-    RaftNode * leader_;
-    RaftNode * local_;
+    RaftNode *leader_;
+    RaftNode *local_;
 
-    RaftFSM * app_;
+    RaftStateMachine *app_;
 };

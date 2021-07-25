@@ -1,6 +1,6 @@
 #include "raft.h"
 
-Raft::Raft(RaftFSM *app): app_(app){
+Raft::Raft(RaftStateMachine *app): app_(app){
     term_ = 0;
     voted_for_ = -1;
     commit_idx_ = 0;
@@ -15,9 +15,14 @@ Raft::Raft(RaftFSM *app): app_(app){
     local_ = NULL;
 }
 
-int Raft::Propose(std::string data){
+int Raft::Propose(const std::string &data){
     if(!isLeader()){
         return -1;
+    }
+
+    if(nodes_.size()==1){
+        app_->Apply(data);
+        return 0;
     }
 
     LogEntry *e = new LogEntry();
@@ -102,6 +107,10 @@ int Raft::appendEntry(LogEntry *e) {
     }
     _log.appendEntry(e);
     return 0;
+}
+
+void Raft::recvHeartbeatResponse(HeartbeatResponse *rsp){
+    //TODO
 }
 
 int Raft::recvAppendEntries(RaftNode *node_from, AppendEntriesRequest *msg, AppendEntriesResponse *rsp) {
@@ -305,6 +314,18 @@ void Raft::tick(){ //for follower
             electionStart();
         }
     }
+}
+
+void Raft::recvHeartbeat(HeartbeatRequest *req, HeartbeatResponse *rsp){
+    time_elapsed = 0;
+    if (term_ < req->term) {
+        term_ = req->term;
+        leader_ = nodes_[req->node_id];
+        becomeFollower();
+    }
+
+    rsp->success = true;
+    rsp->node_id = leader_->GetNodeId();
 }
 
 void Raft::becomeCandidate(){
