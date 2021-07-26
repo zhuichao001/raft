@@ -1,3 +1,5 @@
+#ifndef _RAFT_RAFTNODE_H_
+#define _RAFT_RAFTNODE_H_
 
 class RaftNode{
 public:
@@ -7,12 +9,11 @@ public:
         RAFT_FLAG_NEWLOG = 4,
     };
 
-    RaftNode(RpcClient * cli, int id) : 
-        dialer_(cli),
-        node_id_(id) {
+    RaftNode(int node_id) : 
+        node_id_(node_id) {
         next_idx_ = 1;
         match_idx_ = 0;
-        flags = RAFT_NODE_VOTING; //TODO
+        flags_ = RAFT_FLAG_VOTING; //TODO
     }
 
     void VoteForMe(bool vote) {
@@ -24,7 +25,7 @@ public:
     }
 
     bool HasVoteForMe(){
-        return (flags_  & RAFT_FLAG_VOTEDME)!=0;
+        return (flags_ & RAFT_FLAG_VOTEDME) != 0;
     }
 
     void SetVoting(bool voting){
@@ -35,8 +36,8 @@ public:
         }
     }
 
-    void IsVoting(){
-        return flags_ &= RAFT_FLAG_VOTEDME;
+    bool IsVoting(){
+        return flags_ & RAFT_FLAG_VOTEDME;
     }
 
     int NodeId(){
@@ -58,11 +59,11 @@ public:
     void SetMatchIndex(int match){
         match_idx_ = match;
     }
-
 private:
-    RpcClient * dialer_;
+    int node_id_;
     int next_idx_;
     int match_idx_;
     int flags_;
-    int node_id_;
 };
+
+#endif

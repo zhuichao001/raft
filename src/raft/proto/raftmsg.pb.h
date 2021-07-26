@@ -37,7 +37,7 @@ namespace protobuf_raftmsg_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[9];
+  static const ::google::protobuf::internal::ParseTable schema[11];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
@@ -59,6 +59,10 @@ void InitDefaultsAppendEntriesRequestImpl();
 void InitDefaultsAppendEntriesRequest();
 void InitDefaultsAppendEntriesResponseImpl();
 void InitDefaultsAppendEntriesResponse();
+void InitDefaultsHeartbeatRequestImpl();
+void InitDefaultsHeartbeatRequest();
+void InitDefaultsHeartbeatResponseImpl();
+void InitDefaultsHeartbeatResponse();
 void InitDefaultsRaftMessageImpl();
 void InitDefaultsRaftMessage();
 inline void InitDefaults() {
@@ -70,6 +74,8 @@ inline void InitDefaults() {
   InitDefaultsVoteResponse();
   InitDefaultsAppendEntriesRequest();
   InitDefaultsAppendEntriesResponse();
+  InitDefaultsHeartbeatRequest();
+  InitDefaultsHeartbeatResponse();
   InitDefaultsRaftMessage();
 }
 }  // namespace protobuf_raftmsg_2eproto
@@ -86,6 +92,12 @@ extern HandshakeRequestDefaultTypeInternal _HandshakeRequest_default_instance_;
 class HandshakeResponse;
 class HandshakeResponseDefaultTypeInternal;
 extern HandshakeResponseDefaultTypeInternal _HandshakeResponse_default_instance_;
+class HeartbeatRequest;
+class HeartbeatRequestDefaultTypeInternal;
+extern HeartbeatRequestDefaultTypeInternal _HeartbeatRequest_default_instance_;
+class HeartbeatResponse;
+class HeartbeatResponseDefaultTypeInternal;
+extern HeartbeatResponseDefaultTypeInternal _HeartbeatResponse_default_instance_;
 class LogEntry;
 class LogEntryDefaultTypeInternal;
 extern LogEntryDefaultTypeInternal _LogEntry_default_instance_;
@@ -104,40 +116,19 @@ extern VoteResponseDefaultTypeInternal _VoteResponse_default_instance_;
 }  // namespace raft
 namespace raft {
 
-enum LogEntry_RaftLogType {
-  LogEntry_RaftLogType_LOGTYPE_NORMAL = 0,
-  LogEntry_RaftLogType_LOGTYPE_ADD_NONVOTING_NODE = 1,
-  LogEntry_RaftLogType_LOGTYPE_ADD_NODE = 2,
-  LogEntry_RaftLogType_LOGTYPE_REMOVE_NODE = 3,
-  LogEntry_RaftLogType_LOGTYPE_NUM = 4,
-  LogEntry_RaftLogType_LogEntry_RaftLogType_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
-  LogEntry_RaftLogType_LogEntry_RaftLogType_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
-};
-bool LogEntry_RaftLogType_IsValid(int value);
-const LogEntry_RaftLogType LogEntry_RaftLogType_RaftLogType_MIN = LogEntry_RaftLogType_LOGTYPE_NORMAL;
-const LogEntry_RaftLogType LogEntry_RaftLogType_RaftLogType_MAX = LogEntry_RaftLogType_LOGTYPE_NUM;
-const int LogEntry_RaftLogType_RaftLogType_ARRAYSIZE = LogEntry_RaftLogType_RaftLogType_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* LogEntry_RaftLogType_descriptor();
-inline const ::std::string& LogEntry_RaftLogType_Name(LogEntry_RaftLogType value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    LogEntry_RaftLogType_descriptor(), value);
-}
-inline bool LogEntry_RaftLogType_Parse(
-    const ::std::string& name, LogEntry_RaftLogType* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<LogEntry_RaftLogType>(
-    LogEntry_RaftLogType_descriptor(), name, value);
-}
 enum RaftMessage_RaftMessageType {
-  RaftMessage_RaftMessageType_MSGTYPE_HANDSHAKE = 0,
-  RaftMessage_RaftMessageType_MSGTYPE_VOTE = 1,
-  RaftMessage_RaftMessageType_MSGTYPE_APPENDLOG = 2,
+  RaftMessage_RaftMessageType_MSGTYPE_HANDSHAKE_REQUEST = 0,
+  RaftMessage_RaftMessageType_MSGTYPE_HANDSHAKE_RESPONSE = 1,
+  RaftMessage_RaftMessageType_MSGTYPE_VOTE_REQUEST = 2,
+  RaftMessage_RaftMessageType_MSGTYPE_VOTE_RESPONSE = 3,
+  RaftMessage_RaftMessageType_MSGTYPE_APPENDLOG_REQUEST = 4,
+  RaftMessage_RaftMessageType_MSGTYPE_APPENDLOG_RESPONSE = 5,
   RaftMessage_RaftMessageType_RaftMessage_RaftMessageType_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
   RaftMessage_RaftMessageType_RaftMessage_RaftMessageType_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
 bool RaftMessage_RaftMessageType_IsValid(int value);
-const RaftMessage_RaftMessageType RaftMessage_RaftMessageType_RaftMessageType_MIN = RaftMessage_RaftMessageType_MSGTYPE_HANDSHAKE;
-const RaftMessage_RaftMessageType RaftMessage_RaftMessageType_RaftMessageType_MAX = RaftMessage_RaftMessageType_MSGTYPE_APPENDLOG;
+const RaftMessage_RaftMessageType RaftMessage_RaftMessageType_RaftMessageType_MIN = RaftMessage_RaftMessageType_MSGTYPE_HANDSHAKE_REQUEST;
+const RaftMessage_RaftMessageType RaftMessage_RaftMessageType_RaftMessageType_MAX = RaftMessage_RaftMessageType_MSGTYPE_APPENDLOG_RESPONSE;
 const int RaftMessage_RaftMessageType_RaftMessageType_ARRAYSIZE = RaftMessage_RaftMessageType_RaftMessageType_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* RaftMessage_RaftMessageType_descriptor();
@@ -149,6 +140,30 @@ inline bool RaftMessage_RaftMessageType_Parse(
     const ::std::string& name, RaftMessage_RaftMessageType* value) {
   return ::google::protobuf::internal::ParseNamedEnum<RaftMessage_RaftMessageType>(
     RaftMessage_RaftMessageType_descriptor(), name, value);
+}
+enum RaftLogType {
+  LOGTYPE_NORMAL = 0,
+  LOGTYPE_ADD_NONVOTING_NODE = 1,
+  LOGTYPE_ADD_NODE = 2,
+  LOGTYPE_REMOVE_NODE = 3,
+  LOGTYPE_NUM = 4,
+  RaftLogType_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
+  RaftLogType_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
+};
+bool RaftLogType_IsValid(int value);
+const RaftLogType RaftLogType_MIN = LOGTYPE_NORMAL;
+const RaftLogType RaftLogType_MAX = LOGTYPE_NUM;
+const int RaftLogType_ARRAYSIZE = RaftLogType_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* RaftLogType_descriptor();
+inline const ::std::string& RaftLogType_Name(RaftLogType value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    RaftLogType_descriptor(), value);
+}
+inline bool RaftLogType_Parse(
+    const ::std::string& name, RaftLogType* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<RaftLogType>(
+    RaftLogType_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -232,38 +247,6 @@ class LogEntry : public ::google::protobuf::Message /* @@protoc_insertion_point(
 
   // nested types ----------------------------------------------------
 
-  typedef LogEntry_RaftLogType RaftLogType;
-  static const RaftLogType LOGTYPE_NORMAL =
-    LogEntry_RaftLogType_LOGTYPE_NORMAL;
-  static const RaftLogType LOGTYPE_ADD_NONVOTING_NODE =
-    LogEntry_RaftLogType_LOGTYPE_ADD_NONVOTING_NODE;
-  static const RaftLogType LOGTYPE_ADD_NODE =
-    LogEntry_RaftLogType_LOGTYPE_ADD_NODE;
-  static const RaftLogType LOGTYPE_REMOVE_NODE =
-    LogEntry_RaftLogType_LOGTYPE_REMOVE_NODE;
-  static const RaftLogType LOGTYPE_NUM =
-    LogEntry_RaftLogType_LOGTYPE_NUM;
-  static inline bool RaftLogType_IsValid(int value) {
-    return LogEntry_RaftLogType_IsValid(value);
-  }
-  static const RaftLogType RaftLogType_MIN =
-    LogEntry_RaftLogType_RaftLogType_MIN;
-  static const RaftLogType RaftLogType_MAX =
-    LogEntry_RaftLogType_RaftLogType_MAX;
-  static const int RaftLogType_ARRAYSIZE =
-    LogEntry_RaftLogType_RaftLogType_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  RaftLogType_descriptor() {
-    return LogEntry_RaftLogType_descriptor();
-  }
-  static inline const ::std::string& RaftLogType_Name(RaftLogType value) {
-    return LogEntry_RaftLogType_Name(value);
-  }
-  static inline bool RaftLogType_Parse(const ::std::string& name,
-      RaftLogType* value) {
-    return LogEntry_RaftLogType_Parse(name, value);
-  }
-
   // accessors -------------------------------------------------------
 
   // bytes data = 4;
@@ -292,11 +275,11 @@ class LogEntry : public ::google::protobuf::Message /* @@protoc_insertion_point(
   ::google::protobuf::uint64 index() const;
   void set_index(::google::protobuf::uint64 value);
 
-  // .raft.LogEntry.RaftLogType type = 1;
+  // .raft.RaftLogType type = 1;
   void clear_type();
   static const int kTypeFieldNumber = 1;
-  ::raft::LogEntry_RaftLogType type() const;
-  void set_type(::raft::LogEntry_RaftLogType value);
+  ::raft::RaftLogType type() const;
+  void set_type(::raft::RaftLogType value);
 
   // @@protoc_insertion_point(class_scope:raft.LogEntry)
  private:
@@ -1123,6 +1106,204 @@ class AppendEntriesResponse : public ::google::protobuf::Message /* @@protoc_ins
 };
 // -------------------------------------------------------------------
 
+class HeartbeatRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.HeartbeatRequest) */ {
+ public:
+  HeartbeatRequest();
+  virtual ~HeartbeatRequest();
+
+  HeartbeatRequest(const HeartbeatRequest& from);
+
+  inline HeartbeatRequest& operator=(const HeartbeatRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  HeartbeatRequest(HeartbeatRequest&& from) noexcept
+    : HeartbeatRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline HeartbeatRequest& operator=(HeartbeatRequest&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const HeartbeatRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const HeartbeatRequest* internal_default_instance() {
+    return reinterpret_cast<const HeartbeatRequest*>(
+               &_HeartbeatRequest_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    8;
+
+  void Swap(HeartbeatRequest* other);
+  friend void swap(HeartbeatRequest& a, HeartbeatRequest& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline HeartbeatRequest* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  HeartbeatRequest* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const HeartbeatRequest& from);
+  void MergeFrom(const HeartbeatRequest& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(HeartbeatRequest* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // bool success = 1;
+  void clear_success();
+  static const int kSuccessFieldNumber = 1;
+  bool success() const;
+  void set_success(bool value);
+
+  // @@protoc_insertion_point(class_scope:raft.HeartbeatRequest)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  bool success_;
+  mutable int _cached_size_;
+  friend struct ::protobuf_raftmsg_2eproto::TableStruct;
+  friend void ::protobuf_raftmsg_2eproto::InitDefaultsHeartbeatRequestImpl();
+};
+// -------------------------------------------------------------------
+
+class HeartbeatResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.HeartbeatResponse) */ {
+ public:
+  HeartbeatResponse();
+  virtual ~HeartbeatResponse();
+
+  HeartbeatResponse(const HeartbeatResponse& from);
+
+  inline HeartbeatResponse& operator=(const HeartbeatResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  HeartbeatResponse(HeartbeatResponse&& from) noexcept
+    : HeartbeatResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline HeartbeatResponse& operator=(HeartbeatResponse&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const HeartbeatResponse& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const HeartbeatResponse* internal_default_instance() {
+    return reinterpret_cast<const HeartbeatResponse*>(
+               &_HeartbeatResponse_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    9;
+
+  void Swap(HeartbeatResponse* other);
+  friend void swap(HeartbeatResponse& a, HeartbeatResponse& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline HeartbeatResponse* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  HeartbeatResponse* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const HeartbeatResponse& from);
+  void MergeFrom(const HeartbeatResponse& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(HeartbeatResponse* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // bool success = 1;
+  void clear_success();
+  static const int kSuccessFieldNumber = 1;
+  bool success() const;
+  void set_success(bool value);
+
+  // @@protoc_insertion_point(class_scope:raft.HeartbeatResponse)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  bool success_;
+  mutable int _cached_size_;
+  friend struct ::protobuf_raftmsg_2eproto::TableStruct;
+  friend void ::protobuf_raftmsg_2eproto::InitDefaultsHeartbeatResponseImpl();
+};
+// -------------------------------------------------------------------
+
 class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.RaftMessage) */ {
  public:
   RaftMessage();
@@ -1159,6 +1340,8 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
     kVtRsp = 5,
     kAeReq = 6,
     kAeRsp = 7,
+    kHbReq = 8,
+    kHbRsp = 9,
     MSG_NOT_SET = 0,
   };
 
@@ -1168,7 +1351,7 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
                &_RaftMessage_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    8;
+    10;
 
   void Swap(RaftMessage* other);
   friend void swap(RaftMessage& a, RaftMessage& b) {
@@ -1214,12 +1397,18 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
   // nested types ----------------------------------------------------
 
   typedef RaftMessage_RaftMessageType RaftMessageType;
-  static const RaftMessageType MSGTYPE_HANDSHAKE =
-    RaftMessage_RaftMessageType_MSGTYPE_HANDSHAKE;
-  static const RaftMessageType MSGTYPE_VOTE =
-    RaftMessage_RaftMessageType_MSGTYPE_VOTE;
-  static const RaftMessageType MSGTYPE_APPENDLOG =
-    RaftMessage_RaftMessageType_MSGTYPE_APPENDLOG;
+  static const RaftMessageType MSGTYPE_HANDSHAKE_REQUEST =
+    RaftMessage_RaftMessageType_MSGTYPE_HANDSHAKE_REQUEST;
+  static const RaftMessageType MSGTYPE_HANDSHAKE_RESPONSE =
+    RaftMessage_RaftMessageType_MSGTYPE_HANDSHAKE_RESPONSE;
+  static const RaftMessageType MSGTYPE_VOTE_REQUEST =
+    RaftMessage_RaftMessageType_MSGTYPE_VOTE_REQUEST;
+  static const RaftMessageType MSGTYPE_VOTE_RESPONSE =
+    RaftMessage_RaftMessageType_MSGTYPE_VOTE_RESPONSE;
+  static const RaftMessageType MSGTYPE_APPENDLOG_REQUEST =
+    RaftMessage_RaftMessageType_MSGTYPE_APPENDLOG_REQUEST;
+  static const RaftMessageType MSGTYPE_APPENDLOG_RESPONSE =
+    RaftMessage_RaftMessageType_MSGTYPE_APPENDLOG_RESPONSE;
   static inline bool RaftMessageType_IsValid(int value) {
     return RaftMessage_RaftMessageType_IsValid(value);
   }
@@ -1248,6 +1437,12 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
   static const int kTypeFieldNumber = 1;
   ::raft::RaftMessage_RaftMessageType type() const;
   void set_type(::raft::RaftMessage_RaftMessageType value);
+
+  // uint32 raftid = 10;
+  void clear_raftid();
+  static const int kRaftidFieldNumber = 10;
+  ::google::protobuf::uint32 raftid() const;
+  void set_raftid(::google::protobuf::uint32 value);
 
   // .raft.HandshakeRequest hs_req = 2;
   bool has_hs_req() const;
@@ -1303,6 +1498,24 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::raft::AppendEntriesResponse* mutable_ae_rsp();
   void set_allocated_ae_rsp(::raft::AppendEntriesResponse* ae_rsp);
 
+  // .raft.HeartbeatRequest hb_req = 8;
+  bool has_hb_req() const;
+  void clear_hb_req();
+  static const int kHbReqFieldNumber = 8;
+  const ::raft::HeartbeatRequest& hb_req() const;
+  ::raft::HeartbeatRequest* release_hb_req();
+  ::raft::HeartbeatRequest* mutable_hb_req();
+  void set_allocated_hb_req(::raft::HeartbeatRequest* hb_req);
+
+  // .raft.HeartbeatResponse hb_rsp = 9;
+  bool has_hb_rsp() const;
+  void clear_hb_rsp();
+  static const int kHbRspFieldNumber = 9;
+  const ::raft::HeartbeatResponse& hb_rsp() const;
+  ::raft::HeartbeatResponse* release_hb_rsp();
+  ::raft::HeartbeatResponse* mutable_hb_rsp();
+  void set_allocated_hb_rsp(::raft::HeartbeatResponse* hb_rsp);
+
   MsgCase msg_case() const;
   // @@protoc_insertion_point(class_scope:raft.RaftMessage)
  private:
@@ -1312,6 +1525,8 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
   void set_has_vt_rsp();
   void set_has_ae_req();
   void set_has_ae_rsp();
+  void set_has_hb_req();
+  void set_has_hb_rsp();
 
   inline bool has_msg() const;
   void clear_msg();
@@ -1319,6 +1534,7 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   int type_;
+  ::google::protobuf::uint32 raftid_;
   union MsgUnion {
     MsgUnion() {}
     ::raft::HandshakeRequest* hs_req_;
@@ -1327,6 +1543,8 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
     ::raft::VoteResponse* vt_rsp_;
     ::raft::AppendEntriesRequest* ae_req_;
     ::raft::AppendEntriesResponse* ae_rsp_;
+    ::raft::HeartbeatRequest* hb_req_;
+    ::raft::HeartbeatResponse* hb_rsp_;
   } msg_;
   mutable int _cached_size_;
   ::google::protobuf::uint32 _oneof_case_[1];
@@ -1345,15 +1563,15 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
 #endif  // __GNUC__
 // LogEntry
 
-// .raft.LogEntry.RaftLogType type = 1;
+// .raft.RaftLogType type = 1;
 inline void LogEntry::clear_type() {
   type_ = 0;
 }
-inline ::raft::LogEntry_RaftLogType LogEntry::type() const {
+inline ::raft::RaftLogType LogEntry::type() const {
   // @@protoc_insertion_point(field_get:raft.LogEntry.type)
-  return static_cast< ::raft::LogEntry_RaftLogType >(type_);
+  return static_cast< ::raft::RaftLogType >(type_);
 }
-inline void LogEntry::set_type(::raft::LogEntry_RaftLogType value) {
+inline void LogEntry::set_type(::raft::RaftLogType value) {
   
   type_ = value;
   // @@protoc_insertion_point(field_set:raft.LogEntry.type)
@@ -1808,6 +2026,42 @@ inline void AppendEntriesResponse::set_first_index(::google::protobuf::uint64 va
 
 // -------------------------------------------------------------------
 
+// HeartbeatRequest
+
+// bool success = 1;
+inline void HeartbeatRequest::clear_success() {
+  success_ = false;
+}
+inline bool HeartbeatRequest::success() const {
+  // @@protoc_insertion_point(field_get:raft.HeartbeatRequest.success)
+  return success_;
+}
+inline void HeartbeatRequest::set_success(bool value) {
+  
+  success_ = value;
+  // @@protoc_insertion_point(field_set:raft.HeartbeatRequest.success)
+}
+
+// -------------------------------------------------------------------
+
+// HeartbeatResponse
+
+// bool success = 1;
+inline void HeartbeatResponse::clear_success() {
+  success_ = false;
+}
+inline bool HeartbeatResponse::success() const {
+  // @@protoc_insertion_point(field_get:raft.HeartbeatResponse.success)
+  return success_;
+}
+inline void HeartbeatResponse::set_success(bool value) {
+  
+  success_ = value;
+  // @@protoc_insertion_point(field_set:raft.HeartbeatResponse.success)
+}
+
+// -------------------------------------------------------------------
+
 // RaftMessage
 
 // .raft.RaftMessage.RaftMessageType type = 1;
@@ -2064,6 +2318,100 @@ inline ::raft::AppendEntriesResponse* RaftMessage::mutable_ae_rsp() {
   return msg_.ae_rsp_;
 }
 
+// .raft.HeartbeatRequest hb_req = 8;
+inline bool RaftMessage::has_hb_req() const {
+  return msg_case() == kHbReq;
+}
+inline void RaftMessage::set_has_hb_req() {
+  _oneof_case_[0] = kHbReq;
+}
+inline void RaftMessage::clear_hb_req() {
+  if (has_hb_req()) {
+    delete msg_.hb_req_;
+    clear_has_msg();
+  }
+}
+inline ::raft::HeartbeatRequest* RaftMessage::release_hb_req() {
+  // @@protoc_insertion_point(field_release:raft.RaftMessage.hb_req)
+  if (has_hb_req()) {
+    clear_has_msg();
+      ::raft::HeartbeatRequest* temp = msg_.hb_req_;
+    msg_.hb_req_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline const ::raft::HeartbeatRequest& RaftMessage::hb_req() const {
+  // @@protoc_insertion_point(field_get:raft.RaftMessage.hb_req)
+  return has_hb_req()
+      ? *msg_.hb_req_
+      : *reinterpret_cast< ::raft::HeartbeatRequest*>(&::raft::_HeartbeatRequest_default_instance_);
+}
+inline ::raft::HeartbeatRequest* RaftMessage::mutable_hb_req() {
+  if (!has_hb_req()) {
+    clear_msg();
+    set_has_hb_req();
+    msg_.hb_req_ = new ::raft::HeartbeatRequest;
+  }
+  // @@protoc_insertion_point(field_mutable:raft.RaftMessage.hb_req)
+  return msg_.hb_req_;
+}
+
+// .raft.HeartbeatResponse hb_rsp = 9;
+inline bool RaftMessage::has_hb_rsp() const {
+  return msg_case() == kHbRsp;
+}
+inline void RaftMessage::set_has_hb_rsp() {
+  _oneof_case_[0] = kHbRsp;
+}
+inline void RaftMessage::clear_hb_rsp() {
+  if (has_hb_rsp()) {
+    delete msg_.hb_rsp_;
+    clear_has_msg();
+  }
+}
+inline ::raft::HeartbeatResponse* RaftMessage::release_hb_rsp() {
+  // @@protoc_insertion_point(field_release:raft.RaftMessage.hb_rsp)
+  if (has_hb_rsp()) {
+    clear_has_msg();
+      ::raft::HeartbeatResponse* temp = msg_.hb_rsp_;
+    msg_.hb_rsp_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline const ::raft::HeartbeatResponse& RaftMessage::hb_rsp() const {
+  // @@protoc_insertion_point(field_get:raft.RaftMessage.hb_rsp)
+  return has_hb_rsp()
+      ? *msg_.hb_rsp_
+      : *reinterpret_cast< ::raft::HeartbeatResponse*>(&::raft::_HeartbeatResponse_default_instance_);
+}
+inline ::raft::HeartbeatResponse* RaftMessage::mutable_hb_rsp() {
+  if (!has_hb_rsp()) {
+    clear_msg();
+    set_has_hb_rsp();
+    msg_.hb_rsp_ = new ::raft::HeartbeatResponse;
+  }
+  // @@protoc_insertion_point(field_mutable:raft.RaftMessage.hb_rsp)
+  return msg_.hb_rsp_;
+}
+
+// uint32 raftid = 10;
+inline void RaftMessage::clear_raftid() {
+  raftid_ = 0u;
+}
+inline ::google::protobuf::uint32 RaftMessage::raftid() const {
+  // @@protoc_insertion_point(field_get:raft.RaftMessage.raftid)
+  return raftid_;
+}
+inline void RaftMessage::set_raftid(::google::protobuf::uint32 value) {
+  
+  raftid_ = value;
+  // @@protoc_insertion_point(field_set:raft.RaftMessage.raftid)
+}
+
 inline bool RaftMessage::has_msg() const {
   return msg_case() != MSG_NOT_SET;
 }
@@ -2092,6 +2440,10 @@ inline RaftMessage::MsgCase RaftMessage::msg_case() const {
 
 // -------------------------------------------------------------------
 
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -2100,15 +2452,15 @@ inline RaftMessage::MsgCase RaftMessage::msg_case() const {
 namespace google {
 namespace protobuf {
 
-template <> struct is_proto_enum< ::raft::LogEntry_RaftLogType> : ::google::protobuf::internal::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::raft::LogEntry_RaftLogType>() {
-  return ::raft::LogEntry_RaftLogType_descriptor();
-}
 template <> struct is_proto_enum< ::raft::RaftMessage_RaftMessageType> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::raft::RaftMessage_RaftMessageType>() {
   return ::raft::RaftMessage_RaftMessageType_descriptor();
+}
+template <> struct is_proto_enum< ::raft::RaftLogType> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::raft::RaftLogType>() {
+  return ::raft::RaftLogType_descriptor();
 }
 
 }  // namespace protobuf

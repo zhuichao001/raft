@@ -2,15 +2,15 @@ syntax = "proto3";
 
 package raft;
 
+enum RaftLogType {
+    LOGTYPE_NORMAL = 0;
+    LOGTYPE_ADD_NONVOTING_NODE = 1;
+    LOGTYPE_ADD_NODE = 2;
+    LOGTYPE_REMOVE_NODE = 3;
+    LOGTYPE_NUM = 4;
+}
 
 message LogEntry {
-    enum RaftLogType {
-        LOGTYPE_NORMAL = 0;
-        LOGTYPE_ADD_NONVOTING_NODE = 1;
-        LOGTYPE_ADD_NODE = 2;
-        LOGTYPE_REMOVE_NODE = 3;
-        LOGTYPE_NUM = 4;
-    }
     RaftLogType type = 1;
 
     uint64 term = 2;
@@ -49,7 +49,7 @@ message VoteResponse {
 
 message AppendEntriesRequest {
     uint64 term = 1;
-    uint64 commit = 2; // commited log index
+    uint64 commit = 2; // leader commited log index
 
     uint64 last_term = 3; // last log term
     uint64 last_index = 4; //last log index
@@ -64,12 +64,25 @@ message AppendEntriesResponse {
     uint64 first_index = 4;
 }
 
+message HeartbeatRequest {
+    bool success = 1;
+    //TODO
+}
+
+message HeartbeatResponse {
+    bool success = 1; 
+    //TODO
+}
+
 
 message RaftMessage {
     enum RaftMessageType {
-        MSGTYPE_HANDSHAKE = 0;
-        MSGTYPE_VOTE = 1;
-        MSGTYPE_APPENDLOG = 2;
+        MSGTYPE_HANDSHAKE_REQUEST = 0;
+        MSGTYPE_HANDSHAKE_RESPONSE = 1;
+        MSGTYPE_VOTE_REQUEST = 2;
+        MSGTYPE_VOTE_RESPONSE = 3;
+        MSGTYPE_APPENDLOG_REQUEST = 4;
+        MSGTYPE_APPENDLOG_RESPONSE = 5;
     }
     RaftMessageType type = 1;
 
@@ -82,5 +95,9 @@ message RaftMessage {
 
         AppendEntriesRequest ae_req = 6;
         AppendEntriesResponse ae_rsp = 7;
+
+        HeartbeatRequest hb_req = 8;
+        HeartbeatResponse hb_rsp = 9;
     }
+    uint32 raftid = 10;
 }

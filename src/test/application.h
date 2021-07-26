@@ -1,3 +1,4 @@
+#include <string>
 #include "raft/raft.h"
 #include "raft/raft_sm.h"
 
@@ -23,7 +24,7 @@ public:
 
 public:
     //for user interface
-    void Set(std::string &msg) {
+    void Set(const std::string &msg) {
         raft_->Propose(msg);
     }
 
