@@ -1,32 +1,42 @@
+#ifndef _RAFT_RAFT_H_
+#define _RAFT_RAFT_H_
 
 #include <time.h>
 #include "raft_sm.h"
+#include "raft_node.h"
+#include "raft_log.h"
+#include "proto/raftmsg.pb.h"
 
 enum RAFT_STATE {
     NONE = 0,
-    FOLLOWER ,
+    LEADER,
+    FOLLOWER,
     CANDIDATE,
-    LEADER ,
-    LEANER ,
-    LIMIT_NUM
+    LEANER,
 };
+
+class Transport;
 
 class Raft{
 public:
-    Raft(RaftStateMachine *app);
+    Raft(int id, RaftStateMachine *app);
 
     int Propose(const std::string &data);
 
     int ChangeMember(int action, std::string addr); //1:add, -1:remove
 
+    RaftNode *AddRaftNode(int nodeid, bool is_self, bool is_voting=true);
+
 private: //for leader
-    void appendEntry(LogEntry *e);
+    int appendEntry(raft::LogEntry *e);
 
     void sendAppendEntries();
 
     void sendAppendEntries(RaftNode *node);
 
-    void recvAppendEntriesResponse();
+    int recvAppendEntriesResponse(const raft::AppendEntriesResponse *r);
+
+    void recvHeartbeatResponse(const raft::HeartbeatResponse *rsp);
 
 private: //for follower
     void tick();
@@ -35,13 +45,15 @@ private: //for follower
 
     void becomeCandidate();
 
-    bool shouldGrantVote(VoteRequest* req);
+    bool shouldGrantVote(raft::VoteRequest* req);
 
     void voteFor(int nodeid);
 
-    int recvAppendEntries(AppendEntriesRequest *msg, AppendEntriesResponse *rsp);
+    int recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendEntriesResponse *rsp);
 
-    int recvVoteRequest(VoteRequest *req, VoteResponse *rsp);
+    int recvVoteRequest(const raft::VoteRequest *req, raft::VoteResponse *rsp);
+
+    void recvHeartbeat(const raft::HeartbeatRequest *req, raft::HeartbeatResponse *rsp);
 
 private: //for candidate
     void becomeLeader();
@@ -52,7 +64,7 @@ private: //for candidate
 
     int sendVoteRequest(RaftNode *node);
 
-    int recvVoteResponse(VoteResponse *rsp);
+    int recvVoteResponse(const raft::VoteResponse *rsp);
 
 private:
     int applyEntry();
@@ -61,16 +73,16 @@ private:
         state_ = st;
     }
 
-    int getCurrentIndex(){
+    uint64_t getCurrentIndex(){
         return log_.getCurrentIndex();
     }
 
-    int getLastLogTerm(){
+    uint64_t getLastLogTerm(){
         int idx = log_.getCurrentIndex();
         if (idx>0) {
-            RatEntry *e = getEntryFromIndex(idx);
+            const raft::LogEntry *e = log_.getEntry(idx);
             if (e) {
-                return e->term;
+                return e->term();
             }
         }
         return 0;
@@ -92,18 +104,17 @@ private:
         return voted_for_ != -1;
     }
 
-    RaftNode *addRaftNode(int nodeid, bool is_self, bool is_voting=true);
-
-privarte:
+private:
+    int id_; //raft group id
     RaftLog log_;
 
-    int term_;
+    uint64_t term_;
     int voted_for_;
     int state_;         //FOLLOWER,LEADER,CANDIDATE
 
-    int commit_idx_;
-    int applied_idx_;
-    int reconf_idx_;
+    uint64_t commit_idx_;
+    uint64_t applied_idx_;
+    uint64_t reconf_idx_;
 
     int time_elapsed_;  //since last time
     int timeout_election_;
@@ -114,4 +125,9 @@ privarte:
     RaftNode *local_;
 
     RaftStateMachine *app_;
+
+    friend class Transport;
+    friend class RaftServer;
 };
+
+#endif
