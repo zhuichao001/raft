@@ -110,8 +110,8 @@ private:
     int id_; //raft group id
     RaftLog log_;
 
-    uint64_t term_;
-    int voted_for_;
+    uint64_t term_;     // current term
+    int voted_for_;     // candidate propose vote 
     int state_;         //FOLLOWER,LEADER,CANDIDATE
 
     uint64_t commit_idx_;
