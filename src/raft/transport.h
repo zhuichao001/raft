@@ -1,15 +1,17 @@
 #ifndef _RAFT_TRANSPORT_H_
 #define _RAFT_TRANSPORT_H_
 
-#include <stdio.h>
-#include "lotus/address.h"
-#include "lotus/dialer.h"
-#include "lotus/engine.h"
-#include "lotus/server.h"
 #include "proto/raftmsg.pb.h"
 
 class RaftServer;
 class RaftNode;
+class address_t;
+class dialer_t;
+class server_t;
+class engine_t;
+class request_t;
+class response_t;
+
 
 class Transport {
 public:
@@ -27,10 +29,10 @@ private:
     int dispatch(request_t *req, response_t *rsp);
 
 private:
+    engine_t *eng_;
     RaftServer *raft_server_;
-    std::map<const address_t *, dialer_t *> clients;
-    std::map<const address_t *, server_t *> servers;
-    engine_t eng;
+    std::map<const address_t *, dialer_t *> clients_;
+    std::map<const address_t *, server_t *> servers_;
 };
 
 #endif

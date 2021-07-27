@@ -1,36 +1,41 @@
 #include <stdio.h>
-#include "transport.h"
+#include "lotus/address.h"
+#include "lotus/dialer.h"
+#include "lotus/engine.h"
+#include "lotus/server.h"
 #include "raft_node.h"
-#include "raft_server.h"
 #include "raft.h"
+#include "raft_server.h"
+#include "transport.h"
 
 Transport::Transport(RaftServer *rs):
-    raft_server_(rs){
+    raft_server_(rs),
+    eng_(new engine_t()){
 }
 
 int Transport::Start(address_t *addr, server_t *svr){
     if (addr == nullptr){
         return -1;
     }
-    servers[addr] = svr;
-    eng.start(addr, svr);
+    servers_[addr] = svr;
+    eng_->start(addr, svr);
     return 0;
 }
 
 void Transport::Stop() {
-    eng.stop();
+    eng_->stop();
 }
 
 void Transport::Run(){
-    eng.run();
+    eng_->run();
 }
 
 void Transport::Send(const RaftNode *to, const raft::RaftMessage *msg){
     const address_t *addr = to->GetAddress();
-    auto it = clients.find(addr);
-    if (it==clients.end()){
-        dialer_t *cli = eng.open(addr);
-        clients[addr] = cli;
+    auto it = clients_.find(addr);
+    if (it==clients_.end()){
+        dialer_t *cli = eng_->open(addr);
+        clients_[addr] = cli;
     }
 
     string tmp;
@@ -39,7 +44,7 @@ void Transport::Send(const RaftNode *to, const raft::RaftMessage *msg){
     req.setbody(tmp.c_str(), tmp.size());
 
     RpcCallback callback = std::bind(&Transport::dispatch, this, std::placeholders::_1, std::placeholders::_2);
-    clients[addr]->call(&req, callback);
+    clients_[addr]->call(&req, callback);
 }
 
 int Transport::dispatch(request_t *req, response_t *rsp){
