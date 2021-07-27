@@ -13,10 +13,10 @@ typedef struct {
 
 class RaftStateMachine{
 public:
-    virtual int Apply(const std::string data);
-    virtual int ApplyMemberChange(const ConfChange &alter, uint64_t index);
-    virtual uint64_t GetAppliedIndex();
-    virtual int LeaderOver(uint64_t term, uint64_t leader);
+    virtual int Apply(const std::string data) = 0;
+    virtual int ApplyMemberChange(const ConfChange &at, uint64_t index) = 0;
+    virtual uint64_t GetAppliedIndex() = 0;
+    virtual int LeaderOver(uint64_t term, uint64_t leader) = 0;
 };
 
 #endif

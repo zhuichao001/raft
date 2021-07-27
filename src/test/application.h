@@ -4,7 +4,10 @@
 
 class Application: public RaftStateMachine{
 public:
-    int Apply(const std::string data){
+    virtual ~Application(){
+    }
+
+    int Apply(const std::string data) override {
         fprintf(stderr, "apply :%s\n", data.c_str());
         return 0;
     }

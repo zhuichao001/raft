@@ -368,8 +368,8 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::VoteRequest, term_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::VoteRequest, candidate_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::VoteRequest, log_index_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::VoteRequest, log_term_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::VoteRequest, last_term_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::VoteRequest, last_index_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::VoteResponse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -382,6 +382,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::AppendEntriesRequest, nodeid_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::AppendEntriesRequest, term_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::AppendEntriesRequest, commit_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::AppendEntriesRequest, last_term_),
@@ -401,13 +402,15 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::HeartbeatRequest, success_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::HeartbeatRequest, term_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::HeartbeatRequest, node_id_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::HeartbeatResponse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::HeartbeatResponse, success_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::HeartbeatResponse, node_id_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::RaftMessage, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -433,10 +436,10 @@ static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROT
   { 32, -1, sizeof(::raft::VoteRequest)},
   { 41, -1, sizeof(::raft::VoteResponse)},
   { 48, -1, sizeof(::raft::AppendEntriesRequest)},
-  { 58, -1, sizeof(::raft::AppendEntriesResponse)},
-  { 67, -1, sizeof(::raft::HeartbeatRequest)},
-  { 73, -1, sizeof(::raft::HeartbeatResponse)},
-  { 79, -1, sizeof(::raft::RaftMessage)},
+  { 59, -1, sizeof(::raft::AppendEntriesResponse)},
+  { 68, -1, sizeof(::raft::HeartbeatRequest)},
+  { 75, -1, sizeof(::raft::HeartbeatResponse)},
+  { 82, -1, sizeof(::raft::RaftMessage)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -482,40 +485,41 @@ void AddDescriptorsImpl() {
       "\n\020HandshakeRequest\022\021\n\traft_port\030\001 \001(\005\022\021\n"
       "\thttp_port\030\002 \001(\005\022\017\n\007node_id\030\003 \001(\004\022\014\n\004ter"
       "m\030\004 \001(\004\"5\n\021HandshakeResponse\022\017\n\007success\030"
-      "\001 \001(\010\022\017\n\007node_id\030\002 \001(\004\"S\n\013VoteRequest\022\014\n"
-      "\004term\030\001 \001(\004\022\021\n\tcandidate\030\002 \001(\004\022\021\n\tlog_in"
-      "dex\030\003 \001(\004\022\020\n\010log_term\030\004 \001(\004\"/\n\014VoteRespo"
-      "nse\022\014\n\004term\030\001 \001(\004\022\021\n\tgrant_for\030\002 \001(\010\"|\n\024"
-      "AppendEntriesRequest\022\014\n\004term\030\001 \001(\004\022\016\n\006co"
-      "mmit\030\002 \001(\004\022\021\n\tlast_term\030\003 \001(\004\022\022\n\nlast_in"
-      "dex\030\004 \001(\004\022\037\n\007entries\030\005 \003(\0132\016.raft.LogEnt"
-      "ry\"b\n\025AppendEntriesResponse\022\017\n\007success\030\001"
-      " \001(\010\022\014\n\004term\030\002 \001(\004\022\025\n\rcurrent_index\030\003 \001("
-      "\004\022\023\n\013first_index\030\004 \001(\004\"#\n\020HeartbeatReque"
-      "st\022\017\n\007success\030\001 \001(\010\"$\n\021HeartbeatResponse"
-      "\022\017\n\007success\030\001 \001(\010\"\356\004\n\013RaftMessage\022/\n\004typ"
-      "e\030\001 \001(\0162!.raft.RaftMessage.RaftMessageTy"
-      "pe\022(\n\006hs_req\030\002 \001(\0132\026.raft.HandshakeReque"
-      "stH\000\022)\n\006hs_rsp\030\003 \001(\0132\027.raft.HandshakeRes"
-      "ponseH\000\022#\n\006vt_req\030\004 \001(\0132\021.raft.VoteReque"
-      "stH\000\022$\n\006vt_rsp\030\005 \001(\0132\022.raft.VoteResponse"
-      "H\000\022,\n\006ae_req\030\006 \001(\0132\032.raft.AppendEntriesR"
-      "equestH\000\022-\n\006ae_rsp\030\007 \001(\0132\033.raft.AppendEn"
-      "triesResponseH\000\022(\n\006hb_req\030\010 \001(\0132\026.raft.H"
-      "eartbeatRequestH\000\022)\n\006hb_rsp\030\t \001(\0132\027.raft"
-      ".HeartbeatResponseH\000\022\016\n\006raftid\030\n \001(\r\"\304\001\n"
-      "\017RaftMessageType\022\035\n\031MSGTYPE_HANDSHAKE_RE"
-      "QUEST\020\000\022\036\n\032MSGTYPE_HANDSHAKE_RESPONSE\020\001\022"
-      "\030\n\024MSGTYPE_VOTE_REQUEST\020\002\022\031\n\025MSGTYPE_VOT"
-      "E_RESPONSE\020\003\022\035\n\031MSGTYPE_APPENDLOG_REQUES"
-      "T\020\004\022\036\n\032MSGTYPE_APPENDLOG_RESPONSE\020\005B\005\n\003m"
-      "sg*\201\001\n\013RaftLogType\022\022\n\016LOGTYPE_NORMAL\020\000\022\036"
-      "\n\032LOGTYPE_ADD_NONVOTING_NODE\020\001\022\024\n\020LOGTYP"
-      "E_ADD_NODE\020\002\022\027\n\023LOGTYPE_REMOVE_NODE\020\003\022\017\n"
-      "\013LOGTYPE_NUM\020\004b\006proto3"
+      "\001 \001(\010\022\017\n\007node_id\030\002 \001(\004\"U\n\013VoteRequest\022\014\n"
+      "\004term\030\001 \001(\004\022\021\n\tcandidate\030\002 \001(\004\022\021\n\tlast_t"
+      "erm\030\003 \001(\004\022\022\n\nlast_index\030\004 \001(\004\"/\n\014VoteRes"
+      "ponse\022\014\n\004term\030\001 \001(\004\022\021\n\tgrant_for\030\002 \001(\010\"\214"
+      "\001\n\024AppendEntriesRequest\022\016\n\006nodeid\030\001 \001(\004\022"
+      "\014\n\004term\030\002 \001(\004\022\016\n\006commit\030\003 \001(\004\022\021\n\tlast_te"
+      "rm\030\004 \001(\004\022\022\n\nlast_index\030\005 \001(\004\022\037\n\007entries\030"
+      "\006 \003(\0132\016.raft.LogEntry\"b\n\025AppendEntriesRe"
+      "sponse\022\017\n\007success\030\001 \001(\010\022\014\n\004term\030\002 \001(\004\022\025\n"
+      "\rcurrent_index\030\003 \001(\004\022\023\n\013first_index\030\004 \001("
+      "\004\"1\n\020HeartbeatRequest\022\014\n\004term\030\001 \001(\004\022\017\n\007n"
+      "ode_id\030\002 \001(\004\"5\n\021HeartbeatResponse\022\017\n\007suc"
+      "cess\030\001 \001(\010\022\017\n\007node_id\030\002 \001(\004\"\356\004\n\013RaftMess"
+      "age\022/\n\004type\030\001 \001(\0162!.raft.RaftMessage.Raf"
+      "tMessageType\022(\n\006hs_req\030\002 \001(\0132\026.raft.Hand"
+      "shakeRequestH\000\022)\n\006hs_rsp\030\003 \001(\0132\027.raft.Ha"
+      "ndshakeResponseH\000\022#\n\006vt_req\030\004 \001(\0132\021.raft"
+      ".VoteRequestH\000\022$\n\006vt_rsp\030\005 \001(\0132\022.raft.Vo"
+      "teResponseH\000\022,\n\006ae_req\030\006 \001(\0132\032.raft.Appe"
+      "ndEntriesRequestH\000\022-\n\006ae_rsp\030\007 \001(\0132\033.raf"
+      "t.AppendEntriesResponseH\000\022(\n\006hb_req\030\010 \001("
+      "\0132\026.raft.HeartbeatRequestH\000\022)\n\006hb_rsp\030\t "
+      "\001(\0132\027.raft.HeartbeatResponseH\000\022\016\n\006raftid"
+      "\030\n \001(\r\"\304\001\n\017RaftMessageType\022\035\n\031MSGTYPE_HA"
+      "NDSHAKE_REQUEST\020\000\022\036\n\032MSGTYPE_HANDSHAKE_R"
+      "ESPONSE\020\001\022\030\n\024MSGTYPE_VOTE_REQUEST\020\002\022\031\n\025M"
+      "SGTYPE_VOTE_RESPONSE\020\003\022\035\n\031MSGTYPE_APPEND"
+      "LOG_REQUEST\020\004\022\036\n\032MSGTYPE_APPENDLOG_RESPO"
+      "NSE\020\005B\005\n\003msg*\201\001\n\013RaftLogType\022\022\n\016LOGTYPE_"
+      "NORMAL\020\000\022\036\n\032LOGTYPE_ADD_NONVOTING_NODE\020\001"
+      "\022\024\n\020LOGTYPE_ADD_NODE\020\002\022\027\n\023LOGTYPE_REMOVE"
+      "_NODE\020\003\022\017\n\013LOGTYPE_NUM\020\004b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 1502);
+      descriptor, 1552);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "raftmsg.proto", &protobuf_RegisterTypes);
 }
@@ -1859,8 +1863,8 @@ void VoteRequest::InitAsDefaultInstance() {
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int VoteRequest::kTermFieldNumber;
 const int VoteRequest::kCandidateFieldNumber;
-const int VoteRequest::kLogIndexFieldNumber;
-const int VoteRequest::kLogTermFieldNumber;
+const int VoteRequest::kLastTermFieldNumber;
+const int VoteRequest::kLastIndexFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 VoteRequest::VoteRequest()
@@ -1877,15 +1881,15 @@ VoteRequest::VoteRequest(const VoteRequest& from)
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&term_, &from.term_,
-    static_cast<size_t>(reinterpret_cast<char*>(&log_term_) -
-    reinterpret_cast<char*>(&term_)) + sizeof(log_term_));
+    static_cast<size_t>(reinterpret_cast<char*>(&last_index_) -
+    reinterpret_cast<char*>(&term_)) + sizeof(last_index_));
   // @@protoc_insertion_point(copy_constructor:raft.VoteRequest)
 }
 
 void VoteRequest::SharedCtor() {
   ::memset(&term_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&log_term_) -
-      reinterpret_cast<char*>(&term_)) + sizeof(log_term_));
+      reinterpret_cast<char*>(&last_index_) -
+      reinterpret_cast<char*>(&term_)) + sizeof(last_index_));
   _cached_size_ = 0;
 }
 
@@ -1927,8 +1931,8 @@ void VoteRequest::Clear() {
   (void) cached_has_bits;
 
   ::memset(&term_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&log_term_) -
-      reinterpret_cast<char*>(&term_)) + sizeof(log_term_));
+      reinterpret_cast<char*>(&last_index_) -
+      reinterpret_cast<char*>(&term_)) + sizeof(last_index_));
   _internal_metadata_.Clear();
 }
 
@@ -1970,28 +1974,28 @@ bool VoteRequest::MergePartialFromCodedStream(
         break;
       }
 
-      // uint64 log_index = 3;
+      // uint64 last_term = 3;
       case 3: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(24u /* 24 & 0xFF */)) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &log_index_)));
+                 input, &last_term_)));
         } else {
           goto handle_unusual;
         }
         break;
       }
 
-      // uint64 log_term = 4;
+      // uint64 last_index = 4;
       case 4: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(32u /* 32 & 0xFF */)) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &log_term_)));
+                 input, &last_index_)));
         } else {
           goto handle_unusual;
         }
@@ -2034,14 +2038,14 @@ void VoteRequest::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->candidate(), output);
   }
 
-  // uint64 log_index = 3;
-  if (this->log_index() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->log_index(), output);
+  // uint64 last_term = 3;
+  if (this->last_term() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->last_term(), output);
   }
 
-  // uint64 log_term = 4;
-  if (this->log_term() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->log_term(), output);
+  // uint64 last_index = 4;
+  if (this->last_index() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->last_index(), output);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -2068,14 +2072,14 @@ void VoteRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->candidate(), target);
   }
 
-  // uint64 log_index = 3;
-  if (this->log_index() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->log_index(), target);
+  // uint64 last_term = 3;
+  if (this->last_term() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->last_term(), target);
   }
 
-  // uint64 log_term = 4;
-  if (this->log_term() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->log_term(), target);
+  // uint64 last_index = 4;
+  if (this->last_index() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->last_index(), target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -2109,18 +2113,18 @@ size_t VoteRequest::ByteSizeLong() const {
         this->candidate());
   }
 
-  // uint64 log_index = 3;
-  if (this->log_index() != 0) {
+  // uint64 last_term = 3;
+  if (this->last_term() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::UInt64Size(
-        this->log_index());
+        this->last_term());
   }
 
-  // uint64 log_term = 4;
-  if (this->log_term() != 0) {
+  // uint64 last_index = 4;
+  if (this->last_index() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::UInt64Size(
-        this->log_term());
+        this->last_index());
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -2158,11 +2162,11 @@ void VoteRequest::MergeFrom(const VoteRequest& from) {
   if (from.candidate() != 0) {
     set_candidate(from.candidate());
   }
-  if (from.log_index() != 0) {
-    set_log_index(from.log_index());
+  if (from.last_term() != 0) {
+    set_last_term(from.last_term());
   }
-  if (from.log_term() != 0) {
-    set_log_term(from.log_term());
+  if (from.last_index() != 0) {
+    set_last_index(from.last_index());
   }
 }
 
@@ -2192,8 +2196,8 @@ void VoteRequest::InternalSwap(VoteRequest* other) {
   using std::swap;
   swap(term_, other->term_);
   swap(candidate_, other->candidate_);
-  swap(log_index_, other->log_index_);
-  swap(log_term_, other->log_term_);
+  swap(last_term_, other->last_term_);
+  swap(last_index_, other->last_index_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
 }
@@ -2487,6 +2491,7 @@ void VoteResponse::InternalSwap(VoteResponse* other) {
 void AppendEntriesRequest::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int AppendEntriesRequest::kNodeidFieldNumber;
 const int AppendEntriesRequest::kTermFieldNumber;
 const int AppendEntriesRequest::kCommitFieldNumber;
 const int AppendEntriesRequest::kLastTermFieldNumber;
@@ -2508,16 +2513,16 @@ AppendEntriesRequest::AppendEntriesRequest(const AppendEntriesRequest& from)
       entries_(from.entries_),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::memcpy(&term_, &from.term_,
+  ::memcpy(&nodeid_, &from.nodeid_,
     static_cast<size_t>(reinterpret_cast<char*>(&last_index_) -
-    reinterpret_cast<char*>(&term_)) + sizeof(last_index_));
+    reinterpret_cast<char*>(&nodeid_)) + sizeof(last_index_));
   // @@protoc_insertion_point(copy_constructor:raft.AppendEntriesRequest)
 }
 
 void AppendEntriesRequest::SharedCtor() {
-  ::memset(&term_, 0, static_cast<size_t>(
+  ::memset(&nodeid_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&last_index_) -
-      reinterpret_cast<char*>(&term_)) + sizeof(last_index_));
+      reinterpret_cast<char*>(&nodeid_)) + sizeof(last_index_));
   _cached_size_ = 0;
 }
 
@@ -2559,9 +2564,9 @@ void AppendEntriesRequest::Clear() {
   (void) cached_has_bits;
 
   entries_.Clear();
-  ::memset(&term_, 0, static_cast<size_t>(
+  ::memset(&nodeid_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&last_index_) -
-      reinterpret_cast<char*>(&term_)) + sizeof(last_index_));
+      reinterpret_cast<char*>(&nodeid_)) + sizeof(last_index_));
   _internal_metadata_.Clear();
 }
 
@@ -2575,10 +2580,24 @@ bool AppendEntriesRequest::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // uint64 term = 1;
+      // uint64 nodeid = 1;
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &nodeid_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // uint64 term = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -2589,10 +2608,10 @@ bool AppendEntriesRequest::MergePartialFromCodedStream(
         break;
       }
 
-      // uint64 commit = 2;
-      case 2: {
+      // uint64 commit = 3;
+      case 3: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(24u /* 24 & 0xFF */)) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -2603,10 +2622,10 @@ bool AppendEntriesRequest::MergePartialFromCodedStream(
         break;
       }
 
-      // uint64 last_term = 3;
-      case 3: {
+      // uint64 last_term = 4;
+      case 4: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(24u /* 24 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(32u /* 32 & 0xFF */)) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -2617,10 +2636,10 @@ bool AppendEntriesRequest::MergePartialFromCodedStream(
         break;
       }
 
-      // uint64 last_index = 4;
-      case 4: {
+      // uint64 last_index = 5;
+      case 5: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(32u /* 32 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(40u /* 40 & 0xFF */)) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -2631,10 +2650,10 @@ bool AppendEntriesRequest::MergePartialFromCodedStream(
         break;
       }
 
-      // repeated .raft.LogEntry entries = 5;
-      case 5: {
+      // repeated .raft.LogEntry entries = 6;
+      case 6: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(50u /* 50 & 0xFF */)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(input, add_entries()));
         } else {
           goto handle_unusual;
@@ -2668,31 +2687,36 @@ void AppendEntriesRequest::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // uint64 term = 1;
+  // uint64 nodeid = 1;
+  if (this->nodeid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->nodeid(), output);
+  }
+
+  // uint64 term = 2;
   if (this->term() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->term(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->term(), output);
   }
 
-  // uint64 commit = 2;
+  // uint64 commit = 3;
   if (this->commit() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->commit(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->commit(), output);
   }
 
-  // uint64 last_term = 3;
+  // uint64 last_term = 4;
   if (this->last_term() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->last_term(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->last_term(), output);
   }
 
-  // uint64 last_index = 4;
+  // uint64 last_index = 5;
   if (this->last_index() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->last_index(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(5, this->last_index(), output);
   }
 
-  // repeated .raft.LogEntry entries = 5;
+  // repeated .raft.LogEntry entries = 6;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->entries_size()); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, this->entries(static_cast<int>(i)), output);
+      6, this->entries(static_cast<int>(i)), output);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -2709,32 +2733,37 @@ void AppendEntriesRequest::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // uint64 term = 1;
+  // uint64 nodeid = 1;
+  if (this->nodeid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->nodeid(), target);
+  }
+
+  // uint64 term = 2;
   if (this->term() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->term(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->term(), target);
   }
 
-  // uint64 commit = 2;
+  // uint64 commit = 3;
   if (this->commit() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->commit(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->commit(), target);
   }
 
-  // uint64 last_term = 3;
+  // uint64 last_term = 4;
   if (this->last_term() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->last_term(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->last_term(), target);
   }
 
-  // uint64 last_index = 4;
+  // uint64 last_index = 5;
   if (this->last_index() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->last_index(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(5, this->last_index(), target);
   }
 
-  // repeated .raft.LogEntry entries = 5;
+  // repeated .raft.LogEntry entries = 6;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->entries_size()); i < n; i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        5, this->entries(static_cast<int>(i)), deterministic, target);
+        6, this->entries(static_cast<int>(i)), deterministic, target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -2754,7 +2783,7 @@ size_t AppendEntriesRequest::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
-  // repeated .raft.LogEntry entries = 5;
+  // repeated .raft.LogEntry entries = 6;
   {
     unsigned int count = static_cast<unsigned int>(this->entries_size());
     total_size += 1UL * count;
@@ -2765,28 +2794,35 @@ size_t AppendEntriesRequest::ByteSizeLong() const {
     }
   }
 
-  // uint64 term = 1;
+  // uint64 nodeid = 1;
+  if (this->nodeid() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::UInt64Size(
+        this->nodeid());
+  }
+
+  // uint64 term = 2;
   if (this->term() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::UInt64Size(
         this->term());
   }
 
-  // uint64 commit = 2;
+  // uint64 commit = 3;
   if (this->commit() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::UInt64Size(
         this->commit());
   }
 
-  // uint64 last_term = 3;
+  // uint64 last_term = 4;
   if (this->last_term() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::UInt64Size(
         this->last_term());
   }
 
-  // uint64 last_index = 4;
+  // uint64 last_index = 5;
   if (this->last_index() != 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::UInt64Size(
@@ -2823,6 +2859,9 @@ void AppendEntriesRequest::MergeFrom(const AppendEntriesRequest& from) {
   (void) cached_has_bits;
 
   entries_.MergeFrom(from.entries_);
+  if (from.nodeid() != 0) {
+    set_nodeid(from.nodeid());
+  }
   if (from.term() != 0) {
     set_term(from.term());
   }
@@ -2862,6 +2901,7 @@ void AppendEntriesRequest::Swap(AppendEntriesRequest* other) {
 void AppendEntriesRequest::InternalSwap(AppendEntriesRequest* other) {
   using std::swap;
   entries_.InternalSwap(&other->entries_);
+  swap(nodeid_, other->nodeid_);
   swap(term_, other->term_);
   swap(commit_, other->commit_);
   swap(last_term_, other->last_term_);
@@ -3231,7 +3271,8 @@ void AppendEntriesResponse::InternalSwap(AppendEntriesResponse* other) {
 void HeartbeatRequest::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int HeartbeatRequest::kSuccessFieldNumber;
+const int HeartbeatRequest::kTermFieldNumber;
+const int HeartbeatRequest::kNodeIdFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 HeartbeatRequest::HeartbeatRequest()
@@ -3247,12 +3288,16 @@ HeartbeatRequest::HeartbeatRequest(const HeartbeatRequest& from)
       _internal_metadata_(NULL),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  success_ = from.success_;
+  ::memcpy(&term_, &from.term_,
+    static_cast<size_t>(reinterpret_cast<char*>(&node_id_) -
+    reinterpret_cast<char*>(&term_)) + sizeof(node_id_));
   // @@protoc_insertion_point(copy_constructor:raft.HeartbeatRequest)
 }
 
 void HeartbeatRequest::SharedCtor() {
-  success_ = false;
+  ::memset(&term_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&node_id_) -
+      reinterpret_cast<char*>(&term_)) + sizeof(node_id_));
   _cached_size_ = 0;
 }
 
@@ -3293,7 +3338,9 @@ void HeartbeatRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  success_ = false;
+  ::memset(&term_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&node_id_) -
+      reinterpret_cast<char*>(&term_)) + sizeof(node_id_));
   _internal_metadata_.Clear();
 }
 
@@ -3307,14 +3354,28 @@ bool HeartbeatRequest::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // bool success = 1;
+      // uint64 term = 1;
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
-                 input, &success_)));
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &term_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // uint64 node_id = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &node_id_)));
         } else {
           goto handle_unusual;
         }
@@ -3347,9 +3408,14 @@ void HeartbeatRequest::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // bool success = 1;
-  if (this->success() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(1, this->success(), output);
+  // uint64 term = 1;
+  if (this->term() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->term(), output);
+  }
+
+  // uint64 node_id = 2;
+  if (this->node_id() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->node_id(), output);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -3366,9 +3432,14 @@ void HeartbeatRequest::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // bool success = 1;
-  if (this->success() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(1, this->success(), target);
+  // uint64 term = 1;
+  if (this->term() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->term(), target);
+  }
+
+  // uint64 node_id = 2;
+  if (this->node_id() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->node_id(), target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -3388,9 +3459,18 @@ size_t HeartbeatRequest::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
-  // bool success = 1;
-  if (this->success() != 0) {
-    total_size += 1 + 1;
+  // uint64 term = 1;
+  if (this->term() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::UInt64Size(
+        this->term());
+  }
+
+  // uint64 node_id = 2;
+  if (this->node_id() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::UInt64Size(
+        this->node_id());
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -3422,8 +3502,11 @@ void HeartbeatRequest::MergeFrom(const HeartbeatRequest& from) {
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.success() != 0) {
-    set_success(from.success());
+  if (from.term() != 0) {
+    set_term(from.term());
+  }
+  if (from.node_id() != 0) {
+    set_node_id(from.node_id());
   }
 }
 
@@ -3451,7 +3534,8 @@ void HeartbeatRequest::Swap(HeartbeatRequest* other) {
 }
 void HeartbeatRequest::InternalSwap(HeartbeatRequest* other) {
   using std::swap;
-  swap(success_, other->success_);
+  swap(term_, other->term_);
+  swap(node_id_, other->node_id_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
 }
@@ -3468,6 +3552,7 @@ void HeartbeatResponse::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int HeartbeatResponse::kSuccessFieldNumber;
+const int HeartbeatResponse::kNodeIdFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 HeartbeatResponse::HeartbeatResponse()
@@ -3483,12 +3568,16 @@ HeartbeatResponse::HeartbeatResponse(const HeartbeatResponse& from)
       _internal_metadata_(NULL),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  success_ = from.success_;
+  ::memcpy(&node_id_, &from.node_id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&success_) -
+    reinterpret_cast<char*>(&node_id_)) + sizeof(success_));
   // @@protoc_insertion_point(copy_constructor:raft.HeartbeatResponse)
 }
 
 void HeartbeatResponse::SharedCtor() {
-  success_ = false;
+  ::memset(&node_id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&success_) -
+      reinterpret_cast<char*>(&node_id_)) + sizeof(success_));
   _cached_size_ = 0;
 }
 
@@ -3529,7 +3618,9 @@ void HeartbeatResponse::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  success_ = false;
+  ::memset(&node_id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&success_) -
+      reinterpret_cast<char*>(&node_id_)) + sizeof(success_));
   _internal_metadata_.Clear();
 }
 
@@ -3551,6 +3642,20 @@ bool HeartbeatResponse::MergePartialFromCodedStream(
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
                  input, &success_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // uint64 node_id = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &node_id_)));
         } else {
           goto handle_unusual;
         }
@@ -3588,6 +3693,11 @@ void HeartbeatResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(1, this->success(), output);
   }
 
+  // uint64 node_id = 2;
+  if (this->node_id() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->node_id(), output);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -3607,6 +3717,11 @@ void HeartbeatResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(1, this->success(), target);
   }
 
+  // uint64 node_id = 2;
+  if (this->node_id() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->node_id(), target);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
@@ -3624,6 +3739,13 @@ size_t HeartbeatResponse::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
+  // uint64 node_id = 2;
+  if (this->node_id() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::UInt64Size(
+        this->node_id());
+  }
+
   // bool success = 1;
   if (this->success() != 0) {
     total_size += 1 + 1;
@@ -3658,6 +3780,9 @@ void HeartbeatResponse::MergeFrom(const HeartbeatResponse& from) {
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from.node_id() != 0) {
+    set_node_id(from.node_id());
+  }
   if (from.success() != 0) {
     set_success(from.success());
   }
@@ -3687,6 +3812,7 @@ void HeartbeatResponse::Swap(HeartbeatResponse* other) {
 }
 void HeartbeatResponse::InternalSwap(HeartbeatResponse* other) {
   using std::swap;
+  swap(node_id_, other->node_id_);
   swap(success_, other->success_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);

@@ -1,23 +1,22 @@
+#ifndef _RAFT_SERVER_H_
+#define _RAFT_SERVER_H_
+
 #include <stdio.h>
 #include <string>
 #include "lotus/server.h"
 #include "lotus/protocol.h"
 #include "proto/raftmsg.pb.h"
 #include "transport.h"
+#include "raft.h"
 #include "raft_sm.h"
+#include "options.h"
 
-typedef struct {
-    int id; //group id
-    char *ip;
-    int port;
-    RaftStateMachine * stm;
-} RaftOptions;
 
 
 class RaftServer : public server_t {
 public:
     RaftServer():
-        trans_(new Transport()){
+        trans_(new Transport(this)){
     }
 
     int Create(const RaftOptions &opt, Raft **raft) {
@@ -25,11 +24,9 @@ public:
             return -1;
         }
 
-        rafts_[opt.id] = new Raft(opt.id, opt.stm);
-        rafts_[opt.id]->AddRaftNode(1, true);
+        rafts_[opt.id] = new Raft(opt);
 
-        address_t *addr = new address_t(opt.ip, opt.port);
-        trans_->Start(addr, dynamic_cast<server_t*>(this));
+        trans_->Start(opt.addr, dynamic_cast<server_t*>(this));
         *raft = rafts_[opt.id];
         return 0;
     }
@@ -90,3 +87,5 @@ private:
     std::map<uint64_t, Raft*> rafts_;
     std::unique_ptr<Transport> trans_;
 };
+
+#endif

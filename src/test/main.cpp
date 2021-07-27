@@ -11,8 +11,8 @@ int main(){
 
     RaftOptions opt;
     {
-        opt.ip = "0.0.0.0";
-        opt.port = 5678;
+
+        address_t *addr = new address_t("0.0.0.0", 5678);
         opt.id = 171;
         opt.stm = &app;
     }

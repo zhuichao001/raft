@@ -1,6 +1,10 @@
 all:
-	g++ -o server \
-	main.cpp \
+	g++ -std=c++11 -o server \
+	../raft/transport.cpp \
 	../raft/raft.cpp \
 	../raft/proto/raftmsg.pb.cc \
-	-I../ -I../../../lotus/ -std=c++11
+	main.cpp \
+	-I../ -I../../../lotus/ \
+	-L../../../lotus/lotus/ -llotus \
+	-L/usr/local/lib/ \
+	-lprotobuf

@@ -3,9 +3,10 @@
 #include <algorithm>
 #include <stdio.h>
 
-Raft::Raft(int id, RaftStateMachine *app): 
-    id_(id),
-    app_(app){
+Raft::Raft(const RaftOptions &opt): 
+    id_(opt.id),
+    app_(opt.stm),
+    trans_(opt.tran){
     term_ = 0;
     voted_for_ = -1;
     commit_idx_ = 0;
@@ -14,9 +15,10 @@ Raft::Raft(int id, RaftStateMachine *app):
     timeout_request_ = 200;
     timeout_election_ = 1000;
     reconf_idx_ = -1;
-    state_(RAFT_STATE::FOLLOWER);
+    state_ = RAFT_STATE::FOLLOWER;
     leader_ = NULL;
     local_ = NULL;
+    addRaftNode(1, opt.addr, true);
 }
 
 int Raft::Propose(const std::string &data){
@@ -69,13 +71,13 @@ void Raft::sendAppendEntries(){
     }
 }
 
-void Raft::sendAppendEntries(RaftNode *node){
+void Raft::sendAppendEntries(RaftNode *to){
     raft::AppendEntriesRequest req;
     req.set_term(term_);
     req.set_commit(commit_idx_);
 
     raft::LogEntry *e = req.add_entries();
-    int next_idx = node->GetNextIndex();
+    int next_idx = to->GetNextIndex();
     const raft::LogEntry* nex = log_.getEntry(next_idx);
     if (nex) {
         e->set_term(nex->term());
@@ -103,8 +105,8 @@ void Raft::sendAppendEntries(RaftNode *node){
         raft::RaftMessage msg;
         msg.set_type(raft::RaftMessage::MSGTYPE_APPENDLOG_REQUEST);
         msg.set_raftid(id_);
-        msg.set_ae_req(&req);
-        trans_.Send(addr_, &msg);
+        msg.set_allocated_ae_req(&req);
+        trans_->Send(to, &msg);
     }
 }
 
@@ -127,7 +129,7 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
 
     //print request
     fprintf(stderr, "Receive AppendEntries from: %lx, t:%d ci:%d lc:%d pli:%d plt:%d",
-        local_->NodeId(),
+        local_->GetNodeId(),
         msg->term(),
         getCurrentIndex(),
         msg->commit(),
@@ -148,14 +150,14 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     }
 
     if (msg->last_index() > 0) {
-        raft::LogEntry *e = log_.getEntry(msg->last_index());
+        const raft::LogEntry *e = log_.getEntry(msg->last_index());
         if (!e || msg->last_index() > getCurrentIndex()) { //second condition will be false?
             rsp->set_current_index(getCurrentIndex());
             return -1;
         }
 
         if (e->term() != msg->last_term()) {
-            fprintf("msg term doesn't match prev_term (ie. %d vs %d) ci:%d pli:%d", 
+            fprintf(stderr, "msg term doesn't match prev_term (ie. %d vs %d) ci:%d pli:%d", 
                     e->term(), msg->last_term(), getCurrentIndex(), msg->last_index());
             assert(commit_idx_ < msg->last_index());
             log_.delFrom(msg->last_index());
@@ -164,7 +166,7 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
         }
     }
 
-    leader_ = node_from;
+    leader_ = nodes_[msg->nodeid()]; //from
 
     if (msg->entries_size()==0 && msg->last_index()>0 && msg->last_index()+1<getCurrentIndex()) {
         assert(commit_idx_ < msg->last_index()+1);
@@ -199,7 +201,7 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     }
 
     if (getCurrentIndex() < msg->commit()) {
-        int last_log_idx = std::max(getCurrentIndex(), 1);
+        uint64_t last_log_idx = std::max(getCurrentIndex(), uint64_t(1));
         commit_idx_ = std::min(last_log_idx, msg->commit());
     }
 
@@ -245,7 +247,7 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
             local_->SetNextIndex(next_idx - 1);
         }
 
-        local_->sendAppendEntries();
+        sendAppendEntries();
         return 0;
     }
 
@@ -281,7 +283,7 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
     }
 
     if (log_.getEntry(local_->GetNextIndex())!=nullptr) {
-        local_->sendAppendEntries();
+        sendAppendEntries();
     }
 
     applyEntry();
@@ -298,18 +300,18 @@ int Raft::applyEntry(){
     }
 
     while(applied_idx_ < commit_idx_){
-        int log_idx = applied_idx_ + 1;
-        const raft::LogEntry *e = getEntry(log_idx);
+        int idx = applied_idx_ + 1;
+        const raft::LogEntry *e = log_.getEntry(idx);
         if (!e) {
             return -1;
         }
 
-        fprintf(stderr, "applying log: %d, id: %d size: %d", applied_idx_, e->id, e->data.len);
+        fprintf(stderr, "applying log: %d, id: %d size: %d", applied_idx_, e->index(), e->data().size());
 
-        app_.Apply(e);
+        app_->Apply(e->data());
         ++applied_idx_;
 
-        if (log_idx == reconf_idx_){
+        if (idx == reconf_idx_){
             reconf_idx_ = -1;
         }
     }
@@ -317,9 +319,9 @@ int Raft::applyEntry(){
 }
 
 void Raft::tick(){ //for follower
-    if (time_elapsed >= election_timeout) {
-        if (1 < num_nodes) {
-            electionStart();
+    if (time_elapsed_ >= timeout_election_) {
+        if (nodes_.size()>1) {
+            startElection();
         }
     }
 }
@@ -328,23 +330,24 @@ void Raft::recvHeartbeat(const raft::HeartbeatRequest *req, raft::HeartbeatRespo
     time_elapsed_ = 0;
     if (term_ < req->term()) {
         term_ = req->term();
-        leader_ = nodes_[req->node_id];
+        leader_ = nodes_[req->node_id()];
         becomeFollower();
     }
 
-    rsp->success = true;
-    rsp->node_id = leader_->GetNodeId();
+    rsp->set_success(true);
+    rsp->set_node_id(leader_->GetNodeId());
 }
 
 void Raft::becomeCandidate(){
     fprintf(stderr, "becoming candidate");
     term_ += 1;
 
-    for (int i = 0; i < num_nodes; i++) {
-        nodes[i]->VoteForMe(0); //clear flag
+    for (auto &it : nodes_) {
+        RaftNode *node = it.second;
+        node->VoteForMe(false); //clear flag
     }
 
-    voteFor(local_->NodeId());
+    voteFor(local_->GetNodeId());
     leader_ = nullptr;
 
     setState(RAFT_STATE::CANDIDATE);
@@ -379,24 +382,14 @@ void Raft::becomeFollower(){
     setState(RAFT_STATE::FOLLOWER);
 }
 
-void Raft::sendVoteRequest(RaftNode * node){
-    assert(node);
-    assert(node != local_);
-
-    frpintf(stderr, "%d sending requestvote to: %d", local->NodeId(), node->NodeId());
-
-    VoteRequest req;
-    req.set_term(current_term);
-    req.set_last_index(getCurrentIndex());
-    req.set_last_term(getLastLogTerm());
-    req.set_candidate(local->NodeId()); 
-    node->sendVoteRequest(&req);
+int Raft::voteFor(const int nodeid){
+    voted_for_ = nodeid;
+    std::map<const int, RaftNode*>::iterator it = nodes_.find(nodeid);
+    if(it==nodes_.end()){
+        return -1;
+    }
+    //persist_vote(nodeid);
     return 0;
-}
-
-void Raft::raftVoteFor(RaftNode *node){
-    vote_for = node->NodeId();
-    persist_vote(vote_for); //TODO
 }
 
 void Raft::startElection() {
@@ -406,7 +399,7 @@ void Raft::startElection() {
 }
 
 
-bool Raft::shouldGrantVote(raft::VoteRequest* req) {
+bool Raft::shouldGrantVote(const raft::VoteRequest* req) {
     if (req->term() < term_){
         return false;
     }
@@ -416,11 +409,11 @@ bool Raft::shouldGrantVote(raft::VoteRequest* req) {
     }
 
     int current_idx = getCurrentIndex();
-    if (0 == current_idx) {
+    if (current_idx==0) {
         return true;
     }
 
-    raft::LogEntry* e = getEntryFromIndex(current_idx);
+    const raft::LogEntry *e = log_.getEntry(current_idx);
     if (e->term() < req->last_term()) {
         return true;
     }
@@ -432,29 +425,28 @@ bool Raft::shouldGrantVote(raft::VoteRequest* req) {
     return false;
 }
 
-int Raft::sendVoteRequest(RaftNode *to_node){
-    assert(to_node);
-    assert(to_node != local);
+int Raft::sendVoteRequest(RaftNode *to){
+    assert(to);
+    assert(to != local_);
 
-    fprintf(stderr, "sending vote request to: %d", to_node->GetNodeId());
+    fprintf(stderr, "%d sending requestvote to: %d", local_->GetNodeId(), to->GetNodeId());
 
-    VoteReqeust req
+    raft::VoteRequest req;
     req.set_term(term_);
     req.set_last_index(getCurrentIndex());
     req.set_last_term(getLastLogTerm());
-    req.set_candidate(local->GetNodeId());
-
+    req.set_candidate(local_->GetNodeId());
     {
         raft::RaftMessage msg;
-        msg.set_type(raft::MSGTYPE_VOTE_REQUEST);
-        msg.set_raftid(raft_id_);
-        msg.set_vt_req(req);
-        trans_.Send(addr_, &msg);
+        msg.set_type(raft::RaftMessage::MSGTYPE_VOTE_REQUEST);
+        msg.set_raftid(id_);
+        msg.set_allocated_vt_req(&req);
+        trans_->Send(to, &msg);
     }
     return 0;
 }
 
-int Raft::recvVoteResponse(const raft::VoteResponse *rsp) {
+int Raft::recvVoteResponse(const raft::VoteResponse *r) {
     if (!isCandidate()) {   
         return 0;
     } else if (term_ < r->term()) {   
@@ -465,10 +457,10 @@ int Raft::recvVoteResponse(const raft::VoteResponse *rsp) {
         return 0;
     }
 
-    if (rsp->granted_for()) {   
-        voteFor(local_->NodeId());
+    if (r->grant_for()) {   
+        voteFor(local_->GetNodeId());
         int votes = getVotesNum();
-        if (votes > nodes.size()/2) {
+        if (votes > nodes_.size()/2) {
             becomeLeader();
         }
     }
@@ -485,22 +477,17 @@ int Raft::recvVoteRequest(const raft::VoteRequest *req, raft::VoteResponse *rsp)
     if (shouldGrantVote(req)) {
         assert(!isLeader() && isCandidate());
 
-        voteFor(req->candidate_id);
+        voteFor(req->candidate());
         rsp->set_grant_for(true);
 
         leader_ = nullptr;
-        time_elapsed = 0;
+        time_elapsed_ = 0;
     } else {
-        rsp->grant_for = false;
+        rsp->set_grant_for(false);
     }
 
-    rsp->term = term_;
+    rsp->set_term(term_);
     return 0;
-}
-
-void Raft::voteFor(int nodeid) {
-    voted_for_ = nodeid;
-    //TODO persist
 }
 
 int Raft::getVotesNum() {
@@ -515,22 +502,22 @@ int Raft::getVotesNum() {
         }
     }
 
-    if (voted_for_ == local_->NodeId()) {
+    if (voted_for_ == local_->GetNodeId()) {
         votes += 1;
     }
 
     return votes;
 }
 
-RaftNode *Raft::addRaftNode(int nodeid, bool is_self, bool is_voting){
+RaftNode *Raft::addRaftNode(int nodeid, const address_t *addr, bool is_self, bool is_voting){
     if (nodes_.find(nodeid) != nodes_.end()){
         return nodes_[nodeid];
     }
 
-    nodes_[nodeid] = new RaftNode(nodeid);
+    nodes_[nodeid] = new RaftNode(id_, nodeid, addr);
     nodes_[nodeid]->SetVoting(is_voting);
     if(is_self){
-        local_ nodes_[nodeid];
+        local_ = nodes_[nodeid];
     }
     return nodes_[nodeid];
 }

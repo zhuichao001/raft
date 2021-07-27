@@ -1,10 +1,14 @@
 #ifndef _RAFT_RAFT_H_
 #define _RAFT_RAFT_H_
 
+#include <memory>
+#include <map>
 #include <time.h>
 #include "raft_sm.h"
 #include "raft_node.h"
 #include "raft_log.h"
+#include "options.h"
+#include "transport.h"
 #include "proto/raftmsg.pb.h"
 
 enum RAFT_STATE {
@@ -15,17 +19,13 @@ enum RAFT_STATE {
     LEANER,
 };
 
-class Transport;
-
 class Raft{
 public:
-    Raft(int id, RaftStateMachine *app);
+    Raft(const RaftOptions &opt);
 
     int Propose(const std::string &data);
 
     int ChangeMember(int action, std::string addr); //1:add, -1:remove
-
-    RaftNode *AddRaftNode(int nodeid, bool is_self, bool is_voting=true);
 
 private: //for leader
     int appendEntry(raft::LogEntry *e);
@@ -38,6 +38,8 @@ private: //for leader
 
     void recvHeartbeatResponse(const raft::HeartbeatResponse *rsp);
 
+    RaftNode *addRaftNode(int nodeid, const address_t *addr, bool is_self, bool is_voting=true);
+
 private: //for follower
     void tick();
 
@@ -45,9 +47,9 @@ private: //for follower
 
     void becomeCandidate();
 
-    bool shouldGrantVote(raft::VoteRequest* req);
+    bool shouldGrantVote(const raft::VoteRequest* req);
 
-    void voteFor(int nodeid);
+    int voteFor(const int nodeid);
 
     int recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendEntriesResponse *rsp);
 
@@ -120,11 +122,12 @@ private:
     int timeout_election_;
     int timeout_request_;
 
-    std::map<int, RaftNode*> nodes_;
+    std::map<const int, RaftNode*> nodes_;
     RaftNode *leader_;
     RaftNode *local_;
 
     RaftStateMachine *app_;
+    std::shared_ptr<Transport> trans_;
 
     friend class Transport;
     friend class RaftServer;

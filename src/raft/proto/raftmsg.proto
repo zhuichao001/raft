@@ -38,8 +38,8 @@ message HandshakeResponse {
 message VoteRequest {
     uint64 term = 1;
     uint64 candidate = 2; //node id
-    uint64 log_index = 3; //last log index
-    uint64 log_term = 4;  //last log term
+    uint64 last_term = 3;  //last log term
+    uint64 last_index = 4; //last log index
 }
 
 message VoteResponse {
@@ -48,13 +48,14 @@ message VoteResponse {
 }
 
 message AppendEntriesRequest {
-    uint64 term = 1;
-    uint64 commit = 2; // leader commited log index
+    uint64 nodeid = 1;
+    uint64 term = 2;
+    uint64 commit = 3; // leader commited log index
 
-    uint64 last_term = 3; // last log term
-    uint64 last_index = 4; //last log index
+    uint64 last_term = 4; // last log term
+    uint64 last_index = 5; //last log index
 
-    repeated LogEntry entries = 5;
+    repeated LogEntry entries = 6;
 }
 
 message AppendEntriesResponse {
@@ -65,12 +66,13 @@ message AppendEntriesResponse {
 }
 
 message HeartbeatRequest {
-    bool success = 1;
-    //TODO
+    uint64 term = 1;
+    uint64 node_id = 2;
 }
 
 message HeartbeatResponse {
     bool success = 1; 
+    uint64 node_id = 2;
     //TODO
 }
 
