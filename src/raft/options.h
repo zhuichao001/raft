@@ -1,8 +1,8 @@
 #ifndef _RAFT_OPTIONS_H_
 #define _RAFT_OPTIONS_H_
 
-#include "lotus/address.h"
 
+class address_t;
 class Transport;
 class RaftStateMachine;
 

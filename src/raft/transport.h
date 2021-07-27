@@ -2,6 +2,7 @@
 #define _RAFT_TRANSPORT_H_
 
 #include <stdio.h>
+#include "lotus/address.h"
 #include "lotus/dialer.h"
 #include "lotus/engine.h"
 #include "lotus/server.h"
