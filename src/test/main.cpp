@@ -21,7 +21,7 @@ int main(){
 
     app.Set(std::string("abc"));
     sleep(1);
-    std::cout<<app.Get()<<std::endl;
+    std::cout<<"get:"<<app.Get()<<std::endl;
 
     return 0;
 }

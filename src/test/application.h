@@ -9,6 +9,7 @@ public:
 
     int Apply(const std::string data) override {
         fprintf(stderr, "apply :%s\n", data.c_str());
+        msg = data;
         return 0;
     }
 
