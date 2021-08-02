@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <thread>
 #include <time.h>
 #include <unistd.h>
 #include "application.h"
@@ -19,9 +20,15 @@ int main(){
     }
 
     ras.Create(opt, &app.raft_);
+    sleep(2);
+
+    std::thread th([=,&ras]{
+        ras.Start();
+    });
 
     app.Set(std::string("abc"));
-    sleep(1);
+    sleep(2);
+
     std::cout<<"get:"<<app.Get()<<std::endl;
 
     return 0;

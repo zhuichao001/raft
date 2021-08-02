@@ -1,8 +1,9 @@
 #ifndef _RAFT_SERVER_H_
 #define _RAFT_SERVER_H_
 
-#include <stdio.h>
 #include <string>
+#include <functional>
+#include <stdio.h>
 #include "lotus/server.h"
 #include "lotus/engine.h"
 #include "lotus/protocol.h"

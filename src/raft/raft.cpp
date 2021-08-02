@@ -1,5 +1,7 @@
 #include "raft.h"
 #include "util.h"
+#include "lotus/util.h"
+#include "lotus/timedriver.h"
 #include <algorithm>
 #include <stdio.h>
 
@@ -11,15 +13,16 @@ Raft::Raft(const RaftOptions &opt):
     voted_for_ = -1;
     commit_idx_ = 0;
     applied_idx_ = 0;
-    time_elapsed_ = 0;
-    timeout_request_ = 200;
+    lasttime_heartbeat_ = 0;
     timeout_election_ = 1000;
+    timeout_request_ = 200;
+    timeout_heartbeat_ = 1000;
     reconf_idx_ = -1;
-    //state_ = RAFT_STATE::FOLLOWER;
-    state_ = RAFT_STATE::LEADER;
+    state_ = RAFT_STATE::FOLLOWER;
     leader_ = NULL;
     local_ = NULL;
     addRaftNode(1, opt.addr, true);
+    tick_ = opt.watcher->run_every(10*1000, std::bind(&Raft::tick, this));
 }
 
 int Raft::Propose(const std::string &data){
@@ -62,7 +65,6 @@ int Raft::ChangeMember(int action, std::string addr) {
 }
 
 void Raft::sendAppendEntries(){
-    time_elapsed_ = 0;
     for (auto &it : nodes_) {
         RaftNode *node = it.second;
         if (node == local_) {
@@ -122,7 +124,7 @@ int Raft::appendEntry(raft::LogEntry *e) {
 }
 
 int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendEntriesResponse *rsp) {
-    time_elapsed_ = 0;
+    lasttime_heartbeat_ = microsec();
 
     rsp->set_success(false);
     rsp->set_first_index(0);
@@ -319,24 +321,22 @@ int Raft::applyEntry(){
     return 0;
 }
 
-void Raft::tick(){ //for follower
-    if (time_elapsed_ >= timeout_election_) {
-        if (nodes_.size()>1) {
-            startElection();
-        }
+void Raft::tick(){
+    fprintf(stderr, "Raft::tick\n");
+    switch(state_){
+        case RAFT_STATE::FOLLOWER:
+            if (microsec()-lasttime_heartbeat_ >= timeout_heartbeat_) {
+                startElection();
+            }
+            break;
+        case RAFT_STATE::CANDIDATE:
+            if (microsec()-lasttime_election_ >= timeout_election_) {
+                startElection();
+            }
+            break;
+        default:
+            return;
     }
-}
-
-void Raft::recvHeartbeat(const raft::HeartbeatRequest *req, raft::HeartbeatResponse *rsp){
-    time_elapsed_ = 0;
-    if (term_ < req->term()) {
-        term_ = req->term();
-        leader_ = nodes_[req->node_id()];
-        becomeFollower();
-    }
-
-    rsp->set_success(true);
-    rsp->set_node_id(leader_->GetNodeId());
 }
 
 void Raft::becomeCandidate(){
@@ -389,14 +389,16 @@ int Raft::voteFor(const int nodeid){
     if(it==nodes_.end()){
         return -1;
     }
-    //persist_vote(nodeid);
     return 0;
 }
 
 void Raft::startElection() {
-    fprintf(stderr, "election starting: %d %d, term: %d ci: %d", 
-            timeout_election_, time_elapsed_, term_, getCurrentIndex());
-    becomeCandidate();
+    if (nodes_.size()>1) {
+        lasttime_election_ = microsec();
+        becomeCandidate();
+    } else {
+        becomeLeader();
+    }
 }
 
 
@@ -484,7 +486,6 @@ int Raft::recvVoteRequest(const raft::VoteRequest *req, raft::VoteResponse *rsp)
         rsp->set_agree(true);
 
         leader_ = nullptr;
-        time_elapsed_ = 0;
     } else {
         rsp->set_agree(false);
     }

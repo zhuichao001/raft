@@ -9,6 +9,7 @@
 #include "raft_log.h"
 #include "options.h"
 #include "transport.h"
+#include "lotus/timer.h"
 #include "proto/raftmsg.pb.h"
 
 enum RAFT_STATE {
@@ -54,8 +55,6 @@ private: //for follower
     int recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendEntriesResponse *rsp);
 
     int recvVoteRequest(const raft::VoteRequest *req, raft::VoteResponse *rsp);
-
-    void recvHeartbeat(const raft::HeartbeatRequest *req, raft::HeartbeatResponse *rsp);
 
 private: //for candidate
     void becomeLeader();
@@ -118,9 +117,13 @@ private:
     uint64_t applied_idx_;
     uint64_t reconf_idx_;
 
-    int time_elapsed_;  //since last time
-    int timeout_election_;
-    int timeout_request_;
+    uint64_t timeout_election_;
+    uint64_t timeout_request_;
+    uint64_t timeout_heartbeat_;
+    uint64_t lasttime_heartbeat_;
+    uint64_t lasttime_election_;
+
+    lotus::timer_t *tick_;
 
     std::map<const int, RaftNode*> nodes_;
     RaftNode *leader_;

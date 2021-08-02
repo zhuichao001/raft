@@ -7,4 +7,5 @@ all:
 	-I../ -I../../../lotus/ \
 	-L../../../lotus/lotus/ -llotus \
 	-L/usr/local/lib/ \
-	-lprotobuf
+	-lprotobuf \
+	-lpthread
