@@ -5,12 +5,14 @@
 class address_t;
 class Transport;
 class RaftStateMachine;
+class timedriver_t;
 
 typedef struct {
     int id; //raft replicate group id
     address_t *addr;
     Transport *tran;
-    RaftStateMachine * stm;
+    RaftStateMachine *stm;
+    timedriver_t *watcher;
 } RaftOptions;
 
 #endif

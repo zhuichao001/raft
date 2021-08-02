@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string>
 #include "lotus/server.h"
+#include "lotus/engine.h"
 #include "lotus/protocol.h"
 #include "proto/raftmsg.pb.h"
 #include "transport.h"
@@ -15,8 +16,9 @@
 
 class RaftServer : public server_t {
 public:
-    RaftServer():
-        trans_(new Transport(this)){
+    RaftServer() {
+        eng_ = new engine_t();
+        trans_ = new Transport(this);
     }
 
     int Create(const RaftOptions &opt, Raft **raft) {
@@ -26,7 +28,7 @@ public:
 
         rafts_[opt.id] = new Raft(opt);
 
-        trans_->Start(opt.addr, dynamic_cast<server_t*>(this));
+        trans_->Bind(opt.addr, dynamic_cast<server_t*>(this));
         *raft = rafts_[opt.id];
         return 0;
     }
@@ -34,7 +36,7 @@ public:
     int Remove(int64_t id) {
         rafts_.erase(id); //TODO
         return 0; 
-    } 
+    }
 
     Raft *GetRaft(int64_t id) {
         auto it = rafts_.find(id);
@@ -44,12 +46,16 @@ public:
         return nullptr;
     }
 
+    timedriver_t *GetTimeDriver(){
+        return eng_->evloop();
+    }
+
     void Start() {
-        trans_->Run();
+        eng_->run();
     }
 
     void Stop() {
-        trans_->Stop();
+        eng_->stop();
     }
 
 public:
@@ -84,8 +90,11 @@ public:
     }
 
 private:
+    engine_t *eng_;
     std::map<uint64_t, Raft*> rafts_;
-    std::unique_ptr<Transport> trans_;
+    Transport *trans_;
+
+    friend Transport;
 };
 
 #endif

@@ -17,11 +17,7 @@ class Transport {
 public:
     Transport(RaftServer *rs);
 
-    int Start(address_t *addr, server_t *svr);
-
-    void Stop();
-
-    void Run();
+    int Bind(address_t *addr, server_t *svr);
 
     void Send(const RaftNode *to, const raft::RaftMessage *msg);
 

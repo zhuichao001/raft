@@ -9,32 +9,23 @@
 #include "transport.h"
 
 Transport::Transport(RaftServer *rs):
-    raft_server_(rs),
-    eng_(new engine_t()){
+    raft_server_(rs){
 }
 
-int Transport::Start(address_t *addr, server_t *svr){
+int Transport::Bind(address_t *addr, server_t *svr){
     if (addr == nullptr){
         return -1;
     }
     servers_[addr] = svr;
-    eng_->start(addr, svr);
+    raft_server_->eng_->start(addr, svr);
     return 0;
-}
-
-void Transport::Stop() {
-    eng_->stop();
-}
-
-void Transport::Run(){
-    eng_->run();
 }
 
 void Transport::Send(const RaftNode *to, const raft::RaftMessage *msg){
     const address_t *addr = to->GetAddress();
     auto it = clients_.find(addr);
     if (it==clients_.end()){
-        dialer_t *cli = eng_->open(addr);
+        dialer_t *cli = raft_server_->eng_->open(addr);
         clients_[addr] = cli;
     }
 
@@ -50,7 +41,7 @@ void Transport::Send(const RaftNode *to, const raft::RaftMessage *msg){
 int Transport::dispatch(request_t *req, response_t *rsp){
     raft::RaftMessage msg;
     msg.ParseFromString(rsp->data());
-    Raft *raf = raft_server_->GetRaft(msg.raftid()); //TODO
+    Raft *raf = raft_server_->GetRaft(msg.raftid());
     if(raf==nullptr){
         fprintf(stderr, "RaftServer not found raftid:%d\n", msg.raftid());
     }
