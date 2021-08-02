@@ -376,7 +376,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::VoteResponse, term_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::VoteResponse, grant_for_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::VoteResponse, agree_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::AppendEntriesRequest, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -487,39 +487,39 @@ void AddDescriptorsImpl() {
       "m\030\004 \001(\004\"5\n\021HandshakeResponse\022\017\n\007success\030"
       "\001 \001(\010\022\017\n\007node_id\030\002 \001(\004\"U\n\013VoteRequest\022\014\n"
       "\004term\030\001 \001(\004\022\021\n\tcandidate\030\002 \001(\004\022\021\n\tlast_t"
-      "erm\030\003 \001(\004\022\022\n\nlast_index\030\004 \001(\004\"/\n\014VoteRes"
-      "ponse\022\014\n\004term\030\001 \001(\004\022\021\n\tgrant_for\030\002 \001(\010\"\214"
-      "\001\n\024AppendEntriesRequest\022\016\n\006nodeid\030\001 \001(\004\022"
-      "\014\n\004term\030\002 \001(\004\022\016\n\006commit\030\003 \001(\004\022\021\n\tlast_te"
-      "rm\030\004 \001(\004\022\022\n\nlast_index\030\005 \001(\004\022\037\n\007entries\030"
-      "\006 \003(\0132\016.raft.LogEntry\"b\n\025AppendEntriesRe"
-      "sponse\022\017\n\007success\030\001 \001(\010\022\014\n\004term\030\002 \001(\004\022\025\n"
-      "\rcurrent_index\030\003 \001(\004\022\023\n\013first_index\030\004 \001("
-      "\004\"1\n\020HeartbeatRequest\022\014\n\004term\030\001 \001(\004\022\017\n\007n"
-      "ode_id\030\002 \001(\004\"5\n\021HeartbeatResponse\022\017\n\007suc"
-      "cess\030\001 \001(\010\022\017\n\007node_id\030\002 \001(\004\"\356\004\n\013RaftMess"
-      "age\022/\n\004type\030\001 \001(\0162!.raft.RaftMessage.Raf"
-      "tMessageType\022(\n\006hs_req\030\002 \001(\0132\026.raft.Hand"
-      "shakeRequestH\000\022)\n\006hs_rsp\030\003 \001(\0132\027.raft.Ha"
-      "ndshakeResponseH\000\022#\n\006vt_req\030\004 \001(\0132\021.raft"
-      ".VoteRequestH\000\022$\n\006vt_rsp\030\005 \001(\0132\022.raft.Vo"
-      "teResponseH\000\022,\n\006ae_req\030\006 \001(\0132\032.raft.Appe"
-      "ndEntriesRequestH\000\022-\n\006ae_rsp\030\007 \001(\0132\033.raf"
-      "t.AppendEntriesResponseH\000\022(\n\006hb_req\030\010 \001("
-      "\0132\026.raft.HeartbeatRequestH\000\022)\n\006hb_rsp\030\t "
-      "\001(\0132\027.raft.HeartbeatResponseH\000\022\016\n\006raftid"
-      "\030\n \001(\r\"\304\001\n\017RaftMessageType\022\035\n\031MSGTYPE_HA"
-      "NDSHAKE_REQUEST\020\000\022\036\n\032MSGTYPE_HANDSHAKE_R"
-      "ESPONSE\020\001\022\030\n\024MSGTYPE_VOTE_REQUEST\020\002\022\031\n\025M"
-      "SGTYPE_VOTE_RESPONSE\020\003\022\035\n\031MSGTYPE_APPEND"
-      "LOG_REQUEST\020\004\022\036\n\032MSGTYPE_APPENDLOG_RESPO"
-      "NSE\020\005B\005\n\003msg*\201\001\n\013RaftLogType\022\022\n\016LOGTYPE_"
-      "NORMAL\020\000\022\036\n\032LOGTYPE_ADD_NONVOTING_NODE\020\001"
-      "\022\024\n\020LOGTYPE_ADD_NODE\020\002\022\027\n\023LOGTYPE_REMOVE"
-      "_NODE\020\003\022\017\n\013LOGTYPE_NUM\020\004b\006proto3"
+      "erm\030\003 \001(\004\022\022\n\nlast_index\030\004 \001(\004\"+\n\014VoteRes"
+      "ponse\022\014\n\004term\030\001 \001(\004\022\r\n\005agree\030\002 \001(\010\"\214\001\n\024A"
+      "ppendEntriesRequest\022\016\n\006nodeid\030\001 \001(\004\022\014\n\004t"
+      "erm\030\002 \001(\004\022\016\n\006commit\030\003 \001(\004\022\021\n\tlast_term\030\004"
+      " \001(\004\022\022\n\nlast_index\030\005 \001(\004\022\037\n\007entries\030\006 \003("
+      "\0132\016.raft.LogEntry\"b\n\025AppendEntriesRespon"
+      "se\022\017\n\007success\030\001 \001(\010\022\014\n\004term\030\002 \001(\004\022\025\n\rcur"
+      "rent_index\030\003 \001(\004\022\023\n\013first_index\030\004 \001(\004\"1\n"
+      "\020HeartbeatRequest\022\014\n\004term\030\001 \001(\004\022\017\n\007node_"
+      "id\030\002 \001(\004\"5\n\021HeartbeatResponse\022\017\n\007success"
+      "\030\001 \001(\010\022\017\n\007node_id\030\002 \001(\004\"\356\004\n\013RaftMessage\022"
+      "/\n\004type\030\001 \001(\0162!.raft.RaftMessage.RaftMes"
+      "sageType\022(\n\006hs_req\030\002 \001(\0132\026.raft.Handshak"
+      "eRequestH\000\022)\n\006hs_rsp\030\003 \001(\0132\027.raft.Handsh"
+      "akeResponseH\000\022#\n\006vt_req\030\004 \001(\0132\021.raft.Vot"
+      "eRequestH\000\022$\n\006vt_rsp\030\005 \001(\0132\022.raft.VoteRe"
+      "sponseH\000\022,\n\006ae_req\030\006 \001(\0132\032.raft.AppendEn"
+      "triesRequestH\000\022-\n\006ae_rsp\030\007 \001(\0132\033.raft.Ap"
+      "pendEntriesResponseH\000\022(\n\006hb_req\030\010 \001(\0132\026."
+      "raft.HeartbeatRequestH\000\022)\n\006hb_rsp\030\t \001(\0132"
+      "\027.raft.HeartbeatResponseH\000\022\016\n\006raftid\030\n \001"
+      "(\r\"\304\001\n\017RaftMessageType\022\035\n\031MSGTYPE_HANDSH"
+      "AKE_REQUEST\020\000\022\036\n\032MSGTYPE_HANDSHAKE_RESPO"
+      "NSE\020\001\022\030\n\024MSGTYPE_VOTE_REQUEST\020\002\022\031\n\025MSGTY"
+      "PE_VOTE_RESPONSE\020\003\022\035\n\031MSGTYPE_APPENDLOG_"
+      "REQUEST\020\004\022\036\n\032MSGTYPE_APPENDLOG_RESPONSE\020"
+      "\005B\005\n\003msg*\201\001\n\013RaftLogType\022\022\n\016LOGTYPE_NORM"
+      "AL\020\000\022\036\n\032LOGTYPE_ADD_NONVOTING_NODE\020\001\022\024\n\020"
+      "LOGTYPE_ADD_NODE\020\002\022\027\n\023LOGTYPE_REMOVE_NOD"
+      "E\020\003\022\017\n\013LOGTYPE_NUM\020\004b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 1552);
+      descriptor, 1548);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "raftmsg.proto", &protobuf_RegisterTypes);
 }
@@ -2214,7 +2214,7 @@ void VoteResponse::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int VoteResponse::kTermFieldNumber;
-const int VoteResponse::kGrantForFieldNumber;
+const int VoteResponse::kAgreeFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 VoteResponse::VoteResponse()
@@ -2231,15 +2231,15 @@ VoteResponse::VoteResponse(const VoteResponse& from)
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&term_, &from.term_,
-    static_cast<size_t>(reinterpret_cast<char*>(&grant_for_) -
-    reinterpret_cast<char*>(&term_)) + sizeof(grant_for_));
+    static_cast<size_t>(reinterpret_cast<char*>(&agree_) -
+    reinterpret_cast<char*>(&term_)) + sizeof(agree_));
   // @@protoc_insertion_point(copy_constructor:raft.VoteResponse)
 }
 
 void VoteResponse::SharedCtor() {
   ::memset(&term_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&grant_for_) -
-      reinterpret_cast<char*>(&term_)) + sizeof(grant_for_));
+      reinterpret_cast<char*>(&agree_) -
+      reinterpret_cast<char*>(&term_)) + sizeof(agree_));
   _cached_size_ = 0;
 }
 
@@ -2281,8 +2281,8 @@ void VoteResponse::Clear() {
   (void) cached_has_bits;
 
   ::memset(&term_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&grant_for_) -
-      reinterpret_cast<char*>(&term_)) + sizeof(grant_for_));
+      reinterpret_cast<char*>(&agree_) -
+      reinterpret_cast<char*>(&term_)) + sizeof(agree_));
   _internal_metadata_.Clear();
 }
 
@@ -2310,14 +2310,14 @@ bool VoteResponse::MergePartialFromCodedStream(
         break;
       }
 
-      // bool grant_for = 2;
+      // bool agree = 2;
       case 2: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
 
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
-                 input, &grant_for_)));
+                 input, &agree_)));
         } else {
           goto handle_unusual;
         }
@@ -2355,9 +2355,9 @@ void VoteResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->term(), output);
   }
 
-  // bool grant_for = 2;
-  if (this->grant_for() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->grant_for(), output);
+  // bool agree = 2;
+  if (this->agree() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->agree(), output);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -2379,9 +2379,9 @@ void VoteResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->term(), target);
   }
 
-  // bool grant_for = 2;
-  if (this->grant_for() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->grant_for(), target);
+  // bool agree = 2;
+  if (this->agree() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->agree(), target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -2408,8 +2408,8 @@ size_t VoteResponse::ByteSizeLong() const {
         this->term());
   }
 
-  // bool grant_for = 2;
-  if (this->grant_for() != 0) {
+  // bool agree = 2;
+  if (this->agree() != 0) {
     total_size += 1 + 1;
   }
 
@@ -2445,8 +2445,8 @@ void VoteResponse::MergeFrom(const VoteResponse& from) {
   if (from.term() != 0) {
     set_term(from.term());
   }
-  if (from.grant_for() != 0) {
-    set_grant_for(from.grant_for());
+  if (from.agree() != 0) {
+    set_agree(from.agree());
   }
 }
 
@@ -2475,7 +2475,7 @@ void VoteResponse::Swap(VoteResponse* other) {
 void VoteResponse::InternalSwap(VoteResponse* other) {
   using std::swap;
   swap(term_, other->term_);
-  swap(grant_for_, other->grant_for_);
+  swap(agree_, other->agree_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
 }

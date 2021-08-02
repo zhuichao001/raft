@@ -15,7 +15,8 @@ Raft::Raft(const RaftOptions &opt):
     timeout_request_ = 200;
     timeout_election_ = 1000;
     reconf_idx_ = -1;
-    state_ = RAFT_STATE::FOLLOWER;
+    //state_ = RAFT_STATE::FOLLOWER;
+    state_ = RAFT_STATE::LEADER;
     leader_ = NULL;
     local_ = NULL;
     addRaftNode(1, opt.addr, true);
@@ -449,7 +450,9 @@ int Raft::sendVoteRequest(RaftNode *to){
 int Raft::recvVoteResponse(const raft::VoteResponse *r) {
     if (!isCandidate()) {   
         return 0;
-    } else if (term_ < r->term()) {   
+    } 
+
+    if (term_ < r->term()) {   
         term_ = r->term();
         becomeFollower();
         return 0;
@@ -457,7 +460,7 @@ int Raft::recvVoteResponse(const raft::VoteResponse *r) {
         return 0;
     }
 
-    if (r->grant_for()) {   
+    if (r->agree()) {   
         voteFor(local_->GetNodeId());
         int votes = getVotesNum();
         if (votes > nodes_.size()/2) {
@@ -478,12 +481,12 @@ int Raft::recvVoteRequest(const raft::VoteRequest *req, raft::VoteResponse *rsp)
         assert(!isLeader() && isCandidate());
 
         voteFor(req->candidate());
-        rsp->set_grant_for(true);
+        rsp->set_agree(true);
 
         leader_ = nullptr;
         time_elapsed_ = 0;
     } else {
-        rsp->set_grant_for(false);
+        rsp->set_agree(false);
     }
 
     rsp->set_term(term_);

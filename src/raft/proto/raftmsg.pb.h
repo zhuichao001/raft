@@ -835,18 +835,18 @@ class VoteResponse : public ::google::protobuf::Message /* @@protoc_insertion_po
   ::google::protobuf::uint64 term() const;
   void set_term(::google::protobuf::uint64 value);
 
-  // bool grant_for = 2;
-  void clear_grant_for();
-  static const int kGrantForFieldNumber = 2;
-  bool grant_for() const;
-  void set_grant_for(bool value);
+  // bool agree = 2;
+  void clear_agree();
+  static const int kAgreeFieldNumber = 2;
+  bool agree() const;
+  void set_agree(bool value);
 
   // @@protoc_insertion_point(class_scope:raft.VoteResponse)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::uint64 term_;
-  bool grant_for_;
+  bool agree_;
   mutable int _cached_size_;
   friend struct ::protobuf_raftmsg_2eproto::TableStruct;
   friend void ::protobuf_raftmsg_2eproto::InitDefaultsVoteResponseImpl();
@@ -1881,18 +1881,18 @@ inline void VoteResponse::set_term(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:raft.VoteResponse.term)
 }
 
-// bool grant_for = 2;
-inline void VoteResponse::clear_grant_for() {
-  grant_for_ = false;
+// bool agree = 2;
+inline void VoteResponse::clear_agree() {
+  agree_ = false;
 }
-inline bool VoteResponse::grant_for() const {
-  // @@protoc_insertion_point(field_get:raft.VoteResponse.grant_for)
-  return grant_for_;
+inline bool VoteResponse::agree() const {
+  // @@protoc_insertion_point(field_get:raft.VoteResponse.agree)
+  return agree_;
 }
-inline void VoteResponse::set_grant_for(bool value) {
+inline void VoteResponse::set_agree(bool value) {
   
-  grant_for_ = value;
-  // @@protoc_insertion_point(field_set:raft.VoteResponse.grant_for)
+  agree_ = value;
+  // @@protoc_insertion_point(field_set:raft.VoteResponse.agree)
 }
 
 // -------------------------------------------------------------------

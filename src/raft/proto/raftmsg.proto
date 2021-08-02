@@ -44,7 +44,7 @@ message VoteRequest {
 
 message VoteResponse {
     uint64 term = 1;
-    bool grant_for = 2; // true or false
+    bool agree = 2; // grant for true or false
 }
 
 message AppendEntriesRequest {
