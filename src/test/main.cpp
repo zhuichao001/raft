@@ -16,11 +16,9 @@ int main(){
         opt.addr = new address_t("0.0.0.0", 5678);
         opt.id = 171;
         opt.stm = &app;
-        opt.watcher = ras.GetTimeDriver();
     }
 
     ras.Create(opt, &app.raft_);
-    sleep(2);
 
     std::thread th([=,&ras]{
         ras.Start();
@@ -30,6 +28,7 @@ int main(){
     sleep(2);
 
     std::cout<<"get:"<<app.Get()<<std::endl;
+    sleep(200);
 
     return 0;
 }
