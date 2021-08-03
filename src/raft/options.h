@@ -12,7 +12,7 @@ typedef struct {
     address_t *addr;
     Transport *tran;
     RaftStateMachine *stm;
-    timedriver_t *watcher;
+    timedriver_t *clocker;
 } RaftOptions;
 
 #endif

@@ -19,17 +19,20 @@ class RaftServer : public server_t {
 public:
     RaftServer() {
         eng_ = new engine_t();
-        trans_ = new Transport(this);
+        trans_ = new Transport(eng_, this);
     }
 
-    int Create(const RaftOptions &opt, Raft **raft) {
+    int Create(RaftOptions &opt, Raft **raft) {
         if(raft==nullptr){
             return -1;
         }
 
+        trans_->Start(opt.addr, dynamic_cast<server_t*>(this));
+
+        //why the order affects timer's regular work
+        opt.clocker = eng_;
         rafts_[opt.id] = new Raft(opt);
 
-        trans_->Bind(opt.addr, dynamic_cast<server_t*>(this));
         *raft = rafts_[opt.id];
         return 0;
     }
@@ -45,10 +48,6 @@ public:
             return it->second;
         }
         return nullptr;
-    }
-
-    timedriver_t *GetTimeDriver(){
-        return eng_->evloop();
     }
 
     void Start() {

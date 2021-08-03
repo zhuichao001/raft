@@ -22,7 +22,7 @@ Raft::Raft(const RaftOptions &opt):
     leader_ = NULL;
     local_ = NULL;
     addRaftNode(1, opt.addr, true);
-    tick_ = opt.watcher->run_every(10*1000, std::bind(&Raft::tick, this));
+    ticker_ = opt.clocker->run_every(std::bind(&Raft::tick, this), 1000*1000);
 }
 
 int Raft::Propose(const std::string &data){
@@ -362,7 +362,7 @@ void Raft::becomeCandidate(){
 }
 
 void Raft::becomeLeader(){ //for candidator
-    fprintf(stderr, "becoming leader term:%d", term_);
+    fprintf(stderr, "becoming leader term:%d\n", term_);
     setState(RAFT_STATE::LEADER);
     leader_ = local_;
 

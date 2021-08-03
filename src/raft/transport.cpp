@@ -8,16 +8,17 @@
 #include "raft_server.h"
 #include "transport.h"
 
-Transport::Transport(RaftServer *rs):
+Transport::Transport(engine_t *eng, RaftServer *rs):
+    eng_(eng),
     raft_server_(rs){
 }
 
-int Transport::Bind(address_t *addr, server_t *svr){
+int Transport::Start(address_t *addr, server_t *svr){
     if (addr == nullptr){
         return -1;
     }
     servers_[addr] = svr;
-    raft_server_->eng_->start(addr, svr);
+    eng_->start(addr, svr);
     return 0;
 }
 
@@ -25,7 +26,7 @@ void Transport::Send(const RaftNode *to, const raft::RaftMessage *msg){
     const address_t *addr = to->GetAddress();
     auto it = clients_.find(addr);
     if (it==clients_.end()){
-        dialer_t *cli = raft_server_->eng_->open(addr);
+        dialer_t *cli = eng_->open(addr);
         clients_[addr] = cli;
     }
 

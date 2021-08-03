@@ -123,7 +123,7 @@ private:
     uint64_t lasttime_heartbeat_;
     uint64_t lasttime_election_;
 
-    lotus::timer_t *tick_;
+    lotus::timer_t *ticker_;
 
     std::map<const int, RaftNode*> nodes_;
     RaftNode *leader_;
