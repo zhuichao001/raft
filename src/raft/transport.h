@@ -19,7 +19,7 @@ public:
 
     int Start(address_t *addr, server_t *svr);
 
-    void Send(const address_t *addr, const raft::RaftMessage *msg);
+    void Send(const address_t *addr, const std::shared_ptr<raft::RaftMessage> msg);
 
 private:
     int dispatch(request_t *req, response_t *rsp);
@@ -27,7 +27,7 @@ private:
 private:
     engine_t *eng_;
     RaftServer *raft_server_;
-    std::map<const address_t *, dialer_t *> clients_;
+    std::map<uint64_t, dialer_t *> clients_;
     std::map<const address_t *, server_t *> servers_;
 };
 

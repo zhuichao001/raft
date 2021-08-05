@@ -22,11 +22,11 @@ int Transport::Start(address_t *addr, server_t *svr){
     return 0;
 }
 
-void Transport::Send(const address_t *addr, const raft::RaftMessage *msg){
-    auto it = clients_.find(addr);
-    if (it==clients_.end()){
+void Transport::Send(const address_t *addr, const std::shared_ptr<raft::RaftMessage> msg){
+    int64_t hip = addr->to_long();
+    if(clients_.find(hip)==clients_.end()){
         dialer_t *cli = eng_->open(addr);
-        clients_[addr] = cli;
+        clients_[hip] = cli;
     }
 
     string tmp;
@@ -36,7 +36,7 @@ void Transport::Send(const address_t *addr, const raft::RaftMessage *msg){
     req.setbody(tmp.c_str(), tmp.size());
 
     RpcCallback callback = std::bind(&Transport::dispatch, this, std::placeholders::_1, std::placeholders::_2);
-    clients_[addr]->call(&req, callback);
+    clients_[hip]->call(&req, callback);
 }
 
 int Transport::dispatch(request_t *req, response_t *rsp){

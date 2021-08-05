@@ -1,0 +1,1 @@
+./server --nodeid 1

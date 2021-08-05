@@ -66,17 +66,18 @@ message AppendEntriesRequest {
     uint64 term = 2;
     uint64 commit = 3; // leader commited log index
 
-    uint64 last_term = 4; // last log term
-    uint64 last_index = 5; //last log index
+    uint64 prev_log_term = 4; // last log term
+    uint64 prev_log_index = 5; //last log index
 
     repeated LogEntry entries = 6;
 };
 
 message AppendEntriesResponse {
-    bool success = 1; //true if match prev_log
-    uint64 term = 2;
-    uint64 current_index = 3;
-    uint64 first_index = 4;
+    uint64 nodeid = 1;
+    bool success = 2; //true if match prev_log
+    uint64 term = 3;
+    uint64 current_index = 4;
+    uint64 first_index = 5;
 };
 
 message HeartbeatRequest {

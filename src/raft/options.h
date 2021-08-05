@@ -9,6 +9,7 @@ class timedriver_t;
 
 typedef struct {
     int id; //raft replicate group id
+    int nodeid;
     address_t addr;
     Transport *tran;
     RaftStateMachine *stm;

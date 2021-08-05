@@ -1320,17 +1320,17 @@ class AppendEntriesRequest : public ::google::protobuf::Message /* @@protoc_inse
   ::google::protobuf::uint64 commit() const;
   void set_commit(::google::protobuf::uint64 value);
 
-  // uint64 last_term = 4;
-  void clear_last_term();
-  static const int kLastTermFieldNumber = 4;
-  ::google::protobuf::uint64 last_term() const;
-  void set_last_term(::google::protobuf::uint64 value);
+  // uint64 prev_log_term = 4;
+  void clear_prev_log_term();
+  static const int kPrevLogTermFieldNumber = 4;
+  ::google::protobuf::uint64 prev_log_term() const;
+  void set_prev_log_term(::google::protobuf::uint64 value);
 
-  // uint64 last_index = 5;
-  void clear_last_index();
-  static const int kLastIndexFieldNumber = 5;
-  ::google::protobuf::uint64 last_index() const;
-  void set_last_index(::google::protobuf::uint64 value);
+  // uint64 prev_log_index = 5;
+  void clear_prev_log_index();
+  static const int kPrevLogIndexFieldNumber = 5;
+  ::google::protobuf::uint64 prev_log_index() const;
+  void set_prev_log_index(::google::protobuf::uint64 value);
 
   // @@protoc_insertion_point(class_scope:raft.AppendEntriesRequest)
  private:
@@ -1340,8 +1340,8 @@ class AppendEntriesRequest : public ::google::protobuf::Message /* @@protoc_inse
   ::google::protobuf::uint64 nodeid_;
   ::google::protobuf::uint64 term_;
   ::google::protobuf::uint64 commit_;
-  ::google::protobuf::uint64 last_term_;
-  ::google::protobuf::uint64 last_index_;
+  ::google::protobuf::uint64 prev_log_term_;
+  ::google::protobuf::uint64 prev_log_index_;
   mutable int _cached_size_;
   friend struct ::protobuf_raftmsg_2eproto::TableStruct;
   friend void ::protobuf_raftmsg_2eproto::InitDefaultsAppendEntriesRequestImpl();
@@ -1430,27 +1430,33 @@ class AppendEntriesResponse : public ::google::protobuf::Message /* @@protoc_ins
 
   // accessors -------------------------------------------------------
 
-  // uint64 term = 2;
+  // uint64 nodeid = 1;
+  void clear_nodeid();
+  static const int kNodeidFieldNumber = 1;
+  ::google::protobuf::uint64 nodeid() const;
+  void set_nodeid(::google::protobuf::uint64 value);
+
+  // uint64 term = 3;
   void clear_term();
-  static const int kTermFieldNumber = 2;
+  static const int kTermFieldNumber = 3;
   ::google::protobuf::uint64 term() const;
   void set_term(::google::protobuf::uint64 value);
 
-  // uint64 current_index = 3;
+  // uint64 current_index = 4;
   void clear_current_index();
-  static const int kCurrentIndexFieldNumber = 3;
+  static const int kCurrentIndexFieldNumber = 4;
   ::google::protobuf::uint64 current_index() const;
   void set_current_index(::google::protobuf::uint64 value);
 
-  // uint64 first_index = 4;
+  // uint64 first_index = 5;
   void clear_first_index();
-  static const int kFirstIndexFieldNumber = 4;
+  static const int kFirstIndexFieldNumber = 5;
   ::google::protobuf::uint64 first_index() const;
   void set_first_index(::google::protobuf::uint64 value);
 
-  // bool success = 1;
+  // bool success = 2;
   void clear_success();
-  static const int kSuccessFieldNumber = 1;
+  static const int kSuccessFieldNumber = 2;
   bool success() const;
   void set_success(bool value);
 
@@ -1458,6 +1464,7 @@ class AppendEntriesResponse : public ::google::protobuf::Message /* @@protoc_ins
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::uint64 nodeid_;
   ::google::protobuf::uint64 term_;
   ::google::protobuf::uint64 current_index_;
   ::google::protobuf::uint64 first_index_;
@@ -2509,32 +2516,32 @@ inline void AppendEntriesRequest::set_commit(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:raft.AppendEntriesRequest.commit)
 }
 
-// uint64 last_term = 4;
-inline void AppendEntriesRequest::clear_last_term() {
-  last_term_ = GOOGLE_ULONGLONG(0);
+// uint64 prev_log_term = 4;
+inline void AppendEntriesRequest::clear_prev_log_term() {
+  prev_log_term_ = GOOGLE_ULONGLONG(0);
 }
-inline ::google::protobuf::uint64 AppendEntriesRequest::last_term() const {
-  // @@protoc_insertion_point(field_get:raft.AppendEntriesRequest.last_term)
-  return last_term_;
+inline ::google::protobuf::uint64 AppendEntriesRequest::prev_log_term() const {
+  // @@protoc_insertion_point(field_get:raft.AppendEntriesRequest.prev_log_term)
+  return prev_log_term_;
 }
-inline void AppendEntriesRequest::set_last_term(::google::protobuf::uint64 value) {
+inline void AppendEntriesRequest::set_prev_log_term(::google::protobuf::uint64 value) {
   
-  last_term_ = value;
-  // @@protoc_insertion_point(field_set:raft.AppendEntriesRequest.last_term)
+  prev_log_term_ = value;
+  // @@protoc_insertion_point(field_set:raft.AppendEntriesRequest.prev_log_term)
 }
 
-// uint64 last_index = 5;
-inline void AppendEntriesRequest::clear_last_index() {
-  last_index_ = GOOGLE_ULONGLONG(0);
+// uint64 prev_log_index = 5;
+inline void AppendEntriesRequest::clear_prev_log_index() {
+  prev_log_index_ = GOOGLE_ULONGLONG(0);
 }
-inline ::google::protobuf::uint64 AppendEntriesRequest::last_index() const {
-  // @@protoc_insertion_point(field_get:raft.AppendEntriesRequest.last_index)
-  return last_index_;
+inline ::google::protobuf::uint64 AppendEntriesRequest::prev_log_index() const {
+  // @@protoc_insertion_point(field_get:raft.AppendEntriesRequest.prev_log_index)
+  return prev_log_index_;
 }
-inline void AppendEntriesRequest::set_last_index(::google::protobuf::uint64 value) {
+inline void AppendEntriesRequest::set_prev_log_index(::google::protobuf::uint64 value) {
   
-  last_index_ = value;
-  // @@protoc_insertion_point(field_set:raft.AppendEntriesRequest.last_index)
+  prev_log_index_ = value;
+  // @@protoc_insertion_point(field_set:raft.AppendEntriesRequest.prev_log_index)
 }
 
 // repeated .raft.LogEntry entries = 6;
@@ -2571,7 +2578,21 @@ AppendEntriesRequest::entries() const {
 
 // AppendEntriesResponse
 
-// bool success = 1;
+// uint64 nodeid = 1;
+inline void AppendEntriesResponse::clear_nodeid() {
+  nodeid_ = GOOGLE_ULONGLONG(0);
+}
+inline ::google::protobuf::uint64 AppendEntriesResponse::nodeid() const {
+  // @@protoc_insertion_point(field_get:raft.AppendEntriesResponse.nodeid)
+  return nodeid_;
+}
+inline void AppendEntriesResponse::set_nodeid(::google::protobuf::uint64 value) {
+  
+  nodeid_ = value;
+  // @@protoc_insertion_point(field_set:raft.AppendEntriesResponse.nodeid)
+}
+
+// bool success = 2;
 inline void AppendEntriesResponse::clear_success() {
   success_ = false;
 }
@@ -2585,7 +2606,7 @@ inline void AppendEntriesResponse::set_success(bool value) {
   // @@protoc_insertion_point(field_set:raft.AppendEntriesResponse.success)
 }
 
-// uint64 term = 2;
+// uint64 term = 3;
 inline void AppendEntriesResponse::clear_term() {
   term_ = GOOGLE_ULONGLONG(0);
 }
@@ -2599,7 +2620,7 @@ inline void AppendEntriesResponse::set_term(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:raft.AppendEntriesResponse.term)
 }
 
-// uint64 current_index = 3;
+// uint64 current_index = 4;
 inline void AppendEntriesResponse::clear_current_index() {
   current_index_ = GOOGLE_ULONGLONG(0);
 }
@@ -2613,7 +2634,7 @@ inline void AppendEntriesResponse::set_current_index(::google::protobuf::uint64 
   // @@protoc_insertion_point(field_set:raft.AppendEntriesResponse.current_index)
 }
 
-// uint64 first_index = 4;
+// uint64 first_index = 5;
 inline void AppendEntriesResponse::clear_first_index() {
   first_index_ = GOOGLE_ULONGLONG(0);
 }

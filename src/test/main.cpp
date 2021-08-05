@@ -12,7 +12,7 @@
 #include<getopt.h>
 
 bool isleader = true;
-int raftid;
+int raftid = 117;
 int nodeid;
 int port;
 int leader_port; //leader address
@@ -30,7 +30,7 @@ int parse_opt(int argc, char *argv[]) {
         {"help",    no_argument,        NULL, 'h'},
     };
 
-    while(EOF != (c = getopt_long(argc,argv,"hrij:", long_options, &index))) {
+    while(EOF != (c = getopt_long(argc,argv,"hri:j:", long_options, &index))) {
         switch(c) {
             case 'h':
                 fprintf(stderr, "./server -i --join");
@@ -39,6 +39,7 @@ int parse_opt(int argc, char *argv[]) {
                 raftid = atoi(optarg);
                 break;
             case 'i':
+                fprintf(stderr, "-i:%s\n", optarg);
                 nodeid = atoi(optarg);
                 port = 9000+nodeid;
                 break;
@@ -57,25 +58,25 @@ int parse_opt(int argc, char *argv[]) {
     return 0;
 }
 
+    raft::RaftMessage msg;
+    raft::MemberChangeRequest mc_req;
 int add_raft_node(){
     address_t addr("127.0.0.1", leader_port);
     dialer_t *cli = eng.open(&addr);
 
-    raft::RaftMessage msg;
-    {
-        msg.set_raftid(raftid);
-        msg.set_type(raft::RaftMessage::MSGTYPE_CONFCHANGE_REQUEST);
+    //raft::RaftMessage msg;
+    msg.set_raftid(raftid);
+    msg.set_type(raft::RaftMessage::MSGTYPE_CONFCHANGE_REQUEST);
 
-        raft::MemberChangeRequest req;
-        req.set_type(raft::LOGTYPE_ADD_NODE);
-        raft::Peer *peer = req.mutable_peer();
-        peer->set_raftid(raftid);
-        peer->set_nodeid(nodeid);
-        peer->set_ip("127.0.0.1");
-        peer->set_port(port);
+    //raft::MemberChangeRequest mc_req;
+    mc_req.set_type(raft::LOGTYPE_ADD_NODE);
+    raft::Peer *peer = mc_req.mutable_peer();
+    peer->set_raftid(raftid);
+    peer->set_nodeid(nodeid);
+    peer->set_ip("127.0.0.1");
+    peer->set_port(port);
 
-        msg.set_allocated_mc_req(&req);
-    }
+    msg.set_allocated_mc_req(&mc_req);
 
     string tmp;
     msg.SerializeToString(&tmp);
@@ -93,8 +94,9 @@ int main(int argc, char *argv[]){
     Application app;
     RaftOptions opt;
     {
-        opt.addr = address_t("0.0.0.0", 5678);
+        opt.addr = address_t("0.0.0.0", port);
         opt.id = raftid;
+        opt.nodeid = nodeid;
         opt.stm = &app;
     }
 
@@ -105,15 +107,25 @@ int main(int argc, char *argv[]){
 
     if(!isleader){
         add_raft_node();
+    }else{
+        sleep(1);
+        app.Set(std::string("abc"));
     }
 
     sleep(1);
+    printf("get:%s\n", app.Get().c_str());
 
-    app.Set(std::string("abc"));
-    sleep(1);
-
-    std::cout<<"get:"<<app.Get()<<std::endl;
-    sleep(200);
+    while(true){
+        char buf[128];
+        printf("please input:");
+        scanf("%s", buf);
+        if(strcmp(buf, "exit")==0){
+            break;
+        }
+        app.Set(std::string(buf));
+        sleep(1);
+        printf("get:%s\n", app.Get().c_str());
+    }
 
     return 0;
 }

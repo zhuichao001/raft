@@ -41,7 +41,7 @@ public:
     }
 
     bool IsVoting() const {
-        return flags_ & RAFT_FLAG_VOTEDME;
+        return flags_ & RAFT_FLAG_VOTING;
     }
 
     int GetNodeId() const {

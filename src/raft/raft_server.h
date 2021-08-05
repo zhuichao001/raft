@@ -30,6 +30,7 @@ public:
 
         //why the order affects timer's regular work
         opt.clocker = eng_;
+        opt.tran = trans_;
         rafts_[opt.id] = new Raft(opt);
 
         *raft = rafts_[opt.id];
@@ -83,9 +84,10 @@ public:
         fprintf(stderr, "rpc server process.\n");
         fprintf(stderr, "rpc req=%s.\n", req->data());
 
-        raft::RaftMessage out;
-        raft::RaftMessage in;
+        raft::RaftMessage in, out;
+
         in.ParseFromString(req->data());
+        out.set_raftid(in.raftid());
 
         Raft *raft = GetRaft(in.raftid());
         if(raft==nullptr){
@@ -96,12 +98,14 @@ public:
         std::string tmp;
         switch(in.type()){
             case raft::RaftMessage::MSGTYPE_APPENDLOG_REQUEST:
-                raft->recvAppendEntries(&in.ae_req(), out.mutable_ae_rsp());
+                raft->recvAppendEntries(in.mutable_ae_req(), out.mutable_ae_rsp());
+                out.set_type(raft::RaftMessage::MSGTYPE_APPENDLOG_RESPONSE);
                 out.SerializeToString(&tmp);
                 rsp->setbody(tmp.c_str(), tmp.size());
                 break;
             case raft::RaftMessage::MSGTYPE_VOTE_REQUEST:
                 raft->recvVoteRequest(&in.vt_req(), out.mutable_vt_rsp());
+                out.set_type(raft::RaftMessage::MSGTYPE_VOTE_RESPONSE);
                 out.SerializeToString(&tmp);
                 rsp->setbody(tmp.c_str(), tmp.size());
                 break;
