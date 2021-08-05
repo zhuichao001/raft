@@ -1,7 +1,8 @@
 #ifndef _RAFT_RAFTNODE_H_
 #define _RAFT_RAFTNODE_H_
 
-class address_t;
+#include "lotus/address.h"
+
 
 class RaftNode{
 public:
@@ -11,12 +12,12 @@ public:
         RAFT_FLAG_NEWLOG = 4,
     };
 
-    RaftNode(int id, int node_id, const address_t *address) : 
+    RaftNode(int node_id, const address_t &addr) :
         node_id_(node_id),
-        address_(address){
+        address_(addr){
         next_idx_ = 1;
         match_idx_ = 0;
-        flags_ = RAFT_FLAG_VOTING; //TODO
+        flags_ = RAFT_FLAG_VOTING;
     }
 
     void VoteForMe(bool vote) {
@@ -64,14 +65,14 @@ public:
     }
 
     const address_t *GetAddress() const {
-        return address_;
+        return &address_;
     }
 private:
     int node_id_;
     int next_idx_;
     int match_idx_;
     int flags_;
-    const address_t *address_;
+    const address_t address_;
 };
 
 #endif

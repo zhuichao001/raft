@@ -26,7 +26,7 @@ public:
 
     int Propose(const std::string &data);
 
-    int ChangeMember(int action, std::string addr); //1:add, -1:remove
+    int ChangeMember(raft::RaftLogType type, const raft::Peer *peer); //1:add, -1:remove
 
 private: //for leader
     int appendEntry(raft::LogEntry *e);
@@ -39,7 +39,9 @@ private: //for leader
 
     void recvHeartbeatResponse(const raft::HeartbeatResponse *rsp);
 
-    RaftNode *addRaftNode(int nodeid, const address_t *addr, bool is_self, bool is_voting=true);
+    RaftNode *addRaftNode(int nodeid, const address_t &addr, bool is_self, bool is_voting=true);
+
+    int delRaftNode(int nodeid);
 
 private: //for follower
     void tick();

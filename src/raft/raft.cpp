@@ -22,7 +22,7 @@ Raft::Raft(const RaftOptions &opt):
     leader_ = NULL;
     local_ = NULL;
     addRaftNode(1, opt.addr, true);
-    ticker_ = opt.clocker->run_every(std::bind(&Raft::tick, this), 1000*1000);
+    ticker_ = opt.clocker->run_every(std::bind(&Raft::tick, this), 100*1000);
 }
 
 int Raft::Propose(const std::string &data){
@@ -45,21 +45,31 @@ int Raft::Propose(const std::string &data){
     return 0;
 }
 
-int Raft::ChangeMember(int action, std::string addr) {
+int Raft::ChangeMember(raft::RaftLogType type, const raft::Peer *peer) {
     if(reconf_idx_!=-1){
         return -1;
     }
 
     raft::LogEntry *e = new raft::LogEntry();
-    e->set_type(action>0 ? raft::LOGTYPE_ADD_NODE : raft::LOGTYPE_REMOVE_NODE);
+    e->set_type(type);
     e->set_term(term_);
     e->set_index(getCurrentIndex());
-    e->set_data(addr);
+
+    std::string data;
+    peer->SerializeToString(&data);
+    e->set_data(data);
 
     reconf_idx_ = e->index();
 
     appendEntry(e);
     sendAppendEntries();
+
+    if(type==raft::LOGTYPE_ADD_NODE){
+        address_t addr(peer->ip().c_str(), int(peer->port()));
+        addRaftNode(peer->nodeid(), addr, false);
+    }else if(type==raft::LOGTYPE_REMOVE_NODE){
+        delRaftNode(peer->nodeid());
+    }
 
     return 0;
 }
@@ -85,7 +95,7 @@ void Raft::sendAppendEntries(RaftNode *to){
     if (nex) {
         e->set_term(nex->term());
         e->set_index(nex->index());
-        e->set_type(nex->type());
+        //e->set_type(nex->type());
         e->set_data(nex->data());
     }
 
@@ -109,7 +119,7 @@ void Raft::sendAppendEntries(RaftNode *to){
         msg.set_type(raft::RaftMessage::MSGTYPE_APPENDLOG_REQUEST);
         msg.set_raftid(id_);
         msg.set_allocated_ae_req(&req);
-        trans_->Send(to, &msg);
+        trans_->Send(to->GetAddress(), &msg);
     }
 }
 
@@ -322,7 +332,7 @@ int Raft::applyEntry(){
 }
 
 void Raft::tick(){
-    fprintf(stderr, "Raft::tick\n");
+    //fprintf(stderr, "Raft::tick\n");
     switch(state_){
         case RAFT_STATE::FOLLOWER:
             if (microsec()-lasttime_heartbeat_ >= timeout_heartbeat_) {
@@ -444,7 +454,7 @@ int Raft::sendVoteRequest(RaftNode *to){
         msg.set_type(raft::RaftMessage::MSGTYPE_VOTE_REQUEST);
         msg.set_raftid(id_);
         msg.set_allocated_vt_req(&req);
-        trans_->Send(to, &msg);
+        trans_->Send(to->GetAddress(), &msg);
     }
     return 0;
 }
@@ -513,15 +523,23 @@ int Raft::getVotesNum() {
     return votes;
 }
 
-RaftNode *Raft::addRaftNode(int nodeid, const address_t *addr, bool is_self, bool is_voting){
+RaftNode *Raft::addRaftNode(int nodeid, const address_t &addr, bool is_self, bool is_voting){
     if (nodes_.find(nodeid) != nodes_.end()){
         return nodes_[nodeid];
     }
 
-    nodes_[nodeid] = new RaftNode(id_, nodeid, addr);
+    nodes_[nodeid] = new RaftNode(nodeid, addr);
     nodes_[nodeid]->SetVoting(is_voting);
     if(is_self){
         local_ = nodes_[nodeid];
     }
     return nodes_[nodeid];
+}
+
+int Raft::delRaftNode(int nodeid){
+    if (nodes_.find(nodeid) != nodes_.end()){
+         delete nodes_[nodeid];
+    }
+    nodes_.erase(nodeid);
+    return 0;
 }

@@ -8,8 +8,8 @@ public:
     }
 
     int Apply(const std::string data) override {
-        fprintf(stderr, "apply :%s\n", data.c_str());
-        msg = data;
+        fprintf(stderr, "Apply :%s\n", data.c_str());
+        msg_ = data;
         return 0;
     }
 
@@ -29,14 +29,16 @@ public:
 public:
     //for user interface
     void Set(const std::string &msg) {
+        fprintf(stderr, "call Set:%s\n", msg.c_str());
         raft_->Propose(msg);
     }
 
     std::string Get(){
-        return msg;
+        fprintf(stderr, "call Get:%s\n", msg_.c_str());
+        return msg_;
     }
 
     uint64_t applied_index_;
     Raft *raft_;
-    std::string msg;
+    std::string msg_;
 };

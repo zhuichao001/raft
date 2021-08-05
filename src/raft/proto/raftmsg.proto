@@ -7,12 +7,10 @@ enum RaftLogType {
     LOGTYPE_ADD_NONVOTING_NODE = 1;
     LOGTYPE_ADD_NODE = 2;
     LOGTYPE_REMOVE_NODE = 3;
-    LOGTYPE_NUM = 4;
-}
+};
 
 message LogEntry {
     RaftLogType type = 1;
-
     uint64 term = 2;
     uint64 index = 3;
     bytes data = 4;
@@ -23,29 +21,45 @@ message LogEntryResponse {
     uint64 index = 2;
 };
 
+message Peer {
+    uint64 raftid =1;
+    uint64 nodeid =2;
+    string ip =3;
+    uint32 port =4;
+};
+
+message MemberChangeRequest {
+    RaftLogType type = 1;
+    Peer peer = 2;
+};
+
+message MemberChangeResponse {
+    bool ok = 1;
+};
+
 message HandshakeRequest {
     int32 raft_port = 1;
     int32 http_port = 2;
     uint64 node_id = 3;
     uint64 term = 4;
-}
+};
 
 message HandshakeResponse {
     bool success = 1;
     uint64 node_id = 2;
-}
+};
 
 message VoteRequest {
     uint64 term = 1;
     uint64 candidate = 2; //node id
     uint64 last_term = 3;  //last log term
     uint64 last_index = 4; //last log index
-}
+};
 
 message VoteResponse {
     uint64 term = 1;
     bool agree = 2; // grant for true or false
-}
+};
 
 message AppendEntriesRequest {
     uint64 nodeid = 1;
@@ -56,25 +70,25 @@ message AppendEntriesRequest {
     uint64 last_index = 5; //last log index
 
     repeated LogEntry entries = 6;
-}
+};
 
 message AppendEntriesResponse {
     bool success = 1; //true if match prev_log
     uint64 term = 2;
     uint64 current_index = 3;
     uint64 first_index = 4;
-}
+};
 
 message HeartbeatRequest {
     uint64 term = 1;
     uint64 node_id = 2;
-}
+};
 
 message HeartbeatResponse {
     bool success = 1; 
     uint64 node_id = 2;
     //TODO
-}
+};
 
 
 message RaftMessage {
@@ -85,21 +99,28 @@ message RaftMessage {
         MSGTYPE_VOTE_RESPONSE = 3;
         MSGTYPE_APPENDLOG_REQUEST = 4;
         MSGTYPE_APPENDLOG_RESPONSE = 5;
+
+        MSGTYPE_CONFCHANGE_REQUEST = 6;
+        MSGTYPE_CONFCHANGE_RESPONSE = 7;
     }
     RaftMessageType type = 1;
 
+    uint32 raftid = 2;
+
     oneof msg {
-        HandshakeRequest hs_req = 2;
-        HandshakeResponse hs_rsp = 3;
+        HandshakeRequest hs_req  = 3;
+        HandshakeResponse hs_rsp = 4;
 
-        VoteRequest vt_req = 4;
-        VoteResponse vt_rsp = 5;
+        VoteRequest vt_req  = 5;
+        VoteResponse vt_rsp = 6;
 
-        AppendEntriesRequest ae_req = 6;
-        AppendEntriesResponse ae_rsp = 7;
+        AppendEntriesRequest ae_req  = 7;
+        AppendEntriesResponse ae_rsp = 8;
 
-        HeartbeatRequest hb_req = 8;
-        HeartbeatResponse hb_rsp = 9;
+        HeartbeatRequest hb_req  = 9;
+        HeartbeatResponse hb_rsp = 10;
+
+        MemberChangeRequest mc_req  = 11;
+        MemberChangeResponse mc_rsp = 12;
     }
-    uint32 raftid = 10;
-}
+};

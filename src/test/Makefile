@@ -1,5 +1,5 @@
 all:
-	g++ -std=c++11 -o server \
+	g++ -std=c++11 -g -o server \
 	../raft/transport.cpp \
 	../raft/raft.cpp \
 	../raft/proto/raftmsg.pb.cc \

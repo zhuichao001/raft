@@ -22,8 +22,7 @@ int Transport::Start(address_t *addr, server_t *svr){
     return 0;
 }
 
-void Transport::Send(const RaftNode *to, const raft::RaftMessage *msg){
-    const address_t *addr = to->GetAddress();
+void Transport::Send(const address_t *addr, const raft::RaftMessage *msg){
     auto it = clients_.find(addr);
     if (it==clients_.end()){
         dialer_t *cli = eng_->open(addr);
@@ -32,6 +31,7 @@ void Transport::Send(const RaftNode *to, const raft::RaftMessage *msg){
 
     string tmp;
     msg->SerializeToString(&tmp);
+
     request_t req;
     req.setbody(tmp.c_str(), tmp.size());
 

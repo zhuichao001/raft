@@ -19,7 +19,7 @@ public:
 
     int Start(address_t *addr, server_t *svr);
 
-    void Send(const RaftNode *to, const raft::RaftMessage *msg);
+    void Send(const address_t *addr, const raft::RaftMessage *msg);
 
 private:
     int dispatch(request_t *req, response_t *rsp);
