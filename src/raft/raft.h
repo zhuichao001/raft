@@ -37,7 +37,7 @@ private: //for leader
 
     int recvAppendEntriesResponse(const raft::AppendEntriesResponse *r);
 
-    void recvConfChangeRequest(raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp);
+    void recvConfChangeRequest(const raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp);
 
     void recvConfChangeResponse(raft::MemberChangeResponse *rsp);
 

@@ -98,7 +98,7 @@ public:
 
         switch(in.type()){
             case raft::RaftMessage::MSGTYPE_APPENDLOG_REQUEST:
-                raft->recvAppendEntries(in.mutable_ae_req(), out.mutable_ae_rsp());
+                raft->recvAppendEntries(&in.ae_req(), out.mutable_ae_rsp());
                 out.set_type(raft::RaftMessage::MSGTYPE_APPENDLOG_RESPONSE);
                 break;
             case raft::RaftMessage::MSGTYPE_VOTE_REQUEST:
@@ -106,7 +106,8 @@ public:
                 out.set_type(raft::RaftMessage::MSGTYPE_VOTE_RESPONSE);
                 break;
             case raft::RaftMessage::MSGTYPE_CONFCHANGE_REQUEST:
-                raft->recvConfChangeRequest(in.mutable_mc_req(), out.mutable_mc_rsp());
+                printf("MSGTYPE_CONFCHANGE_REQUEST deal\n");
+                raft->recvConfChangeRequest(&in.mc_req(), out.mutable_mc_rsp());
                 out.set_type(raft::RaftMessage::MSGTYPE_CONFCHANGE_RESPONSE);
             default:
                 fprintf(stderr, "unknown msg type:%d\n", in.type());

@@ -48,7 +48,17 @@ int Raft::Propose(const std::string &data){
 
 int Raft::changeMember(raft::RaftLogType type, const raft::Peer *peer) {
     if(reconf_idx_!=-1){
+        printf("!!!!!! reconf_idx_ != -1\n");
         return -1;
+    }
+
+    if(type==raft::LOGTYPE_ADD_NODE){
+        address_t addr(peer->ip().c_str(), int(peer->port()));
+        addRaftNode(peer->nodeid(), addr, false);
+        fprintf(stderr, "add member,nodeid:%d, port:%d\n", peer->nodeid(), peer->port());
+    }else if(type==raft::LOGTYPE_REMOVE_NODE){
+        delRaftNode(peer->nodeid());
+        fprintf(stderr, "del member,nodeid:%d\n", peer->nodeid());
     }
 
     raft::LogEntry *e = new raft::LogEntry();
@@ -61,19 +71,10 @@ int Raft::changeMember(raft::RaftLogType type, const raft::Peer *peer) {
     e->set_data(data);
 
     reconf_idx_ = e->index();
+    printf("************append entry\n");
 
     appendEntry(e);
     sendAppendEntries();
-
-    if(type==raft::LOGTYPE_ADD_NODE){
-        address_t addr(peer->ip().c_str(), int(peer->port()));
-        addRaftNode(peer->nodeid(), addr, false);
-        fprintf(stderr, "add member,nodeid:%d, port:%d\n", peer->nodeid(), peer->port());
-    }else if(type==raft::LOGTYPE_REMOVE_NODE){
-        delRaftNode(peer->nodeid());
-        fprintf(stderr, "del member,nodeid:%d\n", peer->nodeid());
-    }
-
     return 0;
 }
 
@@ -325,8 +326,9 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
     return 0;
 }
 
-void Raft::recvConfChangeRequest(raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp){
-    changeMember(req->type(), req->mutable_peer());
+void Raft::recvConfChangeRequest(const raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp){
+    auto p = &req->peer();
+    changeMember(req->type(), &req->peer());
     rsp->set_ok(true);
     rsp->set_term(term_);
     const address_t *addr = local_->GetAddress();
@@ -338,6 +340,8 @@ void Raft::recvConfChangeRequest(raft::MemberChangeRequest *req, raft::MemberCha
         peer->set_port(addr->port);
     }
     rsp->set_allocated_peer(peer);
+
+    printf("changeMember, raftid:%d, nodeid:%d, ip:%s, port:%d\n", id_, p->nodeid(), p->ip().c_str(), p->port());
 }
 
 void Raft::recvConfChangeResponse(raft::MemberChangeResponse *rsp){
