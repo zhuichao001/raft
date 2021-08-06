@@ -82,10 +82,9 @@ message RaftMessage {
         MSGTYPE_CONFCHANGE_REQUEST  = 6;
         MSGTYPE_CONFCHANGE_RESPONSE = 7;
     }
+
     RaftMessageType type = 1;
-
     uint32 raftid = 2;
-
     oneof msg {
         VoteRequest vt_req  = 3;
         VoteResponse vt_rsp = 4;

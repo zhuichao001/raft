@@ -4,6 +4,8 @@
 #include "lotus/timedriver.h"
 #include <algorithm>
 #include <stdio.h>
+#include <time.h>
+#include <unistd.h>
 
 Raft::Raft(const RaftOptions &opt): 
     id_(opt.raftid),
@@ -16,7 +18,7 @@ Raft::Raft(const RaftOptions &opt):
     lasttime_heartbeat_ = microsec();
     timeout_election_ = 3000*1000;
     timeout_request_ = 200*1000;
-    timeout_heartbeat_ = 3000*1000;
+    timeout_heartbeat_ = 5000*1000;
     reconf_idx_ = -1;
     state_ = RAFT_STATE::FOLLOWER;
     leader_ = nullptr;
@@ -86,10 +88,12 @@ void Raft::sendAppendEntries(){
 }
 
 void Raft::sendAppendEntries(RaftNode *to){
-    raft::AppendEntriesRequest *req = new raft::AppendEntriesRequest;
+    raft::AppendEntriesRequest *req = new raft::AppendEntriesRequest();
     req->set_nodeid(local_->GetNodeId());
     req->set_term(term_);
     req->set_commit(commit_idx_);
+
+    fprintf(stderr, "|||nodeid:%d, term:%d, commit_idx:%d\n", req->nodeid(), req->term(), req->commit());
 
     req->set_prev_log_term(0);
     req->set_prev_log_index(0);
@@ -136,16 +140,17 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     lasttime_heartbeat_ = microsec();
 
     rsp->set_nodeid(local_->GetNodeId());
-    rsp->set_success(false);
+    rsp->set_success(true);
     rsp->set_first_index(0);
     rsp->set_term(term_);
 
     //print request
-    fprintf(stderr, "Receive AppendEntries from: %lx, term:%d cidx:%d cid:%d li:%d lt:%d\n",
+    fprintf(stderr, "Receive AppendEntries local nodeid: %lx, from:%d term:%d commit:%d curidx:%d pli:%d plt:%d\n",
         local_->GetNodeId(),
+        msg->nodeid(),
         msg->term(),
-        getCurrentIndex(),
         msg->commit(),
+        getCurrentIndex(),
         msg->prev_log_index(),
         msg->prev_log_term());
 
@@ -183,7 +188,7 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     }
 
     leader_ = nodes_[msg->nodeid()];
-    fprintf(stderr, "[RAFT] from msg->nodeid=%d\n", msg->nodeid());
+    fprintf(stderr, "[RAFT] msg from nodeid=%d\n", msg->nodeid());
 
     if (msg->entries_size()==0 && msg->prev_log_index()>0 && msg->prev_log_index()+1<getCurrentIndex()) {
         assert(commit_idx_ < msg->prev_log_index()+1);
@@ -217,11 +222,13 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
             rsp->set_current_index(msg->prev_log_index()-1);
             return -1;
         }
+        fprintf(stderr, "appendEntry, current_idx:%d\n", getCurrentIndex());
         rsp->set_current_index(msg->prev_log_index()+1+i);
     }
 
-    if (getCurrentIndex() < msg->commit()) {
+    if (getCurrentIndex() <= msg->commit()) {
         uint64_t last_log_idx = std::max(getCurrentIndex(), uint64_t(1));
+        fprintf(stderr, "    current_index:%d, commit:%d\n", getCurrentIndex(), msg->commit());
         commit_idx_ = std::min(last_log_idx, msg->commit());
     }
 
@@ -381,7 +388,8 @@ void Raft::tick(){
             }
             break;
         case RAFT_STATE::LEADER:
-            if (microsec()-lasttime_heartbeat_ >= timeout_election_/3) {
+            if (microsec()-lasttime_heartbeat_ >= 2*timeout_heartbeat_/3) {
+                lasttime_heartbeat_ = microsec();
                 fprintf(stderr, "[RAFT] tick timeout, leader send heartbeat\n");
                 sendAppendEntries(); //heartbeat
             }

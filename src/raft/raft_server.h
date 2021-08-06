@@ -86,13 +86,15 @@ public:
         raft::RaftMessage in, out;
 
         in.ParseFromString(req->data());
-        out.set_raftid(in.raftid());
+        auto req2 = in.mutable_ae_req();
+        fprintf(stderr, "||||||CHECK nodeid:%d, term:%d, commit_idx:%d\n", req2->nodeid(), req2->term(), req2->commit());
 
         Raft *raft = GetRaft(in.raftid());
         if(raft==nullptr){
             rsp->seterrcode(-200);
             return -1;
         }
+        out.set_raftid(in.raftid());
 
         switch(in.type()){
             case raft::RaftMessage::MSGTYPE_APPENDLOG_REQUEST:

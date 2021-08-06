@@ -32,14 +32,19 @@ void Transport::Send(const address_t *addr, const std::shared_ptr<raft::RaftMess
     string tmp;
     msg->SerializeToString(&tmp);
 
+    raft::RaftMessage msg2;
+    msg2.ParseFromString(tmp);
+    auto req2 = msg2.mutable_ae_req();
+    fprintf(stderr, "|||CHECK nodeid:%d, term:%d, commit_idx:%d\n", req2->nodeid(), req2->term(), req2->commit());
+
     request_t req;
     req.setbody(tmp.c_str(), tmp.size());
 
-    RpcCallback callback = std::bind(&Transport::dispatch, this, std::placeholders::_1, std::placeholders::_2);
+    RpcCallback callback = std::bind(&Transport::Receive, this, std::placeholders::_1);
     clients_[hip]->call(&req, callback);
 }
 
-int Transport::dispatch(request_t *req, response_t *rsp){
+int Transport::Receive(response_t *rsp){
     raft::RaftMessage msg;
     msg.ParseFromString(rsp->data());
     Raft *raf = raft_server_->GetRaft(msg.raftid());

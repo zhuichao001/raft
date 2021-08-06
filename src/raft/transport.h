@@ -22,7 +22,7 @@ public:
     void Send(const address_t *addr, const std::shared_ptr<raft::RaftMessage> msg);
 
 private:
-    int dispatch(request_t *req, response_t *rsp);
+    int Receive(response_t *rsp);
 
 private:
     engine_t *eng_;

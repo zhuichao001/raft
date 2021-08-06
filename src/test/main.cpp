@@ -8,8 +8,8 @@
 #include "lotus/engine.h"
 #include "raft/raft_server.h"
 
-#include<stdio.h>
-#include<getopt.h>
+#include <stdio.h>
+#include <getopt.h>
 
 bool isleader = true;
 int raftid = 117;
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]){
         address_t leader_addr(local_ip.c_str(), leader_port);
         ras.ChangeMember(raftid, raft::LOGTYPE_ADD_NODE, &leader_addr, &opt.addr, nodeid);
         while(true){
-            sleep(1);
+            sleep(2);
             printf("get:%s\n", app.Get().c_str());
         }
     }else{ //LEADER
@@ -93,8 +93,8 @@ int main(int argc, char *argv[]){
                 break;
             }
             app.Set(std::string(buf));
-            sleep(1);
-            printf("get:%s\n", app.Get().c_str());
+            sleep(2);
+            printf("Get:%s\n", app.Get().c_str());
         }
     }
 
