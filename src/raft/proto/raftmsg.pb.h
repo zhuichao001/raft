@@ -37,7 +37,7 @@ namespace protobuf_raftmsg_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[14];
+  static const ::google::protobuf::internal::ParseTable schema[10];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
@@ -53,10 +53,6 @@ void InitDefaultsMemberChangeRequestImpl();
 void InitDefaultsMemberChangeRequest();
 void InitDefaultsMemberChangeResponseImpl();
 void InitDefaultsMemberChangeResponse();
-void InitDefaultsHandshakeRequestImpl();
-void InitDefaultsHandshakeRequest();
-void InitDefaultsHandshakeResponseImpl();
-void InitDefaultsHandshakeResponse();
 void InitDefaultsVoteRequestImpl();
 void InitDefaultsVoteRequest();
 void InitDefaultsVoteResponseImpl();
@@ -65,10 +61,6 @@ void InitDefaultsAppendEntriesRequestImpl();
 void InitDefaultsAppendEntriesRequest();
 void InitDefaultsAppendEntriesResponseImpl();
 void InitDefaultsAppendEntriesResponse();
-void InitDefaultsHeartbeatRequestImpl();
-void InitDefaultsHeartbeatRequest();
-void InitDefaultsHeartbeatResponseImpl();
-void InitDefaultsHeartbeatResponse();
 void InitDefaultsRaftMessageImpl();
 void InitDefaultsRaftMessage();
 inline void InitDefaults() {
@@ -77,14 +69,10 @@ inline void InitDefaults() {
   InitDefaultsPeer();
   InitDefaultsMemberChangeRequest();
   InitDefaultsMemberChangeResponse();
-  InitDefaultsHandshakeRequest();
-  InitDefaultsHandshakeResponse();
   InitDefaultsVoteRequest();
   InitDefaultsVoteResponse();
   InitDefaultsAppendEntriesRequest();
   InitDefaultsAppendEntriesResponse();
-  InitDefaultsHeartbeatRequest();
-  InitDefaultsHeartbeatResponse();
   InitDefaultsRaftMessage();
 }
 }  // namespace protobuf_raftmsg_2eproto
@@ -95,18 +83,6 @@ extern AppendEntriesRequestDefaultTypeInternal _AppendEntriesRequest_default_ins
 class AppendEntriesResponse;
 class AppendEntriesResponseDefaultTypeInternal;
 extern AppendEntriesResponseDefaultTypeInternal _AppendEntriesResponse_default_instance_;
-class HandshakeRequest;
-class HandshakeRequestDefaultTypeInternal;
-extern HandshakeRequestDefaultTypeInternal _HandshakeRequest_default_instance_;
-class HandshakeResponse;
-class HandshakeResponseDefaultTypeInternal;
-extern HandshakeResponseDefaultTypeInternal _HandshakeResponse_default_instance_;
-class HeartbeatRequest;
-class HeartbeatRequestDefaultTypeInternal;
-extern HeartbeatRequestDefaultTypeInternal _HeartbeatRequest_default_instance_;
-class HeartbeatResponse;
-class HeartbeatResponseDefaultTypeInternal;
-extern HeartbeatResponseDefaultTypeInternal _HeartbeatResponse_default_instance_;
 class LogEntry;
 class LogEntryDefaultTypeInternal;
 extern LogEntryDefaultTypeInternal _LogEntry_default_instance_;
@@ -739,6 +715,15 @@ class MemberChangeResponse : public ::google::protobuf::Message /* @@protoc_inse
 
   // accessors -------------------------------------------------------
 
+  // .raft.Peer peer = 2;
+  bool has_peer() const;
+  void clear_peer();
+  static const int kPeerFieldNumber = 2;
+  const ::raft::Peer& peer() const;
+  ::raft::Peer* release_peer();
+  ::raft::Peer* mutable_peer();
+  void set_allocated_peer(::raft::Peer* peer);
+
   // bool ok = 1;
   void clear_ok();
   static const int kOkFieldNumber = 1;
@@ -749,236 +734,11 @@ class MemberChangeResponse : public ::google::protobuf::Message /* @@protoc_inse
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::raft::Peer* peer_;
   bool ok_;
   mutable int _cached_size_;
   friend struct ::protobuf_raftmsg_2eproto::TableStruct;
   friend void ::protobuf_raftmsg_2eproto::InitDefaultsMemberChangeResponseImpl();
-};
-// -------------------------------------------------------------------
-
-class HandshakeRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.HandshakeRequest) */ {
- public:
-  HandshakeRequest();
-  virtual ~HandshakeRequest();
-
-  HandshakeRequest(const HandshakeRequest& from);
-
-  inline HandshakeRequest& operator=(const HandshakeRequest& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  #if LANG_CXX11
-  HandshakeRequest(HandshakeRequest&& from) noexcept
-    : HandshakeRequest() {
-    *this = ::std::move(from);
-  }
-
-  inline HandshakeRequest& operator=(HandshakeRequest&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-  #endif
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const HandshakeRequest& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const HandshakeRequest* internal_default_instance() {
-    return reinterpret_cast<const HandshakeRequest*>(
-               &_HandshakeRequest_default_instance_);
-  }
-  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    5;
-
-  void Swap(HandshakeRequest* other);
-  friend void swap(HandshakeRequest& a, HandshakeRequest& b) {
-    a.Swap(&b);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline HandshakeRequest* New() const PROTOBUF_FINAL { return New(NULL); }
-
-  HandshakeRequest* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
-  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const HandshakeRequest& from);
-  void MergeFrom(const HandshakeRequest& from);
-  void Clear() PROTOBUF_FINAL;
-  bool IsInitialized() const PROTOBUF_FINAL;
-
-  size_t ByteSizeLong() const PROTOBUF_FINAL;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
-  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(HandshakeRequest* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // int32 raft_port = 1;
-  void clear_raft_port();
-  static const int kRaftPortFieldNumber = 1;
-  ::google::protobuf::int32 raft_port() const;
-  void set_raft_port(::google::protobuf::int32 value);
-
-  // int32 http_port = 2;
-  void clear_http_port();
-  static const int kHttpPortFieldNumber = 2;
-  ::google::protobuf::int32 http_port() const;
-  void set_http_port(::google::protobuf::int32 value);
-
-  // uint64 node_id = 3;
-  void clear_node_id();
-  static const int kNodeIdFieldNumber = 3;
-  ::google::protobuf::uint64 node_id() const;
-  void set_node_id(::google::protobuf::uint64 value);
-
-  // uint64 term = 4;
-  void clear_term();
-  static const int kTermFieldNumber = 4;
-  ::google::protobuf::uint64 term() const;
-  void set_term(::google::protobuf::uint64 value);
-
-  // @@protoc_insertion_point(class_scope:raft.HandshakeRequest)
- private:
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::int32 raft_port_;
-  ::google::protobuf::int32 http_port_;
-  ::google::protobuf::uint64 node_id_;
-  ::google::protobuf::uint64 term_;
-  mutable int _cached_size_;
-  friend struct ::protobuf_raftmsg_2eproto::TableStruct;
-  friend void ::protobuf_raftmsg_2eproto::InitDefaultsHandshakeRequestImpl();
-};
-// -------------------------------------------------------------------
-
-class HandshakeResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.HandshakeResponse) */ {
- public:
-  HandshakeResponse();
-  virtual ~HandshakeResponse();
-
-  HandshakeResponse(const HandshakeResponse& from);
-
-  inline HandshakeResponse& operator=(const HandshakeResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  #if LANG_CXX11
-  HandshakeResponse(HandshakeResponse&& from) noexcept
-    : HandshakeResponse() {
-    *this = ::std::move(from);
-  }
-
-  inline HandshakeResponse& operator=(HandshakeResponse&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-  #endif
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const HandshakeResponse& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const HandshakeResponse* internal_default_instance() {
-    return reinterpret_cast<const HandshakeResponse*>(
-               &_HandshakeResponse_default_instance_);
-  }
-  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    6;
-
-  void Swap(HandshakeResponse* other);
-  friend void swap(HandshakeResponse& a, HandshakeResponse& b) {
-    a.Swap(&b);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline HandshakeResponse* New() const PROTOBUF_FINAL { return New(NULL); }
-
-  HandshakeResponse* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
-  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const HandshakeResponse& from);
-  void MergeFrom(const HandshakeResponse& from);
-  void Clear() PROTOBUF_FINAL;
-  bool IsInitialized() const PROTOBUF_FINAL;
-
-  size_t ByteSizeLong() const PROTOBUF_FINAL;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
-  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(HandshakeResponse* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // uint64 node_id = 2;
-  void clear_node_id();
-  static const int kNodeIdFieldNumber = 2;
-  ::google::protobuf::uint64 node_id() const;
-  void set_node_id(::google::protobuf::uint64 value);
-
-  // bool success = 1;
-  void clear_success();
-  static const int kSuccessFieldNumber = 1;
-  bool success() const;
-  void set_success(bool value);
-
-  // @@protoc_insertion_point(class_scope:raft.HandshakeResponse)
- private:
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::uint64 node_id_;
-  bool success_;
-  mutable int _cached_size_;
-  friend struct ::protobuf_raftmsg_2eproto::TableStruct;
-  friend void ::protobuf_raftmsg_2eproto::InitDefaultsHandshakeResponseImpl();
 };
 // -------------------------------------------------------------------
 
@@ -1017,7 +777,7 @@ class VoteRequest : public ::google::protobuf::Message /* @@protoc_insertion_poi
                &_VoteRequest_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    7;
+    5;
 
   void Swap(VoteRequest* other);
   friend void swap(VoteRequest& a, VoteRequest& b) {
@@ -1137,7 +897,7 @@ class VoteResponse : public ::google::protobuf::Message /* @@protoc_insertion_po
                &_VoteResponse_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    8;
+    6;
 
   void Swap(VoteResponse* other);
   friend void swap(VoteResponse& a, VoteResponse& b) {
@@ -1243,7 +1003,7 @@ class AppendEntriesRequest : public ::google::protobuf::Message /* @@protoc_inse
                &_AppendEntriesRequest_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    9;
+    7;
 
   void Swap(AppendEntriesRequest* other);
   friend void swap(AppendEntriesRequest& a, AppendEntriesRequest& b) {
@@ -1383,7 +1143,7 @@ class AppendEntriesResponse : public ::google::protobuf::Message /* @@protoc_ins
                &_AppendEntriesResponse_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    10;
+    8;
 
   void Swap(AppendEntriesResponse* other);
   friend void swap(AppendEntriesResponse& a, AppendEntriesResponse& b) {
@@ -1475,218 +1235,6 @@ class AppendEntriesResponse : public ::google::protobuf::Message /* @@protoc_ins
 };
 // -------------------------------------------------------------------
 
-class HeartbeatRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.HeartbeatRequest) */ {
- public:
-  HeartbeatRequest();
-  virtual ~HeartbeatRequest();
-
-  HeartbeatRequest(const HeartbeatRequest& from);
-
-  inline HeartbeatRequest& operator=(const HeartbeatRequest& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  #if LANG_CXX11
-  HeartbeatRequest(HeartbeatRequest&& from) noexcept
-    : HeartbeatRequest() {
-    *this = ::std::move(from);
-  }
-
-  inline HeartbeatRequest& operator=(HeartbeatRequest&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-  #endif
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const HeartbeatRequest& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const HeartbeatRequest* internal_default_instance() {
-    return reinterpret_cast<const HeartbeatRequest*>(
-               &_HeartbeatRequest_default_instance_);
-  }
-  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    11;
-
-  void Swap(HeartbeatRequest* other);
-  friend void swap(HeartbeatRequest& a, HeartbeatRequest& b) {
-    a.Swap(&b);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline HeartbeatRequest* New() const PROTOBUF_FINAL { return New(NULL); }
-
-  HeartbeatRequest* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
-  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const HeartbeatRequest& from);
-  void MergeFrom(const HeartbeatRequest& from);
-  void Clear() PROTOBUF_FINAL;
-  bool IsInitialized() const PROTOBUF_FINAL;
-
-  size_t ByteSizeLong() const PROTOBUF_FINAL;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
-  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(HeartbeatRequest* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // uint64 term = 1;
-  void clear_term();
-  static const int kTermFieldNumber = 1;
-  ::google::protobuf::uint64 term() const;
-  void set_term(::google::protobuf::uint64 value);
-
-  // uint64 node_id = 2;
-  void clear_node_id();
-  static const int kNodeIdFieldNumber = 2;
-  ::google::protobuf::uint64 node_id() const;
-  void set_node_id(::google::protobuf::uint64 value);
-
-  // @@protoc_insertion_point(class_scope:raft.HeartbeatRequest)
- private:
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::uint64 term_;
-  ::google::protobuf::uint64 node_id_;
-  mutable int _cached_size_;
-  friend struct ::protobuf_raftmsg_2eproto::TableStruct;
-  friend void ::protobuf_raftmsg_2eproto::InitDefaultsHeartbeatRequestImpl();
-};
-// -------------------------------------------------------------------
-
-class HeartbeatResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.HeartbeatResponse) */ {
- public:
-  HeartbeatResponse();
-  virtual ~HeartbeatResponse();
-
-  HeartbeatResponse(const HeartbeatResponse& from);
-
-  inline HeartbeatResponse& operator=(const HeartbeatResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  #if LANG_CXX11
-  HeartbeatResponse(HeartbeatResponse&& from) noexcept
-    : HeartbeatResponse() {
-    *this = ::std::move(from);
-  }
-
-  inline HeartbeatResponse& operator=(HeartbeatResponse&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-  #endif
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const HeartbeatResponse& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const HeartbeatResponse* internal_default_instance() {
-    return reinterpret_cast<const HeartbeatResponse*>(
-               &_HeartbeatResponse_default_instance_);
-  }
-  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    12;
-
-  void Swap(HeartbeatResponse* other);
-  friend void swap(HeartbeatResponse& a, HeartbeatResponse& b) {
-    a.Swap(&b);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline HeartbeatResponse* New() const PROTOBUF_FINAL { return New(NULL); }
-
-  HeartbeatResponse* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
-  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const HeartbeatResponse& from);
-  void MergeFrom(const HeartbeatResponse& from);
-  void Clear() PROTOBUF_FINAL;
-  bool IsInitialized() const PROTOBUF_FINAL;
-
-  size_t ByteSizeLong() const PROTOBUF_FINAL;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
-  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(HeartbeatResponse* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // uint64 node_id = 2;
-  void clear_node_id();
-  static const int kNodeIdFieldNumber = 2;
-  ::google::protobuf::uint64 node_id() const;
-  void set_node_id(::google::protobuf::uint64 value);
-
-  // bool success = 1;
-  void clear_success();
-  static const int kSuccessFieldNumber = 1;
-  bool success() const;
-  void set_success(bool value);
-
-  // @@protoc_insertion_point(class_scope:raft.HeartbeatResponse)
- private:
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::uint64 node_id_;
-  bool success_;
-  mutable int _cached_size_;
-  friend struct ::protobuf_raftmsg_2eproto::TableStruct;
-  friend void ::protobuf_raftmsg_2eproto::InitDefaultsHeartbeatResponseImpl();
-};
-// -------------------------------------------------------------------
-
 class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.RaftMessage) */ {
  public:
   RaftMessage();
@@ -1717,16 +1265,12 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
   static const RaftMessage& default_instance();
 
   enum MsgCase {
-    kHsReq = 3,
-    kHsRsp = 4,
-    kVtReq = 5,
-    kVtRsp = 6,
-    kAeReq = 7,
-    kAeRsp = 8,
-    kHbReq = 9,
-    kHbRsp = 10,
-    kMcReq = 11,
-    kMcRsp = 12,
+    kVtReq = 3,
+    kVtRsp = 4,
+    kAeReq = 5,
+    kAeRsp = 6,
+    kMcReq = 7,
+    kMcRsp = 8,
     MSG_NOT_SET = 0,
   };
 
@@ -1736,7 +1280,7 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
                &_RaftMessage_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    13;
+    9;
 
   void Swap(RaftMessage* other);
   friend void swap(RaftMessage& a, RaftMessage& b) {
@@ -1833,91 +1377,55 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::google::protobuf::uint32 raftid() const;
   void set_raftid(::google::protobuf::uint32 value);
 
-  // .raft.HandshakeRequest hs_req = 3;
-  bool has_hs_req() const;
-  void clear_hs_req();
-  static const int kHsReqFieldNumber = 3;
-  const ::raft::HandshakeRequest& hs_req() const;
-  ::raft::HandshakeRequest* release_hs_req();
-  ::raft::HandshakeRequest* mutable_hs_req();
-  void set_allocated_hs_req(::raft::HandshakeRequest* hs_req);
-
-  // .raft.HandshakeResponse hs_rsp = 4;
-  bool has_hs_rsp() const;
-  void clear_hs_rsp();
-  static const int kHsRspFieldNumber = 4;
-  const ::raft::HandshakeResponse& hs_rsp() const;
-  ::raft::HandshakeResponse* release_hs_rsp();
-  ::raft::HandshakeResponse* mutable_hs_rsp();
-  void set_allocated_hs_rsp(::raft::HandshakeResponse* hs_rsp);
-
-  // .raft.VoteRequest vt_req = 5;
+  // .raft.VoteRequest vt_req = 3;
   bool has_vt_req() const;
   void clear_vt_req();
-  static const int kVtReqFieldNumber = 5;
+  static const int kVtReqFieldNumber = 3;
   const ::raft::VoteRequest& vt_req() const;
   ::raft::VoteRequest* release_vt_req();
   ::raft::VoteRequest* mutable_vt_req();
   void set_allocated_vt_req(::raft::VoteRequest* vt_req);
 
-  // .raft.VoteResponse vt_rsp = 6;
+  // .raft.VoteResponse vt_rsp = 4;
   bool has_vt_rsp() const;
   void clear_vt_rsp();
-  static const int kVtRspFieldNumber = 6;
+  static const int kVtRspFieldNumber = 4;
   const ::raft::VoteResponse& vt_rsp() const;
   ::raft::VoteResponse* release_vt_rsp();
   ::raft::VoteResponse* mutable_vt_rsp();
   void set_allocated_vt_rsp(::raft::VoteResponse* vt_rsp);
 
-  // .raft.AppendEntriesRequest ae_req = 7;
+  // .raft.AppendEntriesRequest ae_req = 5;
   bool has_ae_req() const;
   void clear_ae_req();
-  static const int kAeReqFieldNumber = 7;
+  static const int kAeReqFieldNumber = 5;
   const ::raft::AppendEntriesRequest& ae_req() const;
   ::raft::AppendEntriesRequest* release_ae_req();
   ::raft::AppendEntriesRequest* mutable_ae_req();
   void set_allocated_ae_req(::raft::AppendEntriesRequest* ae_req);
 
-  // .raft.AppendEntriesResponse ae_rsp = 8;
+  // .raft.AppendEntriesResponse ae_rsp = 6;
   bool has_ae_rsp() const;
   void clear_ae_rsp();
-  static const int kAeRspFieldNumber = 8;
+  static const int kAeRspFieldNumber = 6;
   const ::raft::AppendEntriesResponse& ae_rsp() const;
   ::raft::AppendEntriesResponse* release_ae_rsp();
   ::raft::AppendEntriesResponse* mutable_ae_rsp();
   void set_allocated_ae_rsp(::raft::AppendEntriesResponse* ae_rsp);
 
-  // .raft.HeartbeatRequest hb_req = 9;
-  bool has_hb_req() const;
-  void clear_hb_req();
-  static const int kHbReqFieldNumber = 9;
-  const ::raft::HeartbeatRequest& hb_req() const;
-  ::raft::HeartbeatRequest* release_hb_req();
-  ::raft::HeartbeatRequest* mutable_hb_req();
-  void set_allocated_hb_req(::raft::HeartbeatRequest* hb_req);
-
-  // .raft.HeartbeatResponse hb_rsp = 10;
-  bool has_hb_rsp() const;
-  void clear_hb_rsp();
-  static const int kHbRspFieldNumber = 10;
-  const ::raft::HeartbeatResponse& hb_rsp() const;
-  ::raft::HeartbeatResponse* release_hb_rsp();
-  ::raft::HeartbeatResponse* mutable_hb_rsp();
-  void set_allocated_hb_rsp(::raft::HeartbeatResponse* hb_rsp);
-
-  // .raft.MemberChangeRequest mc_req = 11;
+  // .raft.MemberChangeRequest mc_req = 7;
   bool has_mc_req() const;
   void clear_mc_req();
-  static const int kMcReqFieldNumber = 11;
+  static const int kMcReqFieldNumber = 7;
   const ::raft::MemberChangeRequest& mc_req() const;
   ::raft::MemberChangeRequest* release_mc_req();
   ::raft::MemberChangeRequest* mutable_mc_req();
   void set_allocated_mc_req(::raft::MemberChangeRequest* mc_req);
 
-  // .raft.MemberChangeResponse mc_rsp = 12;
+  // .raft.MemberChangeResponse mc_rsp = 8;
   bool has_mc_rsp() const;
   void clear_mc_rsp();
-  static const int kMcRspFieldNumber = 12;
+  static const int kMcRspFieldNumber = 8;
   const ::raft::MemberChangeResponse& mc_rsp() const;
   ::raft::MemberChangeResponse* release_mc_rsp();
   ::raft::MemberChangeResponse* mutable_mc_rsp();
@@ -1926,14 +1434,10 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
   MsgCase msg_case() const;
   // @@protoc_insertion_point(class_scope:raft.RaftMessage)
  private:
-  void set_has_hs_req();
-  void set_has_hs_rsp();
   void set_has_vt_req();
   void set_has_vt_rsp();
   void set_has_ae_req();
   void set_has_ae_rsp();
-  void set_has_hb_req();
-  void set_has_hb_rsp();
   void set_has_mc_req();
   void set_has_mc_rsp();
 
@@ -1946,14 +1450,10 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::google::protobuf::uint32 raftid_;
   union MsgUnion {
     MsgUnion() {}
-    ::raft::HandshakeRequest* hs_req_;
-    ::raft::HandshakeResponse* hs_rsp_;
     ::raft::VoteRequest* vt_req_;
     ::raft::VoteResponse* vt_rsp_;
     ::raft::AppendEntriesRequest* ae_req_;
     ::raft::AppendEntriesResponse* ae_rsp_;
-    ::raft::HeartbeatRequest* hb_req_;
-    ::raft::HeartbeatResponse* hb_rsp_;
     ::raft::MemberChangeRequest* mc_req_;
     ::raft::MemberChangeResponse* mc_rsp_;
   } msg_;
@@ -2286,96 +1786,54 @@ inline void MemberChangeResponse::set_ok(bool value) {
   // @@protoc_insertion_point(field_set:raft.MemberChangeResponse.ok)
 }
 
-// -------------------------------------------------------------------
-
-// HandshakeRequest
-
-// int32 raft_port = 1;
-inline void HandshakeRequest::clear_raft_port() {
-  raft_port_ = 0;
+// .raft.Peer peer = 2;
+inline bool MemberChangeResponse::has_peer() const {
+  return this != internal_default_instance() && peer_ != NULL;
 }
-inline ::google::protobuf::int32 HandshakeRequest::raft_port() const {
-  // @@protoc_insertion_point(field_get:raft.HandshakeRequest.raft_port)
-  return raft_port_;
+inline void MemberChangeResponse::clear_peer() {
+  if (GetArenaNoVirtual() == NULL && peer_ != NULL) {
+    delete peer_;
+  }
+  peer_ = NULL;
 }
-inline void HandshakeRequest::set_raft_port(::google::protobuf::int32 value) {
+inline const ::raft::Peer& MemberChangeResponse::peer() const {
+  const ::raft::Peer* p = peer_;
+  // @@protoc_insertion_point(field_get:raft.MemberChangeResponse.peer)
+  return p != NULL ? *p : *reinterpret_cast<const ::raft::Peer*>(
+      &::raft::_Peer_default_instance_);
+}
+inline ::raft::Peer* MemberChangeResponse::release_peer() {
+  // @@protoc_insertion_point(field_release:raft.MemberChangeResponse.peer)
   
-  raft_port_ = value;
-  // @@protoc_insertion_point(field_set:raft.HandshakeRequest.raft_port)
+  ::raft::Peer* temp = peer_;
+  peer_ = NULL;
+  return temp;
 }
-
-// int32 http_port = 2;
-inline void HandshakeRequest::clear_http_port() {
-  http_port_ = 0;
-}
-inline ::google::protobuf::int32 HandshakeRequest::http_port() const {
-  // @@protoc_insertion_point(field_get:raft.HandshakeRequest.http_port)
-  return http_port_;
-}
-inline void HandshakeRequest::set_http_port(::google::protobuf::int32 value) {
+inline ::raft::Peer* MemberChangeResponse::mutable_peer() {
   
-  http_port_ = value;
-  // @@protoc_insertion_point(field_set:raft.HandshakeRequest.http_port)
+  if (peer_ == NULL) {
+    peer_ = new ::raft::Peer;
+  }
+  // @@protoc_insertion_point(field_mutable:raft.MemberChangeResponse.peer)
+  return peer_;
 }
-
-// uint64 node_id = 3;
-inline void HandshakeRequest::clear_node_id() {
-  node_id_ = GOOGLE_ULONGLONG(0);
-}
-inline ::google::protobuf::uint64 HandshakeRequest::node_id() const {
-  // @@protoc_insertion_point(field_get:raft.HandshakeRequest.node_id)
-  return node_id_;
-}
-inline void HandshakeRequest::set_node_id(::google::protobuf::uint64 value) {
-  
-  node_id_ = value;
-  // @@protoc_insertion_point(field_set:raft.HandshakeRequest.node_id)
-}
-
-// uint64 term = 4;
-inline void HandshakeRequest::clear_term() {
-  term_ = GOOGLE_ULONGLONG(0);
-}
-inline ::google::protobuf::uint64 HandshakeRequest::term() const {
-  // @@protoc_insertion_point(field_get:raft.HandshakeRequest.term)
-  return term_;
-}
-inline void HandshakeRequest::set_term(::google::protobuf::uint64 value) {
-  
-  term_ = value;
-  // @@protoc_insertion_point(field_set:raft.HandshakeRequest.term)
-}
-
-// -------------------------------------------------------------------
-
-// HandshakeResponse
-
-// bool success = 1;
-inline void HandshakeResponse::clear_success() {
-  success_ = false;
-}
-inline bool HandshakeResponse::success() const {
-  // @@protoc_insertion_point(field_get:raft.HandshakeResponse.success)
-  return success_;
-}
-inline void HandshakeResponse::set_success(bool value) {
-  
-  success_ = value;
-  // @@protoc_insertion_point(field_set:raft.HandshakeResponse.success)
-}
-
-// uint64 node_id = 2;
-inline void HandshakeResponse::clear_node_id() {
-  node_id_ = GOOGLE_ULONGLONG(0);
-}
-inline ::google::protobuf::uint64 HandshakeResponse::node_id() const {
-  // @@protoc_insertion_point(field_get:raft.HandshakeResponse.node_id)
-  return node_id_;
-}
-inline void HandshakeResponse::set_node_id(::google::protobuf::uint64 value) {
-  
-  node_id_ = value;
-  // @@protoc_insertion_point(field_set:raft.HandshakeResponse.node_id)
+inline void MemberChangeResponse::set_allocated_peer(::raft::Peer* peer) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete peer_;
+  }
+  if (peer) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      peer = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, peer, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  peer_ = peer;
+  // @@protoc_insertion_point(field_set_allocated:raft.MemberChangeResponse.peer)
 }
 
 // -------------------------------------------------------------------
@@ -2650,70 +2108,6 @@ inline void AppendEntriesResponse::set_first_index(::google::protobuf::uint64 va
 
 // -------------------------------------------------------------------
 
-// HeartbeatRequest
-
-// uint64 term = 1;
-inline void HeartbeatRequest::clear_term() {
-  term_ = GOOGLE_ULONGLONG(0);
-}
-inline ::google::protobuf::uint64 HeartbeatRequest::term() const {
-  // @@protoc_insertion_point(field_get:raft.HeartbeatRequest.term)
-  return term_;
-}
-inline void HeartbeatRequest::set_term(::google::protobuf::uint64 value) {
-  
-  term_ = value;
-  // @@protoc_insertion_point(field_set:raft.HeartbeatRequest.term)
-}
-
-// uint64 node_id = 2;
-inline void HeartbeatRequest::clear_node_id() {
-  node_id_ = GOOGLE_ULONGLONG(0);
-}
-inline ::google::protobuf::uint64 HeartbeatRequest::node_id() const {
-  // @@protoc_insertion_point(field_get:raft.HeartbeatRequest.node_id)
-  return node_id_;
-}
-inline void HeartbeatRequest::set_node_id(::google::protobuf::uint64 value) {
-  
-  node_id_ = value;
-  // @@protoc_insertion_point(field_set:raft.HeartbeatRequest.node_id)
-}
-
-// -------------------------------------------------------------------
-
-// HeartbeatResponse
-
-// bool success = 1;
-inline void HeartbeatResponse::clear_success() {
-  success_ = false;
-}
-inline bool HeartbeatResponse::success() const {
-  // @@protoc_insertion_point(field_get:raft.HeartbeatResponse.success)
-  return success_;
-}
-inline void HeartbeatResponse::set_success(bool value) {
-  
-  success_ = value;
-  // @@protoc_insertion_point(field_set:raft.HeartbeatResponse.success)
-}
-
-// uint64 node_id = 2;
-inline void HeartbeatResponse::clear_node_id() {
-  node_id_ = GOOGLE_ULONGLONG(0);
-}
-inline ::google::protobuf::uint64 HeartbeatResponse::node_id() const {
-  // @@protoc_insertion_point(field_get:raft.HeartbeatResponse.node_id)
-  return node_id_;
-}
-inline void HeartbeatResponse::set_node_id(::google::protobuf::uint64 value) {
-  
-  node_id_ = value;
-  // @@protoc_insertion_point(field_set:raft.HeartbeatResponse.node_id)
-}
-
-// -------------------------------------------------------------------
-
 // RaftMessage
 
 // .raft.RaftMessage.RaftMessageType type = 1;
@@ -2744,87 +2138,7 @@ inline void RaftMessage::set_raftid(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:raft.RaftMessage.raftid)
 }
 
-// .raft.HandshakeRequest hs_req = 3;
-inline bool RaftMessage::has_hs_req() const {
-  return msg_case() == kHsReq;
-}
-inline void RaftMessage::set_has_hs_req() {
-  _oneof_case_[0] = kHsReq;
-}
-inline void RaftMessage::clear_hs_req() {
-  if (has_hs_req()) {
-    delete msg_.hs_req_;
-    clear_has_msg();
-  }
-}
-inline ::raft::HandshakeRequest* RaftMessage::release_hs_req() {
-  // @@protoc_insertion_point(field_release:raft.RaftMessage.hs_req)
-  if (has_hs_req()) {
-    clear_has_msg();
-      ::raft::HandshakeRequest* temp = msg_.hs_req_;
-    msg_.hs_req_ = NULL;
-    return temp;
-  } else {
-    return NULL;
-  }
-}
-inline const ::raft::HandshakeRequest& RaftMessage::hs_req() const {
-  // @@protoc_insertion_point(field_get:raft.RaftMessage.hs_req)
-  return has_hs_req()
-      ? *msg_.hs_req_
-      : *reinterpret_cast< ::raft::HandshakeRequest*>(&::raft::_HandshakeRequest_default_instance_);
-}
-inline ::raft::HandshakeRequest* RaftMessage::mutable_hs_req() {
-  if (!has_hs_req()) {
-    clear_msg();
-    set_has_hs_req();
-    msg_.hs_req_ = new ::raft::HandshakeRequest;
-  }
-  // @@protoc_insertion_point(field_mutable:raft.RaftMessage.hs_req)
-  return msg_.hs_req_;
-}
-
-// .raft.HandshakeResponse hs_rsp = 4;
-inline bool RaftMessage::has_hs_rsp() const {
-  return msg_case() == kHsRsp;
-}
-inline void RaftMessage::set_has_hs_rsp() {
-  _oneof_case_[0] = kHsRsp;
-}
-inline void RaftMessage::clear_hs_rsp() {
-  if (has_hs_rsp()) {
-    delete msg_.hs_rsp_;
-    clear_has_msg();
-  }
-}
-inline ::raft::HandshakeResponse* RaftMessage::release_hs_rsp() {
-  // @@protoc_insertion_point(field_release:raft.RaftMessage.hs_rsp)
-  if (has_hs_rsp()) {
-    clear_has_msg();
-      ::raft::HandshakeResponse* temp = msg_.hs_rsp_;
-    msg_.hs_rsp_ = NULL;
-    return temp;
-  } else {
-    return NULL;
-  }
-}
-inline const ::raft::HandshakeResponse& RaftMessage::hs_rsp() const {
-  // @@protoc_insertion_point(field_get:raft.RaftMessage.hs_rsp)
-  return has_hs_rsp()
-      ? *msg_.hs_rsp_
-      : *reinterpret_cast< ::raft::HandshakeResponse*>(&::raft::_HandshakeResponse_default_instance_);
-}
-inline ::raft::HandshakeResponse* RaftMessage::mutable_hs_rsp() {
-  if (!has_hs_rsp()) {
-    clear_msg();
-    set_has_hs_rsp();
-    msg_.hs_rsp_ = new ::raft::HandshakeResponse;
-  }
-  // @@protoc_insertion_point(field_mutable:raft.RaftMessage.hs_rsp)
-  return msg_.hs_rsp_;
-}
-
-// .raft.VoteRequest vt_req = 5;
+// .raft.VoteRequest vt_req = 3;
 inline bool RaftMessage::has_vt_req() const {
   return msg_case() == kVtReq;
 }
@@ -2864,7 +2178,7 @@ inline ::raft::VoteRequest* RaftMessage::mutable_vt_req() {
   return msg_.vt_req_;
 }
 
-// .raft.VoteResponse vt_rsp = 6;
+// .raft.VoteResponse vt_rsp = 4;
 inline bool RaftMessage::has_vt_rsp() const {
   return msg_case() == kVtRsp;
 }
@@ -2904,7 +2218,7 @@ inline ::raft::VoteResponse* RaftMessage::mutable_vt_rsp() {
   return msg_.vt_rsp_;
 }
 
-// .raft.AppendEntriesRequest ae_req = 7;
+// .raft.AppendEntriesRequest ae_req = 5;
 inline bool RaftMessage::has_ae_req() const {
   return msg_case() == kAeReq;
 }
@@ -2944,7 +2258,7 @@ inline ::raft::AppendEntriesRequest* RaftMessage::mutable_ae_req() {
   return msg_.ae_req_;
 }
 
-// .raft.AppendEntriesResponse ae_rsp = 8;
+// .raft.AppendEntriesResponse ae_rsp = 6;
 inline bool RaftMessage::has_ae_rsp() const {
   return msg_case() == kAeRsp;
 }
@@ -2984,87 +2298,7 @@ inline ::raft::AppendEntriesResponse* RaftMessage::mutable_ae_rsp() {
   return msg_.ae_rsp_;
 }
 
-// .raft.HeartbeatRequest hb_req = 9;
-inline bool RaftMessage::has_hb_req() const {
-  return msg_case() == kHbReq;
-}
-inline void RaftMessage::set_has_hb_req() {
-  _oneof_case_[0] = kHbReq;
-}
-inline void RaftMessage::clear_hb_req() {
-  if (has_hb_req()) {
-    delete msg_.hb_req_;
-    clear_has_msg();
-  }
-}
-inline ::raft::HeartbeatRequest* RaftMessage::release_hb_req() {
-  // @@protoc_insertion_point(field_release:raft.RaftMessage.hb_req)
-  if (has_hb_req()) {
-    clear_has_msg();
-      ::raft::HeartbeatRequest* temp = msg_.hb_req_;
-    msg_.hb_req_ = NULL;
-    return temp;
-  } else {
-    return NULL;
-  }
-}
-inline const ::raft::HeartbeatRequest& RaftMessage::hb_req() const {
-  // @@protoc_insertion_point(field_get:raft.RaftMessage.hb_req)
-  return has_hb_req()
-      ? *msg_.hb_req_
-      : *reinterpret_cast< ::raft::HeartbeatRequest*>(&::raft::_HeartbeatRequest_default_instance_);
-}
-inline ::raft::HeartbeatRequest* RaftMessage::mutable_hb_req() {
-  if (!has_hb_req()) {
-    clear_msg();
-    set_has_hb_req();
-    msg_.hb_req_ = new ::raft::HeartbeatRequest;
-  }
-  // @@protoc_insertion_point(field_mutable:raft.RaftMessage.hb_req)
-  return msg_.hb_req_;
-}
-
-// .raft.HeartbeatResponse hb_rsp = 10;
-inline bool RaftMessage::has_hb_rsp() const {
-  return msg_case() == kHbRsp;
-}
-inline void RaftMessage::set_has_hb_rsp() {
-  _oneof_case_[0] = kHbRsp;
-}
-inline void RaftMessage::clear_hb_rsp() {
-  if (has_hb_rsp()) {
-    delete msg_.hb_rsp_;
-    clear_has_msg();
-  }
-}
-inline ::raft::HeartbeatResponse* RaftMessage::release_hb_rsp() {
-  // @@protoc_insertion_point(field_release:raft.RaftMessage.hb_rsp)
-  if (has_hb_rsp()) {
-    clear_has_msg();
-      ::raft::HeartbeatResponse* temp = msg_.hb_rsp_;
-    msg_.hb_rsp_ = NULL;
-    return temp;
-  } else {
-    return NULL;
-  }
-}
-inline const ::raft::HeartbeatResponse& RaftMessage::hb_rsp() const {
-  // @@protoc_insertion_point(field_get:raft.RaftMessage.hb_rsp)
-  return has_hb_rsp()
-      ? *msg_.hb_rsp_
-      : *reinterpret_cast< ::raft::HeartbeatResponse*>(&::raft::_HeartbeatResponse_default_instance_);
-}
-inline ::raft::HeartbeatResponse* RaftMessage::mutable_hb_rsp() {
-  if (!has_hb_rsp()) {
-    clear_msg();
-    set_has_hb_rsp();
-    msg_.hb_rsp_ = new ::raft::HeartbeatResponse;
-  }
-  // @@protoc_insertion_point(field_mutable:raft.RaftMessage.hb_rsp)
-  return msg_.hb_rsp_;
-}
-
-// .raft.MemberChangeRequest mc_req = 11;
+// .raft.MemberChangeRequest mc_req = 7;
 inline bool RaftMessage::has_mc_req() const {
   return msg_case() == kMcReq;
 }
@@ -3104,7 +2338,7 @@ inline ::raft::MemberChangeRequest* RaftMessage::mutable_mc_req() {
   return msg_.mc_req_;
 }
 
-// .raft.MemberChangeResponse mc_rsp = 12;
+// .raft.MemberChangeResponse mc_rsp = 8;
 inline bool RaftMessage::has_mc_rsp() const {
   return msg_case() == kMcRsp;
 }
@@ -3156,14 +2390,6 @@ inline RaftMessage::MsgCase RaftMessage::msg_case() const {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
-// -------------------------------------------------------------------
-
-// -------------------------------------------------------------------
-
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

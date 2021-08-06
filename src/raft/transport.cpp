@@ -48,12 +48,13 @@ int Transport::dispatch(request_t *req, response_t *rsp){
     }
     switch(msg.type()){
         case raft::RaftMessage::MSGTYPE_APPENDLOG_RESPONSE:
-            raf->recvAppendEntriesResponse(&msg.ae_rsp());
+            raf->recvAppendEntriesResponse(msg.mutable_ae_rsp());
             break;
         case raft::RaftMessage::MSGTYPE_VOTE_RESPONSE:
-            raf->recvVoteResponse(&msg.vt_rsp());
+            raf->recvVoteResponse(msg.mutable_vt_rsp());
             break;
-        case raft::RaftMessage::MSGTYPE_HANDSHAKE_RESPONSE:
+        case raft::RaftMessage::MSGTYPE_CONFCHANGE_RESPONSE:
+            raf->recvConfChangeResponse(msg.mutable_mc_rsp());
             break;
         default:
             fprintf(stderr, "unknown msg type:%d\n", msg.type());

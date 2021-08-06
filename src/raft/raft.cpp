@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 Raft::Raft(const RaftOptions &opt): 
-    id_(opt.id),
+    id_(opt.raftid),
     app_(opt.stm),
     trans_(opt.tran){
     term_ = 0;
@@ -45,7 +45,7 @@ int Raft::Propose(const std::string &data){
     return 0;
 }
 
-int Raft::ChangeMember(raft::RaftLogType type, const raft::Peer *peer) {
+int Raft::changeMember(raft::RaftLogType type, const raft::Peer *peer) {
     if(reconf_idx_!=-1){
         return -1;
     }
@@ -252,7 +252,6 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
         return -1;
     }
 
-
     if (r->current_index() != 0 && r->current_index() <= local_->GetMatchIndex()) {
         return 0;
     }
@@ -328,8 +327,24 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
     return 0;
 }
 
-void Raft::recvHeartbeatResponse(const raft::HeartbeatResponse *rsp){
-    //TODO
+void Raft::recvConfChangeRequest(raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp){
+    changeMember(req->type(), req->mutable_peer());
+    rsp->set_ok(true);
+    const address_t *addr = local_->GetAddress();
+    raft::Peer *peer = new raft::Peer;
+    {
+        peer->set_raftid(id_);
+        peer->set_nodeid(local_->GetNodeId());
+        peer->set_ip(addr->ip);
+        peer->set_port(addr->port);
+    }
+    rsp->set_allocated_peer(peer);
+}
+
+void Raft::recvConfChangeResponse(raft::MemberChangeResponse *rsp){
+    raft::Peer *peer = rsp->mutable_peer();
+    address_t addr(peer->ip().c_str(), int(peer->port()));
+    addRaftNode(peer->nodeid(), addr, false);
 }
 
 int Raft::applyEntry(){

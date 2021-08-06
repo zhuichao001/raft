@@ -58,33 +58,10 @@ int parse_opt(int argc, char *argv[]) {
     return 0;
 }
 
-    raft::RaftMessage msg;
-    raft::MemberChangeRequest mc_req;
+raft::RaftMessage msg;
+raft::MemberChangeRequest mc_req;
+
 int add_raft_node(){
-    address_t addr("127.0.0.1", leader_port);
-    dialer_t *cli = eng.open(&addr);
-
-    //raft::RaftMessage msg;
-    msg.set_raftid(raftid);
-    msg.set_type(raft::RaftMessage::MSGTYPE_CONFCHANGE_REQUEST);
-
-    //raft::MemberChangeRequest mc_req;
-    mc_req.set_type(raft::LOGTYPE_ADD_NODE);
-    raft::Peer *peer = mc_req.mutable_peer();
-    peer->set_raftid(raftid);
-    peer->set_nodeid(nodeid);
-    peer->set_ip("127.0.0.1");
-    peer->set_port(port);
-
-    msg.set_allocated_mc_req(&mc_req);
-
-    string tmp;
-    msg.SerializeToString(&tmp);
-
-    request_t req;
-    req.setbody(tmp.c_str(), tmp.size());
-
-    cli->call(&req, nullptr);
 }
 
 int main(int argc, char *argv[]){
@@ -95,7 +72,7 @@ int main(int argc, char *argv[]){
     RaftOptions opt;
     {
         opt.addr = address_t("0.0.0.0", port);
-        opt.id = raftid;
+        opt.raftid = raftid;
         opt.nodeid = nodeid;
         opt.stm = &app;
     }
@@ -105,26 +82,24 @@ int main(int argc, char *argv[]){
         ras.Start();
     });
 
-    if(!isleader){
+    if(!isleader){ //FOLLOWER
         add_raft_node();
-    }else{
-        sleep(1);
-        app.Set(std::string("abc"));
-    }
-
-    sleep(1);
-    printf("get:%s\n", app.Get().c_str());
-
-    while(true){
-        char buf[128];
-        printf("please input:");
-        scanf("%s", buf);
-        if(strcmp(buf, "exit")==0){
-            break;
+        while(true){
+            sleep(1);
+            printf("get:%s\n", app.Get().c_str());
         }
-        app.Set(std::string(buf));
-        sleep(1);
-        printf("get:%s\n", app.Get().c_str());
+    }else{ //LEADER
+        while(true){
+            char buf[128];
+            printf("please input:");
+            scanf("%s", buf);
+            if(strcmp(buf, "exit")==0){
+                break;
+            }
+            app.Set(std::string(buf));
+            sleep(1);
+            printf("get:%s\n", app.Get().c_str());
+        }
     }
 
     return 0;

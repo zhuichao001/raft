@@ -31,9 +31,9 @@ public:
         //why the order affects timer's regular work
         opt.clocker = eng_;
         opt.tran = trans_;
-        rafts_[opt.id] = new Raft(opt);
+        rafts_[opt.raftid] = new Raft(opt);
 
-        *raft = rafts_[opt.id];
+        *raft = rafts_[opt.raftid];
         return 0;
     }
 
@@ -42,25 +42,24 @@ public:
         return 0; 
     }
 
-    int AddMember(int64_t raftid, raft::Peer *peer){
-        Raft *raft = GetRaft(raftid);
-        if(raft==nullptr){
-            return -1;
-        }
+    int ChangeMember(int raftid, address_t *leader_addr, address_t *local_addr, int nodeid){
 
-        raft->ChangeMember(raft::LOGTYPE_ADD_NODE, peer);
-        //raft->addRaftNode(nodeid, addr, false);
-        return 0;
-    }
+        auto msg = std::make_shared<raft::RaftMessage>();
+        msg->set_raftid(raftid);
+        msg->set_type(raft::RaftMessage::MSGTYPE_CONFCHANGE_REQUEST);
 
-    int RemoveMember(int64_t raftid, const raft::Peer *peer){
-        Raft *raft = GetRaft(raftid);
-        if(raft==nullptr){
-            return -1;
-        }
+        auto mc_req = new raft::MemberChangeRequest;
+        mc_req->set_type(raft::LOGTYPE_ADD_NODE);
 
-        raft->ChangeMember(raft::LOGTYPE_REMOVE_NODE, peer);
-        return 0;
+        raft::Peer *peer = mc_req->mutable_peer();
+        peer->set_raftid(raftid);
+        peer->set_nodeid(nodeid);
+        peer->set_ip(local_addr->ip);
+        peer->set_port(local_addr->port);
+
+        msg->set_allocated_mc_req(mc_req);
+
+        trans_->Send(leader_addr, msg);
     }
 
     Raft *GetRaft(int64_t raftid) {
@@ -95,36 +94,26 @@ public:
             return -1;
         }
 
-        std::string tmp;
         switch(in.type()){
             case raft::RaftMessage::MSGTYPE_APPENDLOG_REQUEST:
                 raft->recvAppendEntries(in.mutable_ae_req(), out.mutable_ae_rsp());
                 out.set_type(raft::RaftMessage::MSGTYPE_APPENDLOG_RESPONSE);
-                out.SerializeToString(&tmp);
-                rsp->setbody(tmp.c_str(), tmp.size());
                 break;
             case raft::RaftMessage::MSGTYPE_VOTE_REQUEST:
                 raft->recvVoteRequest(&in.vt_req(), out.mutable_vt_rsp());
                 out.set_type(raft::RaftMessage::MSGTYPE_VOTE_RESPONSE);
-                out.SerializeToString(&tmp);
-                rsp->setbody(tmp.c_str(), tmp.size());
-                break;
-            case raft::RaftMessage::MSGTYPE_HANDSHAKE_REQUEST:
                 break;
             case raft::RaftMessage::MSGTYPE_CONFCHANGE_REQUEST:
-                this->recvMemberChange(in.raftid(), in.mutable_mc_req());
+                raft->recvConfChangeRequest(in.mutable_mc_req(), out.mutable_mc_rsp());
+                out.set_type(raft::RaftMessage::MSGTYPE_CONFCHANGE_RESPONSE);
             default:
                 fprintf(stderr, "unknown msg type:%d\n", in.type());
         }
-        return 0;
-    }
 
-    int recvMemberChange(uint64_t raftid, raft::MemberChangeRequest *req){
-        if(req->type() == raft::LOGTYPE_ADD_NODE){
-            AddMember(raftid, req->mutable_peer());
-        } else if(req->type()==raft::LOGTYPE_REMOVE_NODE){
-            RemoveMember(raftid, req->mutable_peer());
-        }
+        std::string tmp;
+        out.SerializeToString(&tmp);
+        rsp->setbody(tmp.c_str(), tmp.size());
+        return 0;
     }
 
 private:

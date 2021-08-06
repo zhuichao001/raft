@@ -35,18 +35,7 @@ message MemberChangeRequest {
 
 message MemberChangeResponse {
     bool ok = 1;
-};
-
-message HandshakeRequest {
-    int32 raft_port = 1;
-    int32 http_port = 2;
-    uint64 node_id = 3;
-    uint64 term = 4;
-};
-
-message HandshakeResponse {
-    bool success = 1;
-    uint64 node_id = 2;
+    Peer peer = 2;
 };
 
 message VoteRequest {
@@ -80,28 +69,16 @@ message AppendEntriesResponse {
     uint64 first_index = 5;
 };
 
-message HeartbeatRequest {
-    uint64 term = 1;
-    uint64 node_id = 2;
-};
-
-message HeartbeatResponse {
-    bool success = 1; 
-    uint64 node_id = 2;
-    //TODO
-};
-
-
 message RaftMessage {
     enum RaftMessageType {
-        MSGTYPE_HANDSHAKE_REQUEST = 0;
+        MSGTYPE_HANDSHAKE_REQUEST  = 0;
         MSGTYPE_HANDSHAKE_RESPONSE = 1;
-        MSGTYPE_VOTE_REQUEST = 2;
+        MSGTYPE_VOTE_REQUEST  = 2;
         MSGTYPE_VOTE_RESPONSE = 3;
-        MSGTYPE_APPENDLOG_REQUEST = 4;
+        MSGTYPE_APPENDLOG_REQUEST  = 4;
         MSGTYPE_APPENDLOG_RESPONSE = 5;
 
-        MSGTYPE_CONFCHANGE_REQUEST = 6;
+        MSGTYPE_CONFCHANGE_REQUEST  = 6;
         MSGTYPE_CONFCHANGE_RESPONSE = 7;
     }
     RaftMessageType type = 1;
@@ -109,19 +86,13 @@ message RaftMessage {
     uint32 raftid = 2;
 
     oneof msg {
-        HandshakeRequest hs_req  = 3;
-        HandshakeResponse hs_rsp = 4;
+        VoteRequest vt_req  = 3;
+        VoteResponse vt_rsp = 4;
 
-        VoteRequest vt_req  = 5;
-        VoteResponse vt_rsp = 6;
+        AppendEntriesRequest ae_req  = 5;
+        AppendEntriesResponse ae_rsp = 6;
 
-        AppendEntriesRequest ae_req  = 7;
-        AppendEntriesResponse ae_rsp = 8;
-
-        HeartbeatRequest hb_req  = 9;
-        HeartbeatResponse hb_rsp = 10;
-
-        MemberChangeRequest mc_req  = 11;
-        MemberChangeResponse mc_rsp = 12;
+        MemberChangeRequest mc_req  = 7;
+        MemberChangeResponse mc_rsp = 8;
     }
 };
