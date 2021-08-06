@@ -35,7 +35,8 @@ message MemberChangeRequest {
 
 message MemberChangeResponse {
     bool ok = 1;
-    Peer peer = 2;
+    uint64 term = 2;
+    Peer peer = 3;
 };
 
 message VoteRequest {

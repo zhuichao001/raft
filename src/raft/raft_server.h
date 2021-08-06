@@ -42,14 +42,14 @@ public:
         return 0; 
     }
 
-    int ChangeMember(int raftid, address_t *leader_addr, address_t *local_addr, int nodeid){
+    int ChangeMember(int raftid, raft::RaftLogType type, address_t *leader_addr, address_t *local_addr, int nodeid){
 
         auto msg = std::make_shared<raft::RaftMessage>();
         msg->set_raftid(raftid);
         msg->set_type(raft::RaftMessage::MSGTYPE_CONFCHANGE_REQUEST);
 
         auto mc_req = new raft::MemberChangeRequest;
-        mc_req->set_type(raft::LOGTYPE_ADD_NODE);
+        mc_req->set_type(type);
 
         raft::Peer *peer = mc_req->mutable_peer();
         peer->set_raftid(raftid);

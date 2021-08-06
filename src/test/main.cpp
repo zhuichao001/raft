@@ -14,7 +14,8 @@
 bool isleader = true;
 int raftid = 117;
 int nodeid;
-int port;
+std::string local_ip = "127.0.0.1";
+int local_port;
 int leader_port; //leader address
 
 engine_t eng;
@@ -41,7 +42,7 @@ int parse_opt(int argc, char *argv[]) {
             case 'i':
                 fprintf(stderr, "-i:%s\n", optarg);
                 nodeid = atoi(optarg);
-                port = 9000+nodeid;
+                local_port = 9000+nodeid;
                 break;
             case 'j':
                 isleader = false;
@@ -54,14 +55,8 @@ int parse_opt(int argc, char *argv[]) {
                 break;
         }
     }
-    fprintf(stderr, "is_leader:%d, id:%d, port:%d, leader_port:%d\n", isleader, nodeid, port, leader_port);
+    fprintf(stderr, "is_leader:%d, id:%d, port:%d, leader_port:%d\n", isleader, nodeid, local_port, leader_port);
     return 0;
-}
-
-raft::RaftMessage msg;
-raft::MemberChangeRequest mc_req;
-
-int add_raft_node(){
 }
 
 int main(int argc, char *argv[]){
@@ -71,7 +66,7 @@ int main(int argc, char *argv[]){
     Application app;
     RaftOptions opt;
     {
-        opt.addr = address_t("0.0.0.0", port);
+        opt.addr = address_t("0.0.0.0", local_port);
         opt.raftid = raftid;
         opt.nodeid = nodeid;
         opt.stm = &app;
@@ -83,7 +78,8 @@ int main(int argc, char *argv[]){
     });
 
     if(!isleader){ //FOLLOWER
-        add_raft_node();
+        address_t leader_addr(local_ip.c_str(), leader_port);
+        ras.ChangeMember(raftid, raft::LOGTYPE_ADD_NODE, &leader_addr, &opt.addr, nodeid);
         while(true){
             sleep(1);
             printf("get:%s\n", app.Get().c_str());

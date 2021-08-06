@@ -13,15 +13,14 @@ Raft::Raft(const RaftOptions &opt):
     voted_for_ = -1;
     commit_idx_ = 0;
     applied_idx_ = 0;
-    lasttime_heartbeat_ = 0;
-    timeout_election_ = 1000;
-    timeout_request_ = 200;
-    timeout_heartbeat_ = 1000;
+    lasttime_heartbeat_ = microsec();
+    timeout_election_ = 3000*1000;
+    timeout_request_ = 200*1000;
+    timeout_heartbeat_ = 3000*1000;
     reconf_idx_ = -1;
     state_ = RAFT_STATE::FOLLOWER;
-    leader_ = NULL;
-    local_ = NULL;
-    addRaftNode(opt.nodeid, opt.addr, true);
+    leader_ = nullptr;
+    local_ = addRaftNode(opt.nodeid, opt.addr, true);
     ticker_ = opt.clocker->run_every(std::bind(&Raft::tick, this), 100*1000);
 }
 
@@ -95,10 +94,10 @@ void Raft::sendAppendEntries(RaftNode *to){
     req->set_prev_log_term(0);
     req->set_prev_log_index(0);
 
-    raft::LogEntry *e = req->add_entries();
     int next_idx = to->GetNextIndex();
     const raft::LogEntry* nex = log_.getEntry(next_idx);
     if (nex != nullptr) {
+        raft::LogEntry *e = req->add_entries();
         e->set_term(nex->term());
         e->set_index(nex->index());
         e->set_type(nex->type());
@@ -183,7 +182,7 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
         }
     }
 
-    leader_ = nodes_[msg->nodeid()]; //from
+    leader_ = nodes_[msg->nodeid()];
     fprintf(stderr, "[RAFT] from msg->nodeid=%d\n", msg->nodeid());
 
     if (msg->entries_size()==0 && msg->prev_log_index()>0 && msg->prev_log_index()+1<getCurrentIndex()) {
@@ -213,6 +212,8 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     for (int i=0; i < msg->entries_size(); ++i) {
         int res = log_.appendEntry(&msg->entries(i));
         if (res == -1) {
+            fprintf(stderr, "error: recvAppendEntries appendEntry failed\n");
+            rsp->set_success(true);
             rsp->set_current_index(msg->prev_log_index()-1);
             return -1;
         }
@@ -228,17 +229,11 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
 
     rsp->set_success(true);
     rsp->set_first_index(msg->prev_log_index() + 1);
+
     return 0;
 }
 
 int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
-    fprintf(stderr, "received appendentries response %s | nodeid:%d current_idx:%d remote current_idx:%d remote 1stidx:%d\n",
-            r->success() == 1 ? "SUCCESS" : "fail",
-            r->nodeid(),
-            getCurrentIndex(),
-            r->current_index(),
-            r->first_index());
-
     if (!isLeader()) {
         return -1;
     }
@@ -265,6 +260,8 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
     }
 
     if (!r->success()) {
+        fprintf(stderr, "recvAppendEntriesResponse failed\n");
+        
         int next_idx = local_->GetNextIndex();
         if (r->current_index() < next_idx - 1) {
             local_->SetNextIndex(std::min(r->current_index() + 1, getCurrentIndex()));
@@ -317,12 +314,6 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
 
     fprintf(stderr, "commit:%d\n", commit_idx_);
 
-    /* TODO
-    if (log_.getEntry(local_->GetNextIndex())!=nullptr) {
-        sendAppendEntries();
-    }
-    */
-
     applyEntry();
     return 0;
 }
@@ -330,6 +321,7 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
 void Raft::recvConfChangeRequest(raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp){
     changeMember(req->type(), req->mutable_peer());
     rsp->set_ok(true);
+    rsp->set_term(term_);
     const address_t *addr = local_->GetAddress();
     raft::Peer *peer = new raft::Peer;
     {
@@ -344,7 +336,7 @@ void Raft::recvConfChangeRequest(raft::MemberChangeRequest *req, raft::MemberCha
 void Raft::recvConfChangeResponse(raft::MemberChangeResponse *rsp){
     raft::Peer *peer = rsp->mutable_peer();
     address_t addr(peer->ip().c_str(), int(peer->port()));
-    addRaftNode(peer->nodeid(), addr, false);
+    leader_ = addRaftNode(peer->nodeid(), addr, false);
 }
 
 int Raft::applyEntry(){
@@ -386,6 +378,12 @@ void Raft::tick(){
             if (microsec()-lasttime_election_ >= timeout_election_) {
                 fprintf(stderr, "[RAFT] tick timeout, candidate restart Election\n");
                 startElection();
+            }
+            break;
+        case RAFT_STATE::LEADER:
+            if (microsec()-lasttime_heartbeat_ >= timeout_election_/3) {
+                fprintf(stderr, "[RAFT] tick timeout, leader send heartbeat\n");
+                sendAppendEntries(); //heartbeat
             }
             break;
         default:
@@ -437,8 +435,9 @@ void Raft::becomeLeader(){ //for candidator
 }
 
 void Raft::becomeFollower(){
-    fprintf(stderr, "becoming follower term:%d", term_);
+    lasttime_heartbeat_ = microsec();
     setState(RAFT_STATE::FOLLOWER);
+    fprintf(stderr, "becoming follower, leader:%d, term:%d\n", leader_->GetNodeId(), term_);
 }
 
 int Raft::voteFor(const int nodeid){
@@ -454,7 +453,6 @@ void Raft::startElection() {
     lasttime_election_ = microsec();
     becomeCandidate();
 }
-
 
 bool Raft::shouldGrantVote(const raft::VoteRequest* req) {
     if (req->term() < term_){
@@ -488,16 +486,16 @@ int Raft::sendVoteRequest(RaftNode *to){
 
     fprintf(stderr, "%d sending requestvote to: %d", local_->GetNodeId(), to->GetNodeId());
 
-    raft::VoteRequest req;
-    req.set_term(term_);
-    req.set_last_index(getCurrentIndex());
-    req.set_last_term(getLastLogTerm());
-    req.set_candidate(local_->GetNodeId());
+    raft::VoteRequest *req = new raft::VoteRequest;
+    req->set_term(term_);
+    req->set_last_index(getCurrentIndex());
+    req->set_last_term(getLastLogTerm());
+    req->set_candidate(local_->GetNodeId());
     {
         std::shared_ptr<raft::RaftMessage> msg = std::make_shared<raft::RaftMessage>();
         msg->set_type(raft::RaftMessage::MSGTYPE_VOTE_REQUEST);
         msg->set_raftid(id_);
-        msg->set_allocated_vt_req(&req);
+        msg->set_allocated_vt_req(req);
         trans_->Send(to->GetAddress(), msg);
     }
     return 0;

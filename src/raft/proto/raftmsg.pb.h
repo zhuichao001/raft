@@ -715,14 +715,20 @@ class MemberChangeResponse : public ::google::protobuf::Message /* @@protoc_inse
 
   // accessors -------------------------------------------------------
 
-  // .raft.Peer peer = 2;
+  // .raft.Peer peer = 3;
   bool has_peer() const;
   void clear_peer();
-  static const int kPeerFieldNumber = 2;
+  static const int kPeerFieldNumber = 3;
   const ::raft::Peer& peer() const;
   ::raft::Peer* release_peer();
   ::raft::Peer* mutable_peer();
   void set_allocated_peer(::raft::Peer* peer);
+
+  // uint64 term = 2;
+  void clear_term();
+  static const int kTermFieldNumber = 2;
+  ::google::protobuf::uint64 term() const;
+  void set_term(::google::protobuf::uint64 value);
 
   // bool ok = 1;
   void clear_ok();
@@ -735,6 +741,7 @@ class MemberChangeResponse : public ::google::protobuf::Message /* @@protoc_inse
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::raft::Peer* peer_;
+  ::google::protobuf::uint64 term_;
   bool ok_;
   mutable int _cached_size_;
   friend struct ::protobuf_raftmsg_2eproto::TableStruct;
@@ -1786,7 +1793,21 @@ inline void MemberChangeResponse::set_ok(bool value) {
   // @@protoc_insertion_point(field_set:raft.MemberChangeResponse.ok)
 }
 
-// .raft.Peer peer = 2;
+// uint64 term = 2;
+inline void MemberChangeResponse::clear_term() {
+  term_ = GOOGLE_ULONGLONG(0);
+}
+inline ::google::protobuf::uint64 MemberChangeResponse::term() const {
+  // @@protoc_insertion_point(field_get:raft.MemberChangeResponse.term)
+  return term_;
+}
+inline void MemberChangeResponse::set_term(::google::protobuf::uint64 value) {
+  
+  term_ = value;
+  // @@protoc_insertion_point(field_set:raft.MemberChangeResponse.term)
+}
+
+// .raft.Peer peer = 3;
 inline bool MemberChangeResponse::has_peer() const {
   return this != internal_default_instance() && peer_ != NULL;
 }
