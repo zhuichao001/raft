@@ -12,16 +12,18 @@ public:
     }
 
     int appendEntry(const raft::LogEntry *e){
-        fprintf(stderr, "[RAFT] log entry, term:%d, index:%d\n", e->term(), e->index());
 
         if(e->index() <= 0){
             return -1;
         }
 
         while(!entries_.empty() && e->index() < entries_.back()->index()){
+            fprintf(stderr, "[RAFT-LOG]when  puhsh, pop a entry\n");
             entries_.pop_back();
         }
         entries_.push_back(e);
+
+        fprintf(stderr, "[RAFT-LOG] RaftLog::appendEntry, currentIndex:%d e.term:%d, e.index:%d\n", getCurrentIndex(), e->term(), e->index());
         return 0;
     }
 
@@ -30,13 +32,17 @@ public:
         if(idx>base_idx_+entries_.size() || idx<base_idx_){
             return nullptr;
         }
-        return entries_[idx-1-base_idx_];
+
+        auto e = entries_[idx-1-base_idx_];
+        fprintf(stderr, "[RAFT-LOG] RaftLog::getEntry, Index:%d e.term:%d, e.index:%d\n", idx, e->term(), e->index());
+        return e;
     }
 
     void truncate(int idx){
+        fprintf(stderr, "[RAFT-LOG]truncate idx:%d\n", idx);
         idx -= 1+base_idx_;
-        if(idx>0 && idx<entries_.size()){
-            entries_.erase(entries_.begin()+idx-1, entries_.end());
+        if(idx>=0 && idx<entries_.size()){
+            entries_.erase(entries_.begin()+idx, entries_.end());
         }
     }
 

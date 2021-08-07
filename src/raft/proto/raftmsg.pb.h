@@ -276,6 +276,12 @@ class LogEntry : public ::google::protobuf::Message /* @@protoc_insertion_point(
   ::raft::RaftLogType type() const;
   void set_type(::raft::RaftLogType value);
 
+  // uint32 size = 5;
+  void clear_size();
+  static const int kSizeFieldNumber = 5;
+  ::google::protobuf::uint32 size() const;
+  void set_size(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:raft.LogEntry)
  private:
 
@@ -284,6 +290,7 @@ class LogEntry : public ::google::protobuf::Message /* @@protoc_insertion_point(
   ::google::protobuf::uint64 term_;
   ::google::protobuf::uint64 index_;
   int type_;
+  ::google::protobuf::uint32 size_;
   mutable int _cached_size_;
   friend struct ::protobuf_raftmsg_2eproto::TableStruct;
   friend void ::protobuf_raftmsg_2eproto::InitDefaultsLogEntryImpl();
@@ -1574,6 +1581,20 @@ inline void LogEntry::set_allocated_data(::std::string* data) {
   }
   data_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), data);
   // @@protoc_insertion_point(field_set_allocated:raft.LogEntry.data)
+}
+
+// uint32 size = 5;
+inline void LogEntry::clear_size() {
+  size_ = 0u;
+}
+inline ::google::protobuf::uint32 LogEntry::size() const {
+  // @@protoc_insertion_point(field_get:raft.LogEntry.size)
+  return size_;
+}
+inline void LogEntry::set_size(::google::protobuf::uint32 value) {
+  
+  size_ = value;
+  // @@protoc_insertion_point(field_set:raft.LogEntry.size)
 }
 
 // -------------------------------------------------------------------

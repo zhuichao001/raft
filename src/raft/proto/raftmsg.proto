@@ -14,6 +14,7 @@ message LogEntry {
     uint64 term = 2;
     uint64 index = 3;
     bytes data = 4;
+    uint32 size = 5;
 };
 
 message LogEntryResponse {

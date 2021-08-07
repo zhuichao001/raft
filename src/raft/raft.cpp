@@ -37,9 +37,11 @@ int Raft::Propose(const std::string &data){
     }
 
     raft::LogEntry *e = new raft::LogEntry();
+    e->set_type(raft::LOGTYPE_NORMAL);
     e->set_term(term_);
     e->set_index(1+getCurrentIndex());
     e->set_data(data);
+    e->set_size(data.size());
 
     appendEntry(e);
     sendAppendEntries();
@@ -64,11 +66,14 @@ int Raft::changeMember(raft::RaftLogType type, const raft::Peer *peer) {
     raft::LogEntry *e = new raft::LogEntry();
     e->set_type(type);
     e->set_term(term_);
-    e->set_index(getCurrentIndex());
+    e->set_index(1+getCurrentIndex());
+
+    printf("to append log, type:%d, term:%d, index:%d\n", e->type(), e->term(), e->index());
 
     std::string data;
     peer->SerializeToString(&data);
     e->set_data(data);
+    e->set_size(data.size());
 
     reconf_idx_ = e->index();
     printf("************append entry\n");
@@ -89,12 +94,12 @@ void Raft::sendAppendEntries(){
 }
 
 void Raft::sendAppendEntries(RaftNode *to){
-    raft::AppendEntriesRequest *req = new raft::AppendEntriesRequest();
+    auto req = new raft::AppendEntriesRequest;
     req->set_nodeid(local_->GetNodeId());
     req->set_term(term_);
     req->set_commit(commit_idx_);
 
-    fprintf(stderr, "|||nodeid:%d, term:%d, commit_idx:%d\n", req->nodeid(), req->term(), req->commit());
+    fprintf(stderr, "||| send nodeid:%d, term:%d, commit_idx:%d\n", req->nodeid(), req->term(), req->commit());
 
     req->set_prev_log_term(0);
     req->set_prev_log_index(0);
@@ -107,7 +112,7 @@ void Raft::sendAppendEntries(RaftNode *to){
         e->set_index(nex->index());
         e->set_type(nex->type());
         e->set_data(nex->data());
-        fprintf(stderr, "[RAFT] LOG term:%d,index:%d,type:%d\n", nex->term(), nex->index(), nex->type());
+        fprintf(stderr, "[RAFT] get a LOG term:%d,index:%d,type:%d\n", nex->term(), nex->index(), nex->type());
     } else {
         fprintf(stderr, "WARNING, getEntry null, next_idx=%d\n", next_idx);
     }
@@ -120,7 +125,7 @@ void Raft::sendAppendEntries(RaftNode *to){
         }
     }
 
-    std::shared_ptr<raft::RaftMessage> msg = std::make_shared<raft::RaftMessage>();
+    auto msg = std::make_shared<raft::RaftMessage>();
     msg->set_type(raft::RaftMessage::MSGTYPE_APPENDLOG_REQUEST);
     msg->set_raftid(id_);
     msg->set_allocated_ae_req(req);
@@ -146,7 +151,7 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     rsp->set_term(term_);
 
     //print request
-    fprintf(stderr, "Receive AppendEntries local nodeid: %lx, from:%d term:%d commit:%d curidx:%d pli:%d plt:%d\n",
+    fprintf(stderr, "Receive AppendEntries local-nodeid: %lx, from:%d term:%d commit:%d curidx:%d pli:%d plt:%d\n",
         local_->GetNodeId(),
         msg->nodeid(),
         msg->term(),
@@ -171,6 +176,7 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     }
 
     if (msg->prev_log_index() > 0) {
+        fprintf(stderr, "prev_log_index:%d\n", msg->prev_log_index());
         const raft::LogEntry *e = log_.getEntry(msg->prev_log_index());
         if (!e || msg->prev_log_index() > getCurrentIndex()) { //second condition will be false?
             fprintf(stderr, "msg's prev log is nullptr, prev_log_index:%d\n", msg->prev_log_index());
@@ -179,8 +185,8 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
         }
 
         if (e->term() != msg->prev_log_term()) {
-            fprintf(stderr, "msg term doesn't match prev_term (ie. %d vs %d) ci:%d pli:%d", 
-                    e->term(), msg->prev_log_term(), getCurrentIndex(), msg->prev_log_index());
+            fprintf(stderr, "msg term doesn't match prev_term (ie. %d vs %d) ci:%d cix:%d pli:%d\n", 
+                    e->term(), msg->prev_log_term(), getCurrentIndex(), commit_idx_, msg->prev_log_index());
             assert(commit_idx_ < msg->prev_log_index());
             log_.truncate(msg->prev_log_index());
             rsp->set_current_index(msg->prev_log_index() - 1);
@@ -216,7 +222,16 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     }
 
     for (int i=0; i < msg->entries_size(); ++i) {
-        int res = log_.appendEntry(&msg->entries(i));
+        auto e = &msg->entries(i);
+        fprintf(stderr, "append log entry, term:%d index:%d\n", e->term(), e->index());
+        auto entry = new raft::LogEntry;
+        entry->set_type(e->type());
+        entry->set_term(e->term());
+        entry->set_index(e->index());
+        entry->set_data(e->data());
+        entry->set_size(e->size());
+
+        int res = log_.appendEntry(entry);
         if (res == -1) {
             fprintf(stderr, "error: recvAppendEntries appendEntry failed\n");
             rsp->set_success(true);
@@ -328,6 +343,8 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
 
 void Raft::recvConfChangeRequest(const raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp){
     auto p = &req->peer();
+    printf("@@@@@@changeMember, raftid:%d, nodeid:%d, ip:%s, port:%d\n", p->raftid(), p->nodeid(), p->ip().c_str(), p->port());
+
     changeMember(req->type(), &req->peer());
     rsp->set_ok(true);
     rsp->set_term(term_);
@@ -341,7 +358,6 @@ void Raft::recvConfChangeRequest(const raft::MemberChangeRequest *req, raft::Mem
     }
     rsp->set_allocated_peer(peer);
 
-    printf("changeMember, raftid:%d, nodeid:%d, ip:%s, port:%d\n", id_, p->nodeid(), p->ip().c_str(), p->port());
 }
 
 void Raft::recvConfChangeResponse(raft::MemberChangeResponse *rsp){
@@ -365,9 +381,20 @@ int Raft::applyEntry(){
             return -1;
         }
 
-        fprintf(stderr, "applying log: %d, id: %d size: %d", applied_idx_, e->index(), e->data().size());
+        fprintf(stderr, "applying log: %d, id: %d size: %d, real size:%d\n", applied_idx_, e->index(), e->data().size(), e->size());
 
-        app_->Apply(e->data());
+        if(e->type()==raft::LOGTYPE_NORMAL){
+            fprintf(stderr, "apply normal raft log\n");
+            app_->Apply(e->data());
+        }else if(e->type()==raft::LOGTYPE_ADD_NODE){
+            fprintf(stderr, "apply confchange raft log\n");
+            raft::Peer peer;
+            peer.ParseFromString(e->data());
+            if(peer.nodeid()!=local_->GetNodeId()){
+                address_t addr(peer.ip().c_str(), peer.port());
+                addRaftNode(peer.nodeid(), addr, false);
+            }
+        }
         ++applied_idx_;
 
         if (idx == reconf_idx_){

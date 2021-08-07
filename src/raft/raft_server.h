@@ -51,15 +51,18 @@ public:
         auto mc_req = new raft::MemberChangeRequest;
         mc_req->set_type(type);
 
-        raft::Peer *peer = mc_req->mutable_peer();
-        peer->set_raftid(raftid);
-        peer->set_nodeid(nodeid);
-        peer->set_ip(local_addr->ip);
-        peer->set_port(local_addr->port);
+        raft::Peer *p = mc_req->mutable_peer();
+        p->set_raftid(raftid);
+        p->set_nodeid(nodeid);
+        p->set_ip(local_addr->ip);
+        p->set_port(local_addr->port);
+
+        fprintf(stderr, "|||#### raftid:%d, nodeid:%d, ip:%s, port:%d\n", p->raftid(), p->nodeid(), p->ip().c_str(), p->port());
 
         msg->set_allocated_mc_req(mc_req);
 
         trans_->Send(leader_addr, msg);
+        return 0;
     }
 
     Raft *GetRaft(int64_t raftid) {
@@ -81,40 +84,39 @@ public:
 public:
     int process(request_t *req, response_t *rsp) override {
         fprintf(stderr, "rpc server process.\n");
-        fprintf(stderr, "rpc req=%s.\n", req->data());
+        fprintf(stderr, "RECEIVE:%s len=%d\n", req->data(), req->len());
 
-        raft::RaftMessage in, out;
+        auto in = std::make_shared<raft::RaftMessage>();
+        auto out = std::make_shared<raft::RaftMessage>();
 
-        in.ParseFromString(req->data());
-        auto req2 = in.mutable_ae_req();
-        fprintf(stderr, "||||||CHECK nodeid:%d, term:%d, commit_idx:%d\n", req2->nodeid(), req2->term(), req2->commit());
+        in->ParseFromString(req->data());
 
-        Raft *raft = GetRaft(in.raftid());
+        Raft *raft = GetRaft(in->raftid());
         if(raft==nullptr){
             rsp->seterrcode(-200);
             return -1;
         }
-        out.set_raftid(in.raftid());
+        out->set_raftid(in->raftid());
 
-        switch(in.type()){
+        switch(in->type()){
             case raft::RaftMessage::MSGTYPE_APPENDLOG_REQUEST:
-                raft->recvAppendEntries(&in.ae_req(), out.mutable_ae_rsp());
-                out.set_type(raft::RaftMessage::MSGTYPE_APPENDLOG_RESPONSE);
+                raft->recvAppendEntries(in->mutable_ae_req(), out->mutable_ae_rsp());
+                out->set_type(raft::RaftMessage::MSGTYPE_APPENDLOG_RESPONSE);
                 break;
             case raft::RaftMessage::MSGTYPE_VOTE_REQUEST:
-                raft->recvVoteRequest(&in.vt_req(), out.mutable_vt_rsp());
-                out.set_type(raft::RaftMessage::MSGTYPE_VOTE_RESPONSE);
+                raft->recvVoteRequest(&in->vt_req(), out->mutable_vt_rsp());
+                out->set_type(raft::RaftMessage::MSGTYPE_VOTE_RESPONSE);
                 break;
             case raft::RaftMessage::MSGTYPE_CONFCHANGE_REQUEST:
                 printf("MSGTYPE_CONFCHANGE_REQUEST deal\n");
-                raft->recvConfChangeRequest(&in.mc_req(), out.mutable_mc_rsp());
-                out.set_type(raft::RaftMessage::MSGTYPE_CONFCHANGE_RESPONSE);
+                raft->recvConfChangeRequest(&in->mc_req(), out->mutable_mc_rsp());
+                out->set_type(raft::RaftMessage::MSGTYPE_CONFCHANGE_RESPONSE);
             default:
-                fprintf(stderr, "unknown msg type:%d\n", in.type());
+                fprintf(stderr, "unknown msg type:%d\n", in->type());
         }
 
         std::string tmp;
-        out.SerializeToString(&tmp);
+        out->SerializeToString(&tmp);
         rsp->setbody(tmp.c_str(), tmp.size());
         return 0;
     }

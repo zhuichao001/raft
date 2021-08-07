@@ -23,6 +23,12 @@ int Transport::Start(address_t *addr, server_t *svr){
 }
 
 void Transport::Send(const address_t *addr, const std::shared_ptr<raft::RaftMessage> msg){
+
+    if(msg->type()==raft::RaftMessage::MSGTYPE_APPENDLOG_REQUEST){
+        auto req = msg->ae_req();
+        fprintf(stderr, "|||confirm nodeid:%d, term:%d, commit_idx:%d\n", req.nodeid(), req.term(), req.commit());
+    }
+
     int64_t hip = addr->to_long();
     if(clients_.find(hip)==clients_.end()){
         dialer_t *cli = eng_->open(addr);
@@ -31,11 +37,7 @@ void Transport::Send(const address_t *addr, const std::shared_ptr<raft::RaftMess
 
     string tmp;
     msg->SerializeToString(&tmp);
-
-    raft::RaftMessage msg2;
-    msg2.ParseFromString(tmp);
-    auto req2 = msg2.mutable_ae_req();
-    fprintf(stderr, "|||CHECK nodeid:%d, term:%d, commit_idx:%d\n", req2->nodeid(), req2->term(), req2->commit());
+    fprintf(stderr, "SEND:%X len=%d\n", tmp.c_str(), tmp.size());
 
     request_t req;
     req.setbody(tmp.c_str(), tmp.size());
