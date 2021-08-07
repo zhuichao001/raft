@@ -310,7 +310,6 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::LogEntry, term_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::LogEntry, index_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::LogEntry, data_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::LogEntry, size_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::LogEntryResponse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -396,15 +395,15 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::raft::LogEntry)},
-  { 10, -1, sizeof(::raft::LogEntryResponse)},
-  { 17, -1, sizeof(::raft::Peer)},
-  { 26, -1, sizeof(::raft::MemberChangeRequest)},
-  { 33, -1, sizeof(::raft::MemberChangeResponse)},
-  { 41, -1, sizeof(::raft::VoteRequest)},
-  { 50, -1, sizeof(::raft::VoteResponse)},
-  { 57, -1, sizeof(::raft::AppendEntriesRequest)},
-  { 68, -1, sizeof(::raft::AppendEntriesResponse)},
-  { 78, -1, sizeof(::raft::RaftMessage)},
+  { 9, -1, sizeof(::raft::LogEntryResponse)},
+  { 16, -1, sizeof(::raft::Peer)},
+  { 25, -1, sizeof(::raft::MemberChangeRequest)},
+  { 32, -1, sizeof(::raft::MemberChangeResponse)},
+  { 40, -1, sizeof(::raft::VoteRequest)},
+  { 49, -1, sizeof(::raft::VoteResponse)},
+  { 56, -1, sizeof(::raft::AppendEntriesRequest)},
+  { 67, -1, sizeof(::raft::AppendEntriesResponse)},
+  { 77, -1, sizeof(::raft::RaftMessage)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -442,48 +441,47 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\rraftmsg.proto\022\004raft\"d\n\010LogEntry\022\037\n\004typ"
+      "\n\rraftmsg.proto\022\004raft\"V\n\010LogEntry\022\037\n\004typ"
       "e\030\001 \001(\0162\021.raft.RaftLogType\022\014\n\004term\030\002 \001(\004"
-      "\022\r\n\005index\030\003 \001(\004\022\014\n\004data\030\004 \001(\014\022\014\n\004size\030\005 "
-      "\001(\r\"/\n\020LogEntryResponse\022\014\n\004term\030\001 \001(\004\022\r\n"
-      "\005index\030\002 \001(\004\"@\n\004Peer\022\016\n\006raftid\030\001 \001(\004\022\016\n\006"
-      "nodeid\030\002 \001(\004\022\n\n\002ip\030\003 \001(\t\022\014\n\004port\030\004 \001(\r\"P"
-      "\n\023MemberChangeRequest\022\037\n\004type\030\001 \001(\0162\021.ra"
-      "ft.RaftLogType\022\030\n\004peer\030\002 \001(\0132\n.raft.Peer"
-      "\"J\n\024MemberChangeResponse\022\n\n\002ok\030\001 \001(\010\022\014\n\004"
-      "term\030\002 \001(\004\022\030\n\004peer\030\003 \001(\0132\n.raft.Peer\"U\n\013"
-      "VoteRequest\022\014\n\004term\030\001 \001(\004\022\021\n\tcandidate\030\002"
-      " \001(\004\022\021\n\tlast_term\030\003 \001(\004\022\022\n\nlast_index\030\004 "
-      "\001(\004\"+\n\014VoteResponse\022\014\n\004term\030\001 \001(\004\022\r\n\005agr"
-      "ee\030\002 \001(\010\"\224\001\n\024AppendEntriesRequest\022\016\n\006nod"
-      "eid\030\001 \001(\004\022\014\n\004term\030\002 \001(\004\022\016\n\006commit\030\003 \001(\004\022"
-      "\025\n\rprev_log_term\030\004 \001(\004\022\026\n\016prev_log_index"
-      "\030\005 \001(\004\022\037\n\007entries\030\006 \003(\0132\016.raft.LogEntry\""
-      "r\n\025AppendEntriesResponse\022\016\n\006nodeid\030\001 \001(\004"
-      "\022\017\n\007success\030\002 \001(\010\022\014\n\004term\030\003 \001(\004\022\025\n\rcurre"
-      "nt_index\030\004 \001(\004\022\023\n\013first_index\030\005 \001(\004\"\340\004\n\013"
-      "RaftMessage\022/\n\004type\030\001 \001(\0162!.raft.RaftMes"
-      "sage.RaftMessageType\022\016\n\006raftid\030\002 \001(\r\022#\n\006"
-      "vt_req\030\003 \001(\0132\021.raft.VoteRequestH\000\022$\n\006vt_"
-      "rsp\030\004 \001(\0132\022.raft.VoteResponseH\000\022,\n\006ae_re"
-      "q\030\005 \001(\0132\032.raft.AppendEntriesRequestH\000\022-\n"
-      "\006ae_rsp\030\006 \001(\0132\033.raft.AppendEntriesRespon"
-      "seH\000\022+\n\006mc_req\030\007 \001(\0132\031.raft.MemberChange"
-      "RequestH\000\022,\n\006mc_rsp\030\010 \001(\0132\032.raft.MemberC"
-      "hangeResponseH\000\"\205\002\n\017RaftMessageType\022\035\n\031M"
-      "SGTYPE_HANDSHAKE_REQUEST\020\000\022\036\n\032MSGTYPE_HA"
-      "NDSHAKE_RESPONSE\020\001\022\030\n\024MSGTYPE_VOTE_REQUE"
-      "ST\020\002\022\031\n\025MSGTYPE_VOTE_RESPONSE\020\003\022\035\n\031MSGTY"
-      "PE_APPENDLOG_REQUEST\020\004\022\036\n\032MSGTYPE_APPEND"
-      "LOG_RESPONSE\020\005\022\036\n\032MSGTYPE_CONFCHANGE_REQ"
-      "UEST\020\006\022\037\n\033MSGTYPE_CONFCHANGE_RESPONSE\020\007B"
-      "\005\n\003msg*p\n\013RaftLogType\022\022\n\016LOGTYPE_NORMAL\020"
-      "\000\022\036\n\032LOGTYPE_ADD_NONVOTING_NODE\020\001\022\024\n\020LOG"
-      "TYPE_ADD_NODE\020\002\022\027\n\023LOGTYPE_REMOVE_NODE\020\003"
-      "b\006proto3"
+      "\022\r\n\005index\030\003 \001(\004\022\014\n\004data\030\004 \001(\014\"/\n\020LogEntr"
+      "yResponse\022\014\n\004term\030\001 \001(\004\022\r\n\005index\030\002 \001(\004\"@"
+      "\n\004Peer\022\016\n\006raftid\030\001 \001(\004\022\016\n\006nodeid\030\002 \001(\004\022\n"
+      "\n\002ip\030\003 \001(\t\022\014\n\004port\030\004 \001(\r\"P\n\023MemberChange"
+      "Request\022\037\n\004type\030\001 \001(\0162\021.raft.RaftLogType"
+      "\022\030\n\004peer\030\002 \001(\0132\n.raft.Peer\"J\n\024MemberChan"
+      "geResponse\022\n\n\002ok\030\001 \001(\010\022\014\n\004term\030\002 \001(\004\022\030\n\004"
+      "peer\030\003 \001(\0132\n.raft.Peer\"U\n\013VoteRequest\022\014\n"
+      "\004term\030\001 \001(\004\022\021\n\tcandidate\030\002 \001(\004\022\021\n\tlast_t"
+      "erm\030\003 \001(\004\022\022\n\nlast_index\030\004 \001(\004\"+\n\014VoteRes"
+      "ponse\022\014\n\004term\030\001 \001(\004\022\r\n\005agree\030\002 \001(\010\"\224\001\n\024A"
+      "ppendEntriesRequest\022\016\n\006nodeid\030\001 \001(\004\022\014\n\004t"
+      "erm\030\002 \001(\004\022\016\n\006commit\030\003 \001(\004\022\025\n\rprev_log_te"
+      "rm\030\004 \001(\004\022\026\n\016prev_log_index\030\005 \001(\004\022\037\n\007entr"
+      "ies\030\006 \003(\0132\016.raft.LogEntry\"r\n\025AppendEntri"
+      "esResponse\022\016\n\006nodeid\030\001 \001(\004\022\017\n\007success\030\002 "
+      "\001(\010\022\014\n\004term\030\003 \001(\004\022\025\n\rcurrent_index\030\004 \001(\004"
+      "\022\023\n\013first_index\030\005 \001(\004\"\340\004\n\013RaftMessage\022/\n"
+      "\004type\030\001 \001(\0162!.raft.RaftMessage.RaftMessa"
+      "geType\022\016\n\006raftid\030\002 \001(\r\022#\n\006vt_req\030\003 \001(\0132\021"
+      ".raft.VoteRequestH\000\022$\n\006vt_rsp\030\004 \001(\0132\022.ra"
+      "ft.VoteResponseH\000\022,\n\006ae_req\030\005 \001(\0132\032.raft"
+      ".AppendEntriesRequestH\000\022-\n\006ae_rsp\030\006 \001(\0132"
+      "\033.raft.AppendEntriesResponseH\000\022+\n\006mc_req"
+      "\030\007 \001(\0132\031.raft.MemberChangeRequestH\000\022,\n\006m"
+      "c_rsp\030\010 \001(\0132\032.raft.MemberChangeResponseH"
+      "\000\"\205\002\n\017RaftMessageType\022\035\n\031MSGTYPE_HANDSHA"
+      "KE_REQUEST\020\000\022\036\n\032MSGTYPE_HANDSHAKE_RESPON"
+      "SE\020\001\022\030\n\024MSGTYPE_VOTE_REQUEST\020\002\022\031\n\025MSGTYP"
+      "E_VOTE_RESPONSE\020\003\022\035\n\031MSGTYPE_APPENDLOG_R"
+      "EQUEST\020\004\022\036\n\032MSGTYPE_APPENDLOG_RESPONSE\020\005"
+      "\022\036\n\032MSGTYPE_CONFCHANGE_REQUEST\020\006\022\037\n\033MSGT"
+      "YPE_CONFCHANGE_RESPONSE\020\007B\005\n\003msg*p\n\013Raft"
+      "LogType\022\022\n\016LOGTYPE_NORMAL\020\000\022\036\n\032LOGTYPE_A"
+      "DD_NONVOTING_NODE\020\001\022\024\n\020LOGTYPE_ADD_NODE\020"
+      "\002\022\027\n\023LOGTYPE_REMOVE_NODE\020\003b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 1528);
+      descriptor, 1514);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "raftmsg.proto", &protobuf_RegisterTypes);
 }
@@ -559,7 +557,6 @@ const int LogEntry::kTypeFieldNumber;
 const int LogEntry::kTermFieldNumber;
 const int LogEntry::kIndexFieldNumber;
 const int LogEntry::kDataFieldNumber;
-const int LogEntry::kSizeFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 LogEntry::LogEntry()
@@ -580,16 +577,16 @@ LogEntry::LogEntry(const LogEntry& from)
     data_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.data_);
   }
   ::memcpy(&term_, &from.term_,
-    static_cast<size_t>(reinterpret_cast<char*>(&size_) -
-    reinterpret_cast<char*>(&term_)) + sizeof(size_));
+    static_cast<size_t>(reinterpret_cast<char*>(&type_) -
+    reinterpret_cast<char*>(&term_)) + sizeof(type_));
   // @@protoc_insertion_point(copy_constructor:raft.LogEntry)
 }
 
 void LogEntry::SharedCtor() {
   data_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&term_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&size_) -
-      reinterpret_cast<char*>(&term_)) + sizeof(size_));
+      reinterpret_cast<char*>(&type_) -
+      reinterpret_cast<char*>(&term_)) + sizeof(type_));
   _cached_size_ = 0;
 }
 
@@ -633,8 +630,8 @@ void LogEntry::Clear() {
 
   data_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&term_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&size_) -
-      reinterpret_cast<char*>(&term_)) + sizeof(size_));
+      reinterpret_cast<char*>(&type_) -
+      reinterpret_cast<char*>(&term_)) + sizeof(type_));
   _internal_metadata_.Clear();
 }
 
@@ -703,20 +700,6 @@ bool LogEntry::MergePartialFromCodedStream(
         break;
       }
 
-      // uint32 size = 5;
-      case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(40u /* 40 & 0xFF */)) {
-
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &size_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -765,11 +748,6 @@ void LogEntry::SerializeWithCachedSizes(
       4, this->data(), output);
   }
 
-  // uint32 size = 5;
-  if (this->size() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(5, this->size(), output);
-  }
-
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -805,11 +783,6 @@ void LogEntry::SerializeWithCachedSizes(
     target =
       ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
         4, this->data(), target);
-  }
-
-  // uint32 size = 5;
-  if (this->size() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(5, this->size(), target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -856,13 +829,6 @@ size_t LogEntry::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
   }
 
-  // uint32 size = 5;
-  if (this->size() != 0) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::UInt32Size(
-        this->size());
-  }
-
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = cached_size;
@@ -905,9 +871,6 @@ void LogEntry::MergeFrom(const LogEntry& from) {
   if (from.type() != 0) {
     set_type(from.type());
   }
-  if (from.size() != 0) {
-    set_size(from.size());
-  }
 }
 
 void LogEntry::CopyFrom(const ::google::protobuf::Message& from) {
@@ -938,7 +901,6 @@ void LogEntry::InternalSwap(LogEntry* other) {
   swap(term_, other->term_);
   swap(index_, other->index_);
   swap(type_, other->type_);
-  swap(size_, other->size_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
 }

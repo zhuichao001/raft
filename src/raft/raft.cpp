@@ -41,7 +41,6 @@ int Raft::Propose(const std::string &data){
     e->set_term(term_);
     e->set_index(1+getCurrentIndex());
     e->set_data(data);
-    e->set_size(data.size());
 
     appendEntry(e);
     sendAppendEntries();
@@ -73,7 +72,6 @@ int Raft::changeMember(raft::RaftLogType type, const raft::Peer *peer) {
     std::string data;
     peer->SerializeToString(&data);
     e->set_data(data);
-    e->set_size(data.size());
 
     reconf_idx_ = e->index();
     printf("************append entry\n");
@@ -223,13 +221,12 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
 
     for (int i=0; i < msg->entries_size(); ++i) {
         auto e = &msg->entries(i);
-        fprintf(stderr, "append log entry, term:%d index:%d\n", e->term(), e->index());
+        fprintf(stderr, "append log entry, cur_index:%d term:%d index:%d\n", getCurrentIndex(), e->term(), e->index());
         auto entry = new raft::LogEntry;
         entry->set_type(e->type());
         entry->set_term(e->term());
         entry->set_index(e->index());
         entry->set_data(e->data());
-        entry->set_size(e->size());
 
         int res = log_.appendEntry(entry);
         if (res == -1) {
@@ -238,14 +235,13 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
             rsp->set_current_index(msg->prev_log_index()-1);
             return -1;
         }
-        fprintf(stderr, "appendEntry, current_idx:%d\n", getCurrentIndex());
         rsp->set_current_index(msg->prev_log_index()+1+i);
     }
 
     if (getCurrentIndex() <= msg->commit()) {
         uint64_t last_log_idx = std::max(getCurrentIndex(), uint64_t(1));
-        fprintf(stderr, "    current_index:%d, commit:%d\n", getCurrentIndex(), msg->commit());
         commit_idx_ = std::min(last_log_idx, msg->commit());
+        fprintf(stderr, "    set commit:%d\n", commit_idx_);
     }
 
     applyEntry();
@@ -381,7 +377,7 @@ int Raft::applyEntry(){
             return -1;
         }
 
-        fprintf(stderr, "applying log: %d, id: %d size: %d, real size:%d\n", applied_idx_, e->index(), e->data().size(), e->size());
+        fprintf(stderr, "applying log: %d, id: %d size: %d\n", applied_idx_, e->index(), e->data().size());
 
         if(e->type()==raft::LOGTYPE_NORMAL){
             fprintf(stderr, "apply normal raft log\n");
