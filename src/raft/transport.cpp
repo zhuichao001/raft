@@ -22,17 +22,16 @@ int Transport::Start(address_t *addr, server_t *svr){
     return 0;
 }
 
-void Transport::Send(const address_t *addr, const std::shared_ptr<raft::RaftMessage> msg){
-
-    if(msg->type()==raft::RaftMessage::MSGTYPE_APPENDLOG_REQUEST){
-        auto req = msg->ae_req();
-        fprintf(stderr, "|||confirm nodeid:%d, term:%d, commit_idx:%d\n", req.nodeid(), req.term(), req.commit());
-    }
-
+int Transport::Send(const address_t *addr, const std::shared_ptr<raft::RaftMessage> msg){
     int64_t hip = addr->to_long();
     if(clients_.find(hip)==clients_.end()){
         dialer_t *cli = eng_->open(addr);
-        clients_[hip] = cli;
+        if(cli!=nullptr){
+            clients_[hip] = cli;
+        } else {
+            fprintf(stderr, "|||Send failed(not connect success). ip:%s port:%d\n", addr->ip.c_str(), addr->port);
+            return -1;
+        }
     }
 
     string tmp;
@@ -44,6 +43,7 @@ void Transport::Send(const address_t *addr, const std::shared_ptr<raft::RaftMess
 
     RpcCallback callback = std::bind(&Transport::Receive, this, std::placeholders::_1);
     clients_[hip]->call(&req, callback);
+    return 0;
 }
 
 int Transport::Receive(response_t *rsp){

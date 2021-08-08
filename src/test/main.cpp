@@ -11,12 +11,11 @@
 #include <stdio.h>
 #include <getopt.h>
 
-bool isleader = true;
 int raftid = 117;
 int nodeid;
 std::string local_ip = "127.0.0.1";
-int local_port;
-int leader_port; //leader address
+int local_port = 0;
+int leader_port = 0; //leader address
 
 engine_t eng;
 
@@ -45,7 +44,6 @@ int parse_opt(int argc, char *argv[]) {
                 local_port = 9000+nodeid;
                 break;
             case 'j':
-                isleader = false;
                 leader_port = atoi(optarg);
                 break;
             case '?':
@@ -55,8 +53,15 @@ int parse_opt(int argc, char *argv[]) {
                 break;
         }
     }
-    fprintf(stderr, "is_leader:%d, id:%d, port:%d, leader_port:%d\n", isleader, nodeid, local_port, leader_port);
+    fprintf(stderr, "id:%d, port:%d, leader_port:%d\n", nodeid, local_port, leader_port);
     return 0;
+}
+
+std::string input(){
+    char buf[128];
+    printf("please input:");
+    scanf("%s", buf);
+    return buf;
 }
 
 int main(int argc, char *argv[]){
@@ -77,24 +82,20 @@ int main(int argc, char *argv[]){
         ras.Start();
     });
 
-    if(!isleader){ //FOLLOWER
+    if(leader_port!=0){ //join a leader
         address_t leader_addr(local_ip.c_str(), leader_port);
         ras.ChangeMember(raftid, raft::LOGTYPE_ADD_NODE, &leader_addr, &opt.addr, nodeid);
-        while(true){
-            sleep(2);
-            printf("get:%s\n", app.Get().c_str());
-        }
-    }else{ //LEADER
-        while(true){
-            char buf[128];
-            printf("please input:");
-            scanf("%s", buf);
-            if(strcmp(buf, "exit")==0){
-                break;
-            }
+    }
+
+    while(true){
+        if(app.IsLeader()){
+            string buf = input();
             app.Set(std::string(buf));
+            sleep(1);
+            app.Get();
+        }else{
             sleep(2);
-            printf("Get:%s\n", app.Get().c_str());
+            app.Get();
         }
     }
 

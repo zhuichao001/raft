@@ -26,6 +26,10 @@ public:
 
     int Propose(const std::string &data);
 
+    bool IsLeader(){
+        return leader_ == local_;
+    }
+
 private: //for leader
     int changeMember(raft::RaftLogType type, const raft::Peer *peer);
 
@@ -42,6 +46,8 @@ private: //for leader
     void recvConfChangeResponse(raft::MemberChangeResponse *rsp);
 
     RaftNode *addRaftNode(int nodeid, const address_t &addr, bool is_self, bool is_voting=true);
+
+    void printRaftNodes();
 
     int delRaftNode(int nodeid);
 
@@ -108,6 +114,8 @@ private:
     bool isAlreadyVoted(){
         return voted_for_ != -1;
     }
+
+    void clearVotes();
 
 private:
     int id_; //raft group id

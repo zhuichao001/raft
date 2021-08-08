@@ -26,15 +26,19 @@ public:
         return 0;
     }
 
+    bool IsLeader(){
+        return raft_->IsLeader();
+    }
+
 public:
     //for user interface
     void Set(const std::string &msg) {
-        fprintf(stderr, "call Set:%s\n", msg.c_str());
+        fprintf(stderr, "app Set:%s\n", msg.c_str());
         raft_->Propose(msg);
     }
 
     std::string Get(){
-        fprintf(stderr, "call Get:%s\n", msg_.c_str());
+        fprintf(stderr, "app Get:%s\n", msg_.c_str());
         return msg_;
     }
 

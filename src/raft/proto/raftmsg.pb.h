@@ -957,9 +957,15 @@ class VoteResponse : public ::google::protobuf::Message /* @@protoc_insertion_po
   ::google::protobuf::uint64 term() const;
   void set_term(::google::protobuf::uint64 value);
 
-  // bool agree = 2;
+  // uint64 nodeid = 2;
+  void clear_nodeid();
+  static const int kNodeidFieldNumber = 2;
+  ::google::protobuf::uint64 nodeid() const;
+  void set_nodeid(::google::protobuf::uint64 value);
+
+  // bool agree = 3;
   void clear_agree();
-  static const int kAgreeFieldNumber = 2;
+  static const int kAgreeFieldNumber = 3;
   bool agree() const;
   void set_agree(bool value);
 
@@ -968,6 +974,7 @@ class VoteResponse : public ::google::protobuf::Message /* @@protoc_insertion_po
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::uint64 term_;
+  ::google::protobuf::uint64 nodeid_;
   bool agree_;
   mutable int _cached_size_;
   friend struct ::protobuf_raftmsg_2eproto::TableStruct;
@@ -1935,7 +1942,21 @@ inline void VoteResponse::set_term(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:raft.VoteResponse.term)
 }
 
-// bool agree = 2;
+// uint64 nodeid = 2;
+inline void VoteResponse::clear_nodeid() {
+  nodeid_ = GOOGLE_ULONGLONG(0);
+}
+inline ::google::protobuf::uint64 VoteResponse::nodeid() const {
+  // @@protoc_insertion_point(field_get:raft.VoteResponse.nodeid)
+  return nodeid_;
+}
+inline void VoteResponse::set_nodeid(::google::protobuf::uint64 value) {
+  
+  nodeid_ = value;
+  // @@protoc_insertion_point(field_set:raft.VoteResponse.nodeid)
+}
+
+// bool agree = 3;
 inline void VoteResponse::clear_agree() {
   agree_ = false;
 }

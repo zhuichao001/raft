@@ -14,7 +14,7 @@ public:
 
     RaftNode(int node_id, const address_t &addr) :
         node_id_(node_id),
-        address_(addr){
+        addr_(addr){
         next_idx_ = 1;
         match_idx_ = 0;
         flags_ = RAFT_FLAG_VOTING;
@@ -65,14 +65,19 @@ public:
     }
 
     const address_t *GetAddress() const {
-        return &address_;
+        return &addr_;
+    }
+
+    void print() const {
+        fprintf(stderr, "    [RaftNode] nodeid:%d nextidx:%d matchidx:%d flags:%d addr:%s %d\n", 
+                node_id_, next_idx_, match_idx_, flags_, addr_.ip.c_str(), addr_.port);
     }
 private:
     int node_id_;
     int next_idx_;
     int match_idx_;
     int flags_;
-    const address_t address_;
+    const address_t addr_;
 };
 
 #endif

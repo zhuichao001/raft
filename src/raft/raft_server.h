@@ -61,8 +61,15 @@ public:
 
         msg->set_allocated_mc_req(mc_req);
 
-        trans_->Send(leader_addr, msg);
-        return 0;
+        if(trans_->Send(leader_addr, msg)==0){
+            fprintf(stderr, "SUCCESS JOIN CLUSTER raftid=%d, nodeid=%d leader=%s:%d\n", 
+                    p->raftid(), p->nodeid(), p->ip().c_str(), p->port());
+            return 0;
+        } else {
+            fprintf(stderr, "Error!FAILED TO JOIN CLUSTER raftid=%d, nodeid=%d leader=%s:%d\n", 
+                    p->raftid(), p->nodeid(), p->ip().c_str(), p->port());
+            return -1;
+        }
     }
 
     Raft *GetRaft(int64_t raftid) {

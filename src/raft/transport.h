@@ -19,7 +19,7 @@ public:
 
     int Start(address_t *addr, server_t *svr);
 
-    void Send(const address_t *addr, const std::shared_ptr<raft::RaftMessage> msg);
+    int Send(const address_t *addr, const std::shared_ptr<raft::RaftMessage> msg);
 
 private:
     int Receive(response_t *rsp);

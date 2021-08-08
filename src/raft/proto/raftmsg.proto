@@ -48,7 +48,8 @@ message VoteRequest {
 
 message VoteResponse {
     uint64 term = 1;
-    bool agree = 2; // grant for true or false
+    uint64 nodeid = 2;
+    bool agree = 3; // grant for true or false
 };
 
 message AppendEntriesRequest {
