@@ -1,2 +1,3 @@
 # raft
-c++ version
+c++ Implementaion;
+Completed Raft Log replcation、Votation、Satety
