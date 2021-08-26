@@ -1,3 +1,2 @@
 # raft
-c++ Implementaion;
-Completed Raft Log replcation、Votation、Satety
+c++ Implementaion Raft; Completed Log replcation、Votation、Satety
