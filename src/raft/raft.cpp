@@ -134,7 +134,6 @@ void Raft::sendAppendEntries(RaftNode *to){
     }
 
     auto msg = std::make_shared<raft::RaftMessage>();
-    msg->set_type(raft::RaftMessage::MSGTYPE_APPENDLOG_REQUEST);
     msg->set_raftid(id_);
     msg->set_allocated_ae_req(req);
     trans_->Send(to->GetAddress(), msg);
@@ -553,7 +552,6 @@ int Raft::sendVoteRequest(RaftNode *to){
     req->set_last_term(getLastLogTerm());
     {
         std::shared_ptr<raft::RaftMessage> msg = std::make_shared<raft::RaftMessage>();
-        msg->set_type(raft::RaftMessage::MSGTYPE_VOTE_REQUEST);
         msg->set_raftid(id_);
         msg->set_allocated_vt_req(req);
         trans_->Send(to->GetAddress(), msg);

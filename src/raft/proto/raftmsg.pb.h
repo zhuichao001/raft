@@ -110,33 +110,6 @@ extern VoteResponseDefaultTypeInternal _VoteResponse_default_instance_;
 }  // namespace raft
 namespace raft {
 
-enum RaftMessage_RaftMessageType {
-  RaftMessage_RaftMessageType_MSGTYPE_HANDSHAKE_REQUEST = 0,
-  RaftMessage_RaftMessageType_MSGTYPE_HANDSHAKE_RESPONSE = 1,
-  RaftMessage_RaftMessageType_MSGTYPE_VOTE_REQUEST = 2,
-  RaftMessage_RaftMessageType_MSGTYPE_VOTE_RESPONSE = 3,
-  RaftMessage_RaftMessageType_MSGTYPE_APPENDLOG_REQUEST = 4,
-  RaftMessage_RaftMessageType_MSGTYPE_APPENDLOG_RESPONSE = 5,
-  RaftMessage_RaftMessageType_MSGTYPE_CONFCHANGE_REQUEST = 6,
-  RaftMessage_RaftMessageType_MSGTYPE_CONFCHANGE_RESPONSE = 7,
-  RaftMessage_RaftMessageType_RaftMessage_RaftMessageType_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
-  RaftMessage_RaftMessageType_RaftMessage_RaftMessageType_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
-};
-bool RaftMessage_RaftMessageType_IsValid(int value);
-const RaftMessage_RaftMessageType RaftMessage_RaftMessageType_RaftMessageType_MIN = RaftMessage_RaftMessageType_MSGTYPE_HANDSHAKE_REQUEST;
-const RaftMessage_RaftMessageType RaftMessage_RaftMessageType_RaftMessageType_MAX = RaftMessage_RaftMessageType_MSGTYPE_CONFCHANGE_RESPONSE;
-const int RaftMessage_RaftMessageType_RaftMessageType_ARRAYSIZE = RaftMessage_RaftMessageType_RaftMessageType_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* RaftMessage_RaftMessageType_descriptor();
-inline const ::std::string& RaftMessage_RaftMessageType_Name(RaftMessage_RaftMessageType value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    RaftMessage_RaftMessageType_descriptor(), value);
-}
-inline bool RaftMessage_RaftMessageType_Parse(
-    const ::std::string& name, RaftMessage_RaftMessageType* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<RaftMessage_RaftMessageType>(
-    RaftMessage_RaftMessageType_descriptor(), name, value);
-}
 enum RaftLogType {
   LOGTYPE_NORMAL = 0,
   LOGTYPE_ADD_NONVOTING_NODE = 1,
@@ -1279,12 +1252,12 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
   static const RaftMessage& default_instance();
 
   enum MsgCase {
-    kVtReq = 3,
-    kVtRsp = 4,
-    kAeReq = 5,
-    kAeRsp = 6,
-    kMcReq = 7,
-    kMcRsp = 8,
+    kVtReq = 2,
+    kVtRsp = 3,
+    kAeReq = 4,
+    kAeRsp = 5,
+    kMcReq = 6,
+    kMcRsp = 7,
     MSG_NOT_SET = 0,
   };
 
@@ -1339,107 +1312,63 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
 
   // nested types ----------------------------------------------------
 
-  typedef RaftMessage_RaftMessageType RaftMessageType;
-  static const RaftMessageType MSGTYPE_HANDSHAKE_REQUEST =
-    RaftMessage_RaftMessageType_MSGTYPE_HANDSHAKE_REQUEST;
-  static const RaftMessageType MSGTYPE_HANDSHAKE_RESPONSE =
-    RaftMessage_RaftMessageType_MSGTYPE_HANDSHAKE_RESPONSE;
-  static const RaftMessageType MSGTYPE_VOTE_REQUEST =
-    RaftMessage_RaftMessageType_MSGTYPE_VOTE_REQUEST;
-  static const RaftMessageType MSGTYPE_VOTE_RESPONSE =
-    RaftMessage_RaftMessageType_MSGTYPE_VOTE_RESPONSE;
-  static const RaftMessageType MSGTYPE_APPENDLOG_REQUEST =
-    RaftMessage_RaftMessageType_MSGTYPE_APPENDLOG_REQUEST;
-  static const RaftMessageType MSGTYPE_APPENDLOG_RESPONSE =
-    RaftMessage_RaftMessageType_MSGTYPE_APPENDLOG_RESPONSE;
-  static const RaftMessageType MSGTYPE_CONFCHANGE_REQUEST =
-    RaftMessage_RaftMessageType_MSGTYPE_CONFCHANGE_REQUEST;
-  static const RaftMessageType MSGTYPE_CONFCHANGE_RESPONSE =
-    RaftMessage_RaftMessageType_MSGTYPE_CONFCHANGE_RESPONSE;
-  static inline bool RaftMessageType_IsValid(int value) {
-    return RaftMessage_RaftMessageType_IsValid(value);
-  }
-  static const RaftMessageType RaftMessageType_MIN =
-    RaftMessage_RaftMessageType_RaftMessageType_MIN;
-  static const RaftMessageType RaftMessageType_MAX =
-    RaftMessage_RaftMessageType_RaftMessageType_MAX;
-  static const int RaftMessageType_ARRAYSIZE =
-    RaftMessage_RaftMessageType_RaftMessageType_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  RaftMessageType_descriptor() {
-    return RaftMessage_RaftMessageType_descriptor();
-  }
-  static inline const ::std::string& RaftMessageType_Name(RaftMessageType value) {
-    return RaftMessage_RaftMessageType_Name(value);
-  }
-  static inline bool RaftMessageType_Parse(const ::std::string& name,
-      RaftMessageType* value) {
-    return RaftMessage_RaftMessageType_Parse(name, value);
-  }
-
   // accessors -------------------------------------------------------
 
-  // .raft.RaftMessage.RaftMessageType type = 1;
-  void clear_type();
-  static const int kTypeFieldNumber = 1;
-  ::raft::RaftMessage_RaftMessageType type() const;
-  void set_type(::raft::RaftMessage_RaftMessageType value);
-
-  // uint32 raftid = 2;
+  // uint32 raftid = 1;
   void clear_raftid();
-  static const int kRaftidFieldNumber = 2;
+  static const int kRaftidFieldNumber = 1;
   ::google::protobuf::uint32 raftid() const;
   void set_raftid(::google::protobuf::uint32 value);
 
-  // .raft.VoteRequest vt_req = 3;
+  // .raft.VoteRequest vt_req = 2;
   bool has_vt_req() const;
   void clear_vt_req();
-  static const int kVtReqFieldNumber = 3;
+  static const int kVtReqFieldNumber = 2;
   const ::raft::VoteRequest& vt_req() const;
   ::raft::VoteRequest* release_vt_req();
   ::raft::VoteRequest* mutable_vt_req();
   void set_allocated_vt_req(::raft::VoteRequest* vt_req);
 
-  // .raft.VoteResponse vt_rsp = 4;
+  // .raft.VoteResponse vt_rsp = 3;
   bool has_vt_rsp() const;
   void clear_vt_rsp();
-  static const int kVtRspFieldNumber = 4;
+  static const int kVtRspFieldNumber = 3;
   const ::raft::VoteResponse& vt_rsp() const;
   ::raft::VoteResponse* release_vt_rsp();
   ::raft::VoteResponse* mutable_vt_rsp();
   void set_allocated_vt_rsp(::raft::VoteResponse* vt_rsp);
 
-  // .raft.AppendEntriesRequest ae_req = 5;
+  // .raft.AppendEntriesRequest ae_req = 4;
   bool has_ae_req() const;
   void clear_ae_req();
-  static const int kAeReqFieldNumber = 5;
+  static const int kAeReqFieldNumber = 4;
   const ::raft::AppendEntriesRequest& ae_req() const;
   ::raft::AppendEntriesRequest* release_ae_req();
   ::raft::AppendEntriesRequest* mutable_ae_req();
   void set_allocated_ae_req(::raft::AppendEntriesRequest* ae_req);
 
-  // .raft.AppendEntriesResponse ae_rsp = 6;
+  // .raft.AppendEntriesResponse ae_rsp = 5;
   bool has_ae_rsp() const;
   void clear_ae_rsp();
-  static const int kAeRspFieldNumber = 6;
+  static const int kAeRspFieldNumber = 5;
   const ::raft::AppendEntriesResponse& ae_rsp() const;
   ::raft::AppendEntriesResponse* release_ae_rsp();
   ::raft::AppendEntriesResponse* mutable_ae_rsp();
   void set_allocated_ae_rsp(::raft::AppendEntriesResponse* ae_rsp);
 
-  // .raft.MemberChangeRequest mc_req = 7;
+  // .raft.MemberChangeRequest mc_req = 6;
   bool has_mc_req() const;
   void clear_mc_req();
-  static const int kMcReqFieldNumber = 7;
+  static const int kMcReqFieldNumber = 6;
   const ::raft::MemberChangeRequest& mc_req() const;
   ::raft::MemberChangeRequest* release_mc_req();
   ::raft::MemberChangeRequest* mutable_mc_req();
   void set_allocated_mc_req(::raft::MemberChangeRequest* mc_req);
 
-  // .raft.MemberChangeResponse mc_rsp = 8;
+  // .raft.MemberChangeResponse mc_rsp = 7;
   bool has_mc_rsp() const;
   void clear_mc_rsp();
-  static const int kMcRspFieldNumber = 8;
+  static const int kMcRspFieldNumber = 7;
   const ::raft::MemberChangeResponse& mc_rsp() const;
   ::raft::MemberChangeResponse* release_mc_rsp();
   ::raft::MemberChangeResponse* mutable_mc_rsp();
@@ -1460,7 +1389,6 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
   inline void clear_has_msg();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  int type_;
   ::google::protobuf::uint32 raftid_;
   union MsgUnion {
     MsgUnion() {}
@@ -2152,21 +2080,7 @@ inline void AppendEntriesResponse::set_first_index(::google::protobuf::uint64 va
 
 // RaftMessage
 
-// .raft.RaftMessage.RaftMessageType type = 1;
-inline void RaftMessage::clear_type() {
-  type_ = 0;
-}
-inline ::raft::RaftMessage_RaftMessageType RaftMessage::type() const {
-  // @@protoc_insertion_point(field_get:raft.RaftMessage.type)
-  return static_cast< ::raft::RaftMessage_RaftMessageType >(type_);
-}
-inline void RaftMessage::set_type(::raft::RaftMessage_RaftMessageType value) {
-  
-  type_ = value;
-  // @@protoc_insertion_point(field_set:raft.RaftMessage.type)
-}
-
-// uint32 raftid = 2;
+// uint32 raftid = 1;
 inline void RaftMessage::clear_raftid() {
   raftid_ = 0u;
 }
@@ -2180,7 +2094,7 @@ inline void RaftMessage::set_raftid(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:raft.RaftMessage.raftid)
 }
 
-// .raft.VoteRequest vt_req = 3;
+// .raft.VoteRequest vt_req = 2;
 inline bool RaftMessage::has_vt_req() const {
   return msg_case() == kVtReq;
 }
@@ -2220,7 +2134,7 @@ inline ::raft::VoteRequest* RaftMessage::mutable_vt_req() {
   return msg_.vt_req_;
 }
 
-// .raft.VoteResponse vt_rsp = 4;
+// .raft.VoteResponse vt_rsp = 3;
 inline bool RaftMessage::has_vt_rsp() const {
   return msg_case() == kVtRsp;
 }
@@ -2260,7 +2174,7 @@ inline ::raft::VoteResponse* RaftMessage::mutable_vt_rsp() {
   return msg_.vt_rsp_;
 }
 
-// .raft.AppendEntriesRequest ae_req = 5;
+// .raft.AppendEntriesRequest ae_req = 4;
 inline bool RaftMessage::has_ae_req() const {
   return msg_case() == kAeReq;
 }
@@ -2300,7 +2214,7 @@ inline ::raft::AppendEntriesRequest* RaftMessage::mutable_ae_req() {
   return msg_.ae_req_;
 }
 
-// .raft.AppendEntriesResponse ae_rsp = 6;
+// .raft.AppendEntriesResponse ae_rsp = 5;
 inline bool RaftMessage::has_ae_rsp() const {
   return msg_case() == kAeRsp;
 }
@@ -2340,7 +2254,7 @@ inline ::raft::AppendEntriesResponse* RaftMessage::mutable_ae_rsp() {
   return msg_.ae_rsp_;
 }
 
-// .raft.MemberChangeRequest mc_req = 7;
+// .raft.MemberChangeRequest mc_req = 6;
 inline bool RaftMessage::has_mc_req() const {
   return msg_case() == kMcReq;
 }
@@ -2380,7 +2294,7 @@ inline ::raft::MemberChangeRequest* RaftMessage::mutable_mc_req() {
   return msg_.mc_req_;
 }
 
-// .raft.MemberChangeResponse mc_rsp = 8;
+// .raft.MemberChangeResponse mc_rsp = 7;
 inline bool RaftMessage::has_mc_rsp() const {
   return msg_case() == kMcRsp;
 }
@@ -2458,11 +2372,6 @@ inline RaftMessage::MsgCase RaftMessage::msg_case() const {
 namespace google {
 namespace protobuf {
 
-template <> struct is_proto_enum< ::raft::RaftMessage_RaftMessageType> : ::google::protobuf::internal::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::raft::RaftMessage_RaftMessageType>() {
-  return ::raft::RaftMessage_RaftMessageType_descriptor();
-}
 template <> struct is_proto_enum< ::raft::RaftLogType> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::raft::RaftLogType>() {

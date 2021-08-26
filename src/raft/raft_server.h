@@ -46,7 +46,6 @@ public:
 
         auto msg = std::make_shared<raft::RaftMessage>();
         msg->set_raftid(raftid);
-        msg->set_type(raft::RaftMessage::MSGTYPE_CONFCHANGE_REQUEST);
 
         auto mc_req = new raft::MemberChangeRequest;
         mc_req->set_type(type);
@@ -105,21 +104,18 @@ public:
         }
         out->set_raftid(in->raftid());
 
-        switch(in->type()){
-            case raft::RaftMessage::MSGTYPE_APPENDLOG_REQUEST:
+        switch(in->msg_case()){
+            case raft::RaftMessage::kAeReq:
                 raft->recvAppendEntries(in->mutable_ae_req(), out->mutable_ae_rsp());
-                out->set_type(raft::RaftMessage::MSGTYPE_APPENDLOG_RESPONSE);
                 break;
-            case raft::RaftMessage::MSGTYPE_VOTE_REQUEST:
+            case raft::RaftMessage::kVtReq:
                 raft->recvVoteRequest(&in->vt_req(), out->mutable_vt_rsp());
-                out->set_type(raft::RaftMessage::MSGTYPE_VOTE_RESPONSE);
                 break;
-            case raft::RaftMessage::MSGTYPE_CONFCHANGE_REQUEST:
+            case raft::RaftMessage::kMcReq:
                 printf("MSGTYPE_CONFCHANGE_REQUEST deal\n");
                 raft->recvConfChangeRequest(&in->mc_req(), out->mutable_mc_rsp());
-                out->set_type(raft::RaftMessage::MSGTYPE_CONFCHANGE_RESPONSE);
             default:
-                fprintf(stderr, "unknown msg type:%d\n", in->type());
+                fprintf(stderr, "unknown msg type:%d\n", in->msg_case());
         }
 
         std::string tmp;

@@ -72,28 +72,15 @@ message AppendEntriesResponse {
 };
 
 message RaftMessage {
-    enum RaftMessageType {
-        MSGTYPE_HANDSHAKE_REQUEST  = 0;
-        MSGTYPE_HANDSHAKE_RESPONSE = 1;
-        MSGTYPE_VOTE_REQUEST  = 2;
-        MSGTYPE_VOTE_RESPONSE = 3;
-        MSGTYPE_APPENDLOG_REQUEST  = 4;
-        MSGTYPE_APPENDLOG_RESPONSE = 5;
-
-        MSGTYPE_CONFCHANGE_REQUEST  = 6;
-        MSGTYPE_CONFCHANGE_RESPONSE = 7;
-    }
-
-    RaftMessageType type = 1;
-    uint32 raftid = 2;
+    uint32 raftid = 1;
     oneof msg {
-        VoteRequest vt_req  = 3;
-        VoteResponse vt_rsp = 4;
+        VoteRequest vt_req  = 2;
+        VoteResponse vt_rsp = 3;
 
-        AppendEntriesRequest ae_req  = 5;
-        AppendEntriesResponse ae_rsp = 6;
+        AppendEntriesRequest ae_req  = 4;
+        AppendEntriesResponse ae_rsp = 5;
 
-        MemberChangeRequest mc_req  = 7;
-        MemberChangeResponse mc_rsp = 8;
+        MemberChangeRequest mc_req  = 6;
+        MemberChangeResponse mc_rsp = 7;
     }
 };

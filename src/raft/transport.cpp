@@ -53,18 +53,18 @@ int Transport::Receive(response_t *rsp){
     if(raf==nullptr){
         fprintf(stderr, "RaftServer not found raftid:%d\n", msg.raftid());
     }
-    switch(msg.type()){
-        case raft::RaftMessage::MSGTYPE_APPENDLOG_RESPONSE:
+    switch(msg.msg_case()){
+        case raft::RaftMessage::kAeRsp:
             raf->recvAppendEntriesResponse(msg.mutable_ae_rsp());
             break;
-        case raft::RaftMessage::MSGTYPE_VOTE_RESPONSE:
+        case raft::RaftMessage::kVtRsp:
             raf->recvVoteResponse(msg.mutable_vt_rsp());
             break;
-        case raft::RaftMessage::MSGTYPE_CONFCHANGE_RESPONSE:
+        case raft::RaftMessage::kMcRsp:
             raf->recvConfChangeResponse(msg.mutable_mc_rsp());
             break;
         default:
-            fprintf(stderr, "unknown msg type:%d\n", msg.type());
+            fprintf(stderr, "unknown msg type:%d\n", msg.msg_case());
     }
     return 0;
 }
