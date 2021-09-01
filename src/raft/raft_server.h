@@ -4,7 +4,7 @@
 #include <string>
 #include <functional>
 #include <stdio.h>
-#include "lotus/server.h"
+#include "lotus/service.h"
 #include "lotus/engine.h"
 #include "lotus/protocol.h"
 #include "proto/raftmsg.pb.h"
@@ -14,7 +14,7 @@
 #include "options.h"
 
 
-class RaftServer : public server_t {
+class RaftServer : public service_t {
 public:
     RaftServer(engine_t *eng):
         eng_(eng){
@@ -26,7 +26,7 @@ public:
             return -1;
         }
 
-        trans_->Start(&opt.addr, dynamic_cast<server_t*>(this));
+        trans_->Start(&opt.addr, dynamic_cast<service_t*>(this));
 
         //why the order affects timer's regular work
         opt.clocker = eng_;

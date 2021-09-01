@@ -2,7 +2,7 @@
 #include "lotus/address.h"
 #include "lotus/dialer.h"
 #include "lotus/engine.h"
-#include "lotus/server.h"
+#include "lotus/service.h"
 #include "raft_node.h"
 #include "raft.h"
 #include "raft_server.h"
@@ -13,7 +13,7 @@ Transport::Transport(engine_t *eng, RaftServer *rs):
     raft_server_(rs){
 }
 
-int Transport::Start(address_t *addr, server_t *svr){
+int Transport::Start(address_t *addr, service_t *svr){
     if (addr == nullptr){
         return -1;
     }
