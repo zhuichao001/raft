@@ -47,9 +47,9 @@ private: //for leader
 
     RaftNode *addRaftNode(int nodeid, const address_t &addr, bool is_self, bool is_voting=true);
 
-    void printRaftNodes();
-
     int delRaftNode(int nodeid);
+
+    void printRaftNodes();
 
 private: //for follower
     void tick();
@@ -123,7 +123,7 @@ private:
 
     uint64_t term_;     // current term
     int voted_for_;     // candidate propose vote 
-    int state_;         //FOLLOWER,LEADER,CANDIDATE
+    int state_;         // FOLLOWER, LEADER, CANDIDATE
 
     uint64_t commit_idx_;
     uint64_t applied_idx_;

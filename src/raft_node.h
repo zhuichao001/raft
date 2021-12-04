@@ -28,7 +28,7 @@ public:
         }
     }
 
-    bool HasVoteForMe() const {
+    bool HasVotedForMe() const {
         return (flags_ & RAFT_FLAG_VOTEDME) != 0;
     }
 

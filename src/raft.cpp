@@ -3,6 +3,7 @@
 #include "lotus/util.h"
 #include "lotus/timedriver.h"
 #include <algorithm>
+#include <string>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
@@ -15,6 +16,15 @@ const char * logType(int tp){
 
 int gen_timeout_election(){
     return randint(2000, 5000)*1000;
+}
+
+raft::LogEntry *newLogEntry(raft::RaftLogType type, uint64_t term, uint64_t index, const std::string &data){
+    raft::LogEntry *e = new raft::LogEntry();
+    e->set_type(type);
+    e->set_term(term);
+    e->set_index(index);
+    e->set_data(data);
+    return e;
 }
 
 Raft::Raft(const RaftOptions &opt): 
@@ -46,12 +56,7 @@ int Raft::Propose(const std::string &data){
         return 0;
     }
 
-    raft::LogEntry *e = new raft::LogEntry();
-    e->set_type(raft::LOGTYPE_NORMAL);
-    e->set_term(term_);
-    e->set_index(1+getCurrentIndex());
-    e->set_data(data);
-
+    raft::LogEntry * e = newLogEntry(raft::LOGTYPE_NORMAL, term_, 1+getCurrentIndex(), data);
     appendEntry(e);
     sendAppendEntries();
     return 0;
@@ -77,11 +82,8 @@ int Raft::changeMember(raft::RaftLogType type, const raft::Peer *peer) {
 
     std::string data;
     peer->SerializeToString(&data);
-    raft::LogEntry *e = new raft::LogEntry();
-    e->set_type(type);
-    e->set_term(term_);
-    e->set_index(1+getCurrentIndex());
-    e->set_data(data);
+
+    raft::LogEntry * e = newLogEntry(type, term_, 1+getCurrentIndex(), data);
 
     reconf_idx_ = e->index();
     printf("************append ChangeMember entry, type:%d, term:%d, index:%d\n", e->type(), e->term(), e->index());
@@ -233,12 +235,7 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     for (int i=0; i < msg->entries_size(); ++i) {
         auto e = &msg->entries(i);
         fprintf(stderr, "append log entry, cur_index:%d term:%d index:%d\n", getCurrentIndex(), e->term(), e->index());
-        auto entry = new raft::LogEntry;
-        entry->set_type(e->type());
-        entry->set_term(e->term());
-        entry->set_index(e->index());
-        entry->set_data(e->data());
-
+        raft::LogEntry * entry = newLogEntry(e->type(), e->term(), e->index(), e->data());
         int res = log_.appendEntry(entry);
         if (res == -1) {
             fprintf(stderr, "error: recvAppendEntries appendEntry failed\n");
@@ -622,7 +619,7 @@ int Raft::getVotesNum() {
     int votes = 0;
     for (auto &it : nodes_) {
         RaftNode *node = it.second;
-        if (node->IsVoting() && node->HasVoteForMe()) {
+        if (node->IsVoting() && node->HasVotedForMe()) {
             votes += 1;
         }
     }
