@@ -119,7 +119,8 @@ private:
 
 private:
     int id_; //raft group id
-    RaftLog log_;
+    RaftStateMachine *app_;
+    std::shared_ptr<Transport> trans_;
 
     uint64_t term_;     // current term
     int voted_for_;     // candidate propose vote 
@@ -129,20 +130,18 @@ private:
     uint64_t applied_idx_;
     uint64_t reconf_idx_;
 
+    RaftNode *leader_;
+    RaftNode *local_;
+
     uint64_t timeout_election_;
     uint64_t timeout_request_;
     uint64_t timeout_heartbeat_;
     uint64_t lasttime_heartbeat_;
     uint64_t lasttime_election_;
-
     lotus::timer_t *ticker_;
 
     std::map<const int, RaftNode*> nodes_;
-    RaftNode *leader_;
-    RaftNode *local_;
-
-    RaftStateMachine *app_;
-    std::shared_ptr<Transport> trans_;
+    RaftLog log_;
 
     friend class Transport;
     friend class RaftServer;

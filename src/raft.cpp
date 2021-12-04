@@ -31,18 +31,23 @@ Raft::Raft(const RaftOptions &opt):
     id_(opt.raftid),
     app_(opt.stm),
     trans_(opt.tran){
+
     term_ = 0;
     voted_for_ = -1;
+    state_ = RAFT_STATE::FOLLOWER;
+
     commit_idx_ = 0;
     applied_idx_ = 0;
-    lasttime_heartbeat_ = microsec();
+    reconf_idx_ = -1;
+
+    leader_ = nullptr;
+    local_ = addRaftNode(opt.nodeid, opt.addr, true);
+
     timeout_election_ =  gen_timeout_election();
     timeout_request_ = 200*1000;
     timeout_heartbeat_ = 5000*1000;
-    reconf_idx_ = -1;
-    state_ = RAFT_STATE::FOLLOWER;
-    leader_ = nullptr;
-    local_ = addRaftNode(opt.nodeid, opt.addr, true);
+    lasttime_heartbeat_ = microsec();
+    lasttime_election_ = 0;
     ticker_ = opt.clocker->run_every(std::bind(&Raft::tick, this), 100*1000);
 }
 
@@ -86,7 +91,7 @@ int Raft::changeMember(raft::RaftLogType type, const raft::Peer *peer) {
     raft::LogEntry * e = newLogEntry(type, term_, 1+getCurrentIndex(), data);
 
     reconf_idx_ = e->index();
-    printf("************append ChangeMember entry, type:%d, term:%d, index:%d\n", e->type(), e->term(), e->index());
+    fprintf(stderr, "[RAFT] append ChangeMember entry, type:%d, term:%d, index:%d\n", e->type(), e->term(), e->index());
 
     appendEntry(e);
     sendAppendEntries();
