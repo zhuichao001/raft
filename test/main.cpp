@@ -6,7 +6,7 @@
 #include "application.h"
 #include "lotus/address.h"
 #include "lotus/engine.h"
-#include "raft/raft_server.h"
+#include "raft_server.h"
 
 #include <stdio.h>
 #include <getopt.h>

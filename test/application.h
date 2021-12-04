@@ -1,6 +1,6 @@
 #include <string>
-#include "raft/raft.h"
-#include "raft/raft_sm.h"
+#include "raft.h"
+#include "raft_sm.h"
 
 class Application: public RaftStateMachine{
 public:
@@ -15,6 +15,7 @@ public:
 
     int ApplyMemberChange(const ConfChange &at, uint64_t index) override {
         fprintf(stderr, "member change: %d %d %d\n", at.action, at.nodeid, at.peerid);
+        return 0;
     }
 
     uint64_t GetAppliedIndex() override {
