@@ -268,14 +268,15 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
         return -1;
     }
 
-    if (!local_) {
+    if (local_==nullptr) {
         return 0;
     }
 
-    if (nodes_.find(r->nodeid()) == nodes_.end()){
+    if (nodes_.find(r->nodeid()) == nodes_.end()) {
         fprintf(stderr, "nodeid:%d not found\n", r->nodeid());
         return -1;
     }
+    RaftNode *peer = nodes_[r->nodeid()];
 
     if (r->current_index() != 0 && r->current_index() <= local_->GetMatchIndex()) {
         return 0;
@@ -283,35 +284,40 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
 
     if (term_ < r->term()) {
         term_ = r->term();
-        becomeFollower();
+        becomeFollower(); //initial state
         return 0;
-    } else if (term_ != r->term()) {
+    } else if (term_ > r->term()) {
         return 0;
     }
 
     if (!r->success()) {
         fprintf(stderr, "recvAppendEntriesResponse failed\n");
         
-        int next_idx = local_->GetNextIndex();
+        int next_idx = peer->GetNextIndex();
         if (r->current_index() < next_idx - 1) {
-            local_->SetNextIndex(std::min(r->current_index() + 1, getCurrentIndex()));
+            peer->SetNextIndex(std::min(r->current_index() + 1, getCurrentIndex()));
         } else {
-            local_->SetNextIndex(next_idx - 1);
+            peer->SetNextIndex(next_idx - 1);
         }
 
-        sendAppendEntries();
+        sendAppendEntries(peer);
         return 0;
     }
 
     assert(r->current_index() <= getCurrentIndex());
 
-    RaftNode *peer = nodes_[r->nodeid()];
     peer->SetMatchIndex(r->current_index());
     peer->SetNextIndex(r->current_index() + 1);
 
-    fprintf(stderr, "[RAFT] local, match_idx:%d, next_idx:%d\n", local_->GetMatchIndex(), local_->GetNextIndex());
     fprintf(stderr, "[RAFT] peer, match_idx:%d, next_idx:%d\n", peer->GetMatchIndex(), peer->GetNextIndex());
 
+    updateCommitIndex(r->current_index());
+
+    applyEntry();
+    return 0;
+}
+
+void Raft::updateCommitIndex(int peer_matchidx){
     // Update commit idx
     int meet = 0;
     for (auto &it : nodes_) {
@@ -330,7 +336,7 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
         int match_idx = node->GetMatchIndex();
         if (match_idx > 0) {
             const raft::LogEntry *e = log_.getEntry(match_idx);
-            if (e->term() == term_ && r->current_index() <= match_idx) {
+            if (e->term() == term_ && peer_matchidx <= match_idx) {
                 ++meet;
             }
         }
@@ -338,14 +344,11 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
 
     fprintf(stderr, "meet:%d, commit:%d\n", meet, commit_idx_);
 
-    if (nodes_.size() / 2 < meet && commit_idx_ < r->current_index()) {
-        commit_idx_ = r->current_index();
+    if (nodes_.size() / 2 < meet && commit_idx_ < peer_matchidx) {
+        commit_idx_ = peer_matchidx;
     }
 
     fprintf(stderr, "commit:%d\n", commit_idx_);
-
-    applyEntry();
-    return 0;
 }
 
 void Raft::recvConfChangeRequest(const raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp){

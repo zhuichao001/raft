@@ -117,6 +117,8 @@ private:
 
     void clearVotes();
 
+    void updateCommitIndex(int peer_matchidx);
+
 private:
     int id_; //raft group id
     RaftStateMachine *app_;
