@@ -223,15 +223,15 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     rsp->set_term(msg->term());
     rsp->set_current_index(msg->prev_log_index());
 
-    for (int i = 0; i < msg->entries_size(); ++i) {
-        const raft::LogEntry* e = &msg->entries(i);
+    int i = 0;
+    for (; i < msg->entries_size(); ++i) {
         int index = msg->prev_log_index() + 1 + i;
-        rsp->set_current_index(index);
-
         const raft::LogEntry* existing = log_.getEntry(index);
-        if (!existing) {
+        if (existing==nullptr) {
             break;
         }
+
+        const raft::LogEntry* e = &msg->entries(i);
         if (existing->term() != e->term()) {
             assert(commit_idx_ < index);
             log_.truncate(index);
@@ -239,14 +239,13 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
         }
     }
 
-    for (int i=0; i < msg->entries_size(); ++i) {
+    for (; i < msg->entries_size(); ++i) {
         auto e = &msg->entries(i);
         fprintf(stderr, "append log entry, cur_index:%d term:%d index:%d\n", getCurrentIndex(), e->term(), e->index());
         raft::LogEntry * entry = newLogEntry(e->type(), e->term(), e->index(), e->data());
         int res = writeAhead(entry);
         if (res == -1) {
             fprintf(stderr, "error: recvAppendEntries writeAhead failed\n");
-            rsp->set_success(true);
             rsp->set_current_index(msg->prev_log_index()-1);
             return -1;
         }
@@ -260,10 +259,7 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     }
 
     applyEntry();
-
-    rsp->set_success(true);
     rsp->set_first_index(msg->prev_log_index() + 1);
-
     return 0;
 }
 
