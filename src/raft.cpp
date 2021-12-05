@@ -62,8 +62,18 @@ int Raft::Propose(const std::string &data){
     }
 
     raft::LogEntry * e = newLogEntry(raft::LOGTYPE_NORMAL, term_, 1+getCurrentIndex(), data);
-    appendEntry(e);
+    writeAhead(e);
     sendAppendEntries();
+    return 0;
+}
+
+int Raft::writeAhead(raft::LogEntry *e) {
+    log_.appendEntry(e);
+    if(e->type()==raft::LOGTYPE_ADD_NONVOTING_NODE ||
+            e->type()==raft::LOGTYPE_ADD_NODE ||
+            e->type()==raft::LOGTYPE_REMOVE_NODE ){
+        reconf_idx_ = getCurrentIndex();
+    }
     return 0;
 }
 
@@ -93,7 +103,7 @@ int Raft::changeMember(raft::RaftLogType type, const raft::Peer *peer) {
     reconf_idx_ = e->index();
     fprintf(stderr, "[RAFT] append ChangeMember entry, type:%d, term:%d, index:%d\n", e->type(), e->term(), e->index());
 
-    appendEntry(e);
+    writeAhead(e);
     sendAppendEntries();
     return 0;
 }
@@ -129,6 +139,7 @@ void Raft::sendAppendEntries(RaftNode *to){
         e->set_data(nex->data());
         fprintf(stderr, "[RAFT] get a LOG term:%d,index:%d,type:%d\n", nex->term(), nex->index(), nex->type());
     } else {
+        //TODO: NEED TO SNAPSHOT
         fprintf(stderr, "WARNING, getEntry null, next_idx=%d\n", next_idx);
     }
 
@@ -137,6 +148,8 @@ void Raft::sendAppendEntries(RaftNode *to){
         const raft::LogEntry * prev = log_.getEntry(next_idx - 1);
         if (prev) {
             req->set_prev_log_term(prev->term());
+        } else {
+            fprintf(stderr, "WARNING, get prev Entry null, prev_idx=%d\n", next_idx-1);
         }
     }
 
@@ -146,21 +159,11 @@ void Raft::sendAppendEntries(RaftNode *to){
     trans_->Send(to->GetAddress(), msg);
 }
 
-int Raft::appendEntry(raft::LogEntry *e) {
-    log_.appendEntry(e);
-    if(e->type()==raft::LOGTYPE_ADD_NONVOTING_NODE ||
-            e->type()==raft::LOGTYPE_ADD_NODE ||
-            e->type()==raft::LOGTYPE_REMOVE_NODE ){
-        reconf_idx_ = getCurrentIndex();
-    }
-    return 0;
-}
-
 int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendEntriesResponse *rsp) {
     lasttime_heartbeat_ = microsec();
 
-    rsp->set_nodeid(local_->GetNodeId());
     rsp->set_success(true);
+    rsp->set_nodeid(local_->GetNodeId());
     rsp->set_first_index(0);
     rsp->set_term(term_);
 
@@ -177,11 +180,10 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     if (isCandidate() && term_ == msg->term()) {
         fprintf(stderr, "[RAFT] candidate become follower\n");
         voted_for_ = -1;
+        leader_ = nodes_[msg->nodeid()];
         becomeFollower();
     } else if (term_ < msg->term()) {
         fprintf(stderr, "[RAFT] become new follower because less term\n");
-        term_ = msg->term();
-        rsp->set_term(msg->term());
         leader_ = nodes_[msg->nodeid()];
         assert(leader_!=nullptr);
         becomeFollower();
@@ -210,7 +212,6 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
         }
     }
 
-    leader_ = nodes_[msg->nodeid()];
     fprintf(stderr, "[RAFT] msg from nodeid=%d\n", msg->nodeid());
 
     if (msg->entries_size()==0 && msg->prev_log_index()>0 && msg->prev_log_index()+1<getCurrentIndex()) {
@@ -219,6 +220,7 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
         log_.truncate(msg->prev_log_index()+1);
     }
 
+    rsp->set_term(msg->term());
     rsp->set_current_index(msg->prev_log_index());
 
     for (int i = 0; i < msg->entries_size(); ++i) {
@@ -241,9 +243,9 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
         auto e = &msg->entries(i);
         fprintf(stderr, "append log entry, cur_index:%d term:%d index:%d\n", getCurrentIndex(), e->term(), e->index());
         raft::LogEntry * entry = newLogEntry(e->type(), e->term(), e->index(), e->data());
-        int res = log_.appendEntry(entry);
+        int res = writeAhead(entry);
         if (res == -1) {
-            fprintf(stderr, "error: recvAppendEntries appendEntry failed\n");
+            fprintf(stderr, "error: recvAppendEntries writeAhead failed\n");
             rsp->set_success(true);
             rsp->set_current_index(msg->prev_log_index()-1);
             return -1;

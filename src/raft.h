@@ -33,7 +33,7 @@ public:
 private: //for leader
     int changeMember(raft::RaftLogType type, const raft::Peer *peer);
 
-    int appendEntry(raft::LogEntry *e);
+    int writeAhead(raft::LogEntry *e);
 
     void sendAppendEntries();
 
