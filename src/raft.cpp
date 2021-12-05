@@ -351,6 +351,43 @@ void Raft::updateCommitIndex(int peer_matchidx){
     fprintf(stderr, "commit:%d\n", commit_idx_);
 }
 
+int Raft::applyEntry(){
+    fprintf(stderr, "[RAFT apply] try to apply entry.\n");
+
+    if (applied_idx_ >= commit_idx_) {
+        fprintf(stderr, "[RAFT apply] ignore because applied_idx=%d >= commit_idx=%d.\n", applied_idx_, commit_idx_);
+        return -1;
+    }
+
+    while(applied_idx_ < commit_idx_){
+        int idx = applied_idx_ + 1;
+        const raft::LogEntry *e = log_.getEntry(idx);
+        if (!e) {
+            return -1;
+        }
+
+        if(e->type()==raft::LOGTYPE_NORMAL){
+            fprintf(stderr, "[RAFT apply] normal applied_idx: %d, logidx: %d size: %d\n", applied_idx_, e->index(), e->data().size());
+            app_->Apply(e->data());
+        }else if(e->type()==raft::LOGTYPE_ADD_NODE){
+            raft::Peer peer;
+            peer.ParseFromString(e->data());
+            if(peer.nodeid()!=local_->GetNodeId()){
+                address_t addr(peer.ip().c_str(), peer.port());
+                addRaftNode(peer.nodeid(), addr, false);
+            }
+            fprintf(stderr, "[RAFT apply] confchange peer, nodeid:%d, ip:%s, port:%d\n", peer.nodeid(), peer.ip().c_str(), peer.port());
+            printRaftNodes();
+        }
+        ++applied_idx_;
+
+        if (idx == reconf_idx_){
+            reconf_idx_ = -1;
+        }
+    }
+    return 0;
+}
+
 void Raft::recvConfChangeRequest(const raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp){
     auto p = &req->peer();
     printf("@@@@@@changeMember, raftid:%d, nodeid:%d, ip:%s, port:%d\n", p->raftid(), p->nodeid(), p->ip().c_str(), p->port());
@@ -376,62 +413,24 @@ void Raft::recvConfChangeResponse(raft::MemberChangeResponse *rsp){
     leader_ = addRaftNode(peer->nodeid(), addr, false);
 }
 
-int Raft::applyEntry(){
-    fprintf(stderr, "[RAFT apply] try to apply entry.\n");
-
-    if (applied_idx_ >= commit_idx_) {
-        fprintf(stderr, "[RAFT apply] ignore because applied_idx=%d >= commit_idx=%d.\n", applied_idx_, commit_idx_);
-        return -1;
-    }
-
-    while(applied_idx_ < commit_idx_){
-        int idx = applied_idx_ + 1;
-        const raft::LogEntry *e = log_.getEntry(idx);
-        if (!e) {
-            return -1;
-        }
-
-
-        if(e->type()==raft::LOGTYPE_NORMAL){
-            fprintf(stderr, "[RAFT apply] normal applied_idx: %d, logidx: %d size: %d\n", applied_idx_, e->index(), e->data().size());
-            app_->Apply(e->data());
-        }else if(e->type()==raft::LOGTYPE_ADD_NODE){
-            raft::Peer peer;
-            peer.ParseFromString(e->data());
-            if(peer.nodeid()!=local_->GetNodeId()){
-                address_t addr(peer.ip().c_str(), peer.port());
-                addRaftNode(peer.nodeid(), addr, false);
-            }
-            fprintf(stderr, "[RAFT apply] confchange peer, nodeid:%d, ip:%s, port:%d\n", peer.nodeid(), peer.ip().c_str(), peer.port());
-            printRaftNodes();
-        }
-        ++applied_idx_;
-
-        if (idx == reconf_idx_){
-            reconf_idx_ = -1;
-        }
-    }
-    return 0;
-}
-
 void Raft::tick(){
     switch(state_){
         case RAFT_STATE::FOLLOWER:
             if (microsec()-lasttime_heartbeat_ >= timeout_heartbeat_) {
-                fprintf(stderr, "[RAFT] tick timeout, follower startElection\n");
+                fprintf(stderr, "[RAFT] tick timeout, FOLLOWER startElection\n");
                 startElection();
             }
             break;
         case RAFT_STATE::CANDIDATE:
             if (microsec()-lasttime_election_ >= timeout_election_) {
-                fprintf(stderr, "[RAFT] tick timeout, candidate restart Election\n");
+                fprintf(stderr, "[RAFT] tick timeout, CANDIDATE restart Election\n");
                 startElection();
             }
             break;
         case RAFT_STATE::LEADER:
             if (microsec()-lasttime_heartbeat_ >= 2*timeout_heartbeat_/3) {
                 lasttime_heartbeat_ = microsec();
-                fprintf(stderr, "[RAFT] tick timeout, leader send heartbeat\n");
+                fprintf(stderr, "[RAFT] tick timeout, LEADER send heartbeat\n");
                 sendAppendEntries(); //heartbeat
             }
             break;
