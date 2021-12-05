@@ -60,7 +60,7 @@ private: //for follower
 
     bool shouldGrantVote(const raft::VoteRequest* req);
 
-    int voteFor(const int nodeid);
+    int voteBy(const int nodeid);
 
     int recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendEntriesResponse *rsp);
 
@@ -71,7 +71,7 @@ private: //for candidate
 
     void becomeFollower();
 
-    int getVotesNum();
+    bool gainQuorumVotes();
 
     int sendVoteRequest(RaftNode *node);
 
