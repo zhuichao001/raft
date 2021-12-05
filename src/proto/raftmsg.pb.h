@@ -703,11 +703,11 @@ class MemberChangeResponse : public ::google::protobuf::Message /* @@protoc_inse
   ::google::protobuf::uint64 term() const;
   void set_term(::google::protobuf::uint64 value);
 
-  // bool ok = 1;
-  void clear_ok();
-  static const int kOkFieldNumber = 1;
-  bool ok() const;
-  void set_ok(bool value);
+  // bool success = 1;
+  void clear_success();
+  static const int kSuccessFieldNumber = 1;
+  bool success() const;
+  void set_success(bool value);
 
   // @@protoc_insertion_point(class_scope:raft.MemberChangeResponse)
  private:
@@ -715,7 +715,7 @@ class MemberChangeResponse : public ::google::protobuf::Message /* @@protoc_inse
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::raft::Peer* peer_;
   ::google::protobuf::uint64 term_;
-  bool ok_;
+  bool success_;
   mutable int _cached_size_;
   friend struct ::protobuf_raftmsg_2eproto::TableStruct;
   friend void ::protobuf_raftmsg_2eproto::InitDefaultsMemberChangeResponseImpl();
@@ -1177,9 +1177,9 @@ class AppendEntriesResponse : public ::google::protobuf::Message /* @@protoc_ins
 
   // accessors -------------------------------------------------------
 
-  // uint64 nodeid = 1;
+  // uint64 nodeid = 2;
   void clear_nodeid();
-  static const int kNodeidFieldNumber = 1;
+  static const int kNodeidFieldNumber = 2;
   ::google::protobuf::uint64 nodeid() const;
   void set_nodeid(::google::protobuf::uint64 value);
 
@@ -1201,9 +1201,9 @@ class AppendEntriesResponse : public ::google::protobuf::Message /* @@protoc_ins
   ::google::protobuf::uint64 first_index() const;
   void set_first_index(::google::protobuf::uint64 value);
 
-  // bool success = 2;
+  // bool success = 1;
   void clear_success();
-  static const int kSuccessFieldNumber = 2;
+  static const int kSuccessFieldNumber = 1;
   bool success() const;
   void set_success(bool value);
 
@@ -1714,18 +1714,18 @@ inline void MemberChangeRequest::set_allocated_peer(::raft::Peer* peer) {
 
 // MemberChangeResponse
 
-// bool ok = 1;
-inline void MemberChangeResponse::clear_ok() {
-  ok_ = false;
+// bool success = 1;
+inline void MemberChangeResponse::clear_success() {
+  success_ = false;
 }
-inline bool MemberChangeResponse::ok() const {
-  // @@protoc_insertion_point(field_get:raft.MemberChangeResponse.ok)
-  return ok_;
+inline bool MemberChangeResponse::success() const {
+  // @@protoc_insertion_point(field_get:raft.MemberChangeResponse.success)
+  return success_;
 }
-inline void MemberChangeResponse::set_ok(bool value) {
+inline void MemberChangeResponse::set_success(bool value) {
   
-  ok_ = value;
-  // @@protoc_insertion_point(field_set:raft.MemberChangeResponse.ok)
+  success_ = value;
+  // @@protoc_insertion_point(field_set:raft.MemberChangeResponse.success)
 }
 
 // uint64 term = 2;
@@ -2006,21 +2006,7 @@ AppendEntriesRequest::entries() const {
 
 // AppendEntriesResponse
 
-// uint64 nodeid = 1;
-inline void AppendEntriesResponse::clear_nodeid() {
-  nodeid_ = GOOGLE_ULONGLONG(0);
-}
-inline ::google::protobuf::uint64 AppendEntriesResponse::nodeid() const {
-  // @@protoc_insertion_point(field_get:raft.AppendEntriesResponse.nodeid)
-  return nodeid_;
-}
-inline void AppendEntriesResponse::set_nodeid(::google::protobuf::uint64 value) {
-  
-  nodeid_ = value;
-  // @@protoc_insertion_point(field_set:raft.AppendEntriesResponse.nodeid)
-}
-
-// bool success = 2;
+// bool success = 1;
 inline void AppendEntriesResponse::clear_success() {
   success_ = false;
 }
@@ -2032,6 +2018,20 @@ inline void AppendEntriesResponse::set_success(bool value) {
   
   success_ = value;
   // @@protoc_insertion_point(field_set:raft.AppendEntriesResponse.success)
+}
+
+// uint64 nodeid = 2;
+inline void AppendEntriesResponse::clear_nodeid() {
+  nodeid_ = GOOGLE_ULONGLONG(0);
+}
+inline ::google::protobuf::uint64 AppendEntriesResponse::nodeid() const {
+  // @@protoc_insertion_point(field_get:raft.AppendEntriesResponse.nodeid)
+  return nodeid_;
+}
+inline void AppendEntriesResponse::set_nodeid(::google::protobuf::uint64 value) {
+  
+  nodeid_ = value;
+  // @@protoc_insertion_point(field_set:raft.AppendEntriesResponse.nodeid)
 }
 
 // uint64 term = 3;

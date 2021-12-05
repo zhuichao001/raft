@@ -393,7 +393,7 @@ void Raft::recvConfChangeRequest(const raft::MemberChangeRequest *req, raft::Mem
     printf("@@@@@@changeMember, raftid:%d, nodeid:%d, ip:%s, port:%d\n", p->raftid(), p->nodeid(), p->ip().c_str(), p->port());
 
     changeMember(req->type(), &req->peer());
-    rsp->set_ok(true);
+    rsp->set_success(true);
     rsp->set_term(term_);
     const address_t *addr = local_->GetAddress();
     raft::Peer *peer = new raft::Peer;
