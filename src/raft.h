@@ -124,6 +124,10 @@ private: //common
         return randint(1000, 3000)*1000;
     }
 
+    bool isStoped(){
+        return stoped;
+    }
+
 private:
     int id_; //raft group id
     RaftStateMachine *app_;
@@ -149,6 +153,8 @@ private:
 
     std::map<const int, RaftNode*> nodes_;
     RaftLog log_;
+
+    bool stoped;
 
     friend class Transport;
     friend class RaftServer;

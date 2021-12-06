@@ -39,10 +39,16 @@ Raft::Raft(const RaftOptions &opt):
     lasttime_heartbeat_ = microsec();
     lasttime_election_ = 0;
     ticker_ = opt.clocker->run_every(std::bind(&Raft::tick, this), 100*1000);
+
+    stoped = false;
 }
 
 int Raft::Propose(const std::string &data){
     if(!isLeader()){
+        return -1;
+    }
+
+    if(stoped){
         return -1;
     }
 
@@ -73,6 +79,7 @@ int Raft::changeMember(raft::RaftLogType type, const raft::Peer *peer) {
         return -1;
     }
 
+    /*
     if(type==raft::LOGTYPE_ADD_NODE){
         address_t addr(peer->ip().c_str(), int(peer->port()));
         addRaftNode(peer->nodeid(), addr, false);
@@ -84,6 +91,7 @@ int Raft::changeMember(raft::RaftLogType type, const raft::Peer *peer) {
         fprintf(stderr, "changeMember failed. type:%d\n", int(type));
         return -1;
     }
+    */
 
     std::string data;
     peer->SerializeToString(&data);
@@ -151,7 +159,6 @@ void Raft::sendAppendEntries(RaftNode *to){
 
 int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendEntriesResponse *rsp) {
     lasttime_heartbeat_ = microsec();
-
     rsp->set_success(true);
     rsp->set_nodeid(local_->GetNodeId());
     rsp->set_first_index(0);
@@ -366,10 +373,14 @@ int Raft::applyEntry(){
                 address_t addr(peer.ip().c_str(), peer.port());
                 addRaftNode(peer.nodeid(), addr, false);
             }
-            fprintf(stderr, "[RAFT apply] confchange peer, nodeid:%d, ip:%s, port:%d\n", peer.nodeid(), peer.ip().c_str(), peer.port());
+            fprintf(stderr, "[RAFT apply] confchange peer, add nodeid:%d, ip:%s, port:%d\n", peer.nodeid(), peer.ip().c_str(), peer.port());
             printRaftNodes();
         }else if(e->type()==raft::LOGTYPE_REMOVE_NODE){
-            //TODO
+            raft::Peer peer;
+            peer.ParseFromString(e->data());
+            delRaftNode(peer.nodeid());
+            fprintf(stderr, "[RAFT apply] confchange peer, del nodeid:%d\n", peer.nodeid());
+            printRaftNodes();
         }
         ++applied_idx_;
 
@@ -630,6 +641,12 @@ RaftNode *Raft::addRaftNode(int nodeid, const address_t &addr, bool is_self, boo
 }
 
 int Raft::delRaftNode(int nodeid){
+    if (nodeid == local_->GetNodeId()){
+        stoped = true;
+    }
+    if (leader_!=nullptr && nodeid==leader_->GetNodeId()){
+        leader_ = nullptr;
+    }
     if (nodes_.find(nodeid) != nodes_.end()){
          delete nodes_[nodeid];
     }

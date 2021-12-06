@@ -104,9 +104,15 @@ public:
         }
         out->set_raftid(in->raftid());
 
+        if(raft->isStoped()){
+            rsp->seterrcode(-201);
+            return -1;
+        }
+
         switch(in->msg_case()){
             case raft::RaftMessage::kAeReq:
                 raft->recvAppendEntries(in->mutable_ae_req(), out->mutable_ae_rsp());
+                //TODO release stoped RaftNode
                 break;
             case raft::RaftMessage::kVtReq:
                 raft->recvVoteRequest(&in->vt_req(), out->mutable_vt_rsp());
