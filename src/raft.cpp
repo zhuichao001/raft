@@ -1,5 +1,4 @@
 #include "raft.h"
-#include "util.h"
 #include "lotus/util.h"
 #include "lotus/timedriver.h"
 #include <algorithm>
@@ -8,15 +7,6 @@
 #include <time.h>
 #include <unistd.h>
 
-
-const char * logType(int tp){
-    static const char* types[] = {"normal", "add-nonvotiing", "add-node", "remove-node"};
-    return types[tp];
-}
-
-inline int timeout_election(){
-    return randint(1000, 3000)*1000;
-}
 
 raft::LogEntry *newLogEntry(raft::RaftLogType type, uint64_t term, uint64_t index, const std::string &data){
     raft::LogEntry *e = new raft::LogEntry();
@@ -43,7 +33,7 @@ Raft::Raft(const RaftOptions &opt):
     leader_ = nullptr;
     local_ = addRaftNode(opt.nodeid, opt.addr, true);
 
-    timeout_election_ =  timeout_election();
+    timeout_election_ =  randTimeoutElection();
     timeout_request_ = 200*1000;
     timeout_heartbeat_ = 5000*1000;
     lasttime_heartbeat_ = microsec();
@@ -465,7 +455,7 @@ void Raft::becomeFollower(){
 
 void Raft::becomeCandidate(){
     setState(RAFT_STATE::CANDIDATE);
-    timeout_election_ =  timeout_election();
+    timeout_election_ =  randTimeoutElection();
 
     term_ += 1;
     fprintf(stderr, "[RAFT] becoming candidate, term:%d\n", term_);

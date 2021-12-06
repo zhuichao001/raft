@@ -4,6 +4,7 @@
 #include <memory>
 #include <map>
 #include <time.h>
+#include "util.h"
 #include "raft_sm.h"
 #include "raft_node.h"
 #include "raft_log.h"
@@ -118,6 +119,11 @@ private:
     void clearVotes();
 
     void updateCommitIndex(int peer_matchidx);
+
+    int randTimeoutElection(){
+        return randint(1000, 3000)*1000;
+    }
+
 
 private:
     int id_; //raft group id
