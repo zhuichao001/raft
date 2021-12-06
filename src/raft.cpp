@@ -69,7 +69,7 @@ int Raft::writeAhead(raft::LogEntry *e) {
 
 int Raft::changeMember(raft::RaftLogType type, const raft::Peer *peer) {
     if(reconf_idx_!=-1){
-        printf("!!!!!! reconf_idx_ != -1\n");
+        fprintf(stderr, "warning, conflict, as reconf_idx_ != -1\n");
         return -1;
     }
 
@@ -368,6 +368,8 @@ int Raft::applyEntry(){
             }
             fprintf(stderr, "[RAFT apply] confchange peer, nodeid:%d, ip:%s, port:%d\n", peer.nodeid(), peer.ip().c_str(), peer.port());
             printRaftNodes();
+        }else if(e->type()==raft::LOGTYPE_REMOVE_NODE){
+            //TODO
         }
         ++applied_idx_;
 
@@ -595,7 +597,7 @@ int Raft::recvVoteResponse(const raft::VoteResponse *r) {
 
     if (r->agree()) {   
         voteBy(r->nodeid());
-        if (gainQuorumVotes()) {
+        if (winQuorumVotes()) {
             becomeLeader();
         }
     }
@@ -603,7 +605,7 @@ int Raft::recvVoteResponse(const raft::VoteResponse *r) {
     return 0;
 }
 
-bool Raft::gainQuorumVotes() {
+bool Raft::winQuorumVotes() {
     int votes = 0;
     for (auto &it : nodes_) {
         RaftNode *node = it.second;

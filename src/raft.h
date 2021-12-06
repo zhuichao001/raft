@@ -15,10 +15,10 @@
 
 enum RAFT_STATE {
     NONE = 0,
-    LEADER,
-    FOLLOWER,
-    CANDIDATE,
-    LEANER,
+    LEADER = 1,
+    FOLLOWER = 2,
+    CANDIDATE = 3,
+    LEANER = 4,
 };
 
 class Raft{
@@ -34,23 +34,15 @@ public:
 private: //for leader
     int changeMember(raft::RaftLogType type, const raft::Peer *peer);
 
-    int writeAhead(raft::LogEntry *e);
-
     void sendAppendEntries();
 
     void sendAppendEntries(RaftNode *node);
 
     int recvAppendEntriesResponse(const raft::AppendEntriesResponse *r);
 
+    //for external topology management
     void recvConfChangeRequest(const raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp);
-
     void recvConfChangeResponse(raft::MemberChangeResponse *rsp);
-
-    RaftNode *addRaftNode(int nodeid, const address_t &addr, bool is_self, bool is_voting=true);
-
-    int delRaftNode(int nodeid);
-
-    void printRaftNodes();
 
 private: //for follower
     void tick();
@@ -58,10 +50,6 @@ private: //for follower
     void startElection();
 
     void becomeCandidate();
-
-    bool shouldGrantVote(const raft::VoteRequest* req);
-
-    int voteBy(const int nodeid);
 
     int recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendEntriesResponse *rsp);
 
@@ -72,14 +60,26 @@ private: //for candidate
 
     void becomeFollower();
 
-    bool gainQuorumVotes();
+    bool winQuorumVotes();
 
     int sendVoteRequest(RaftNode *node);
 
     int recvVoteResponse(const raft::VoteResponse *rsp);
 
-private:
+private: //common
+    int writeAhead(raft::LogEntry *e);
+
     int applyEntry();
+
+    RaftNode *addRaftNode(int nodeid, const address_t &addr, bool is_self, bool is_voting=true);
+
+    int delRaftNode(int nodeid);
+
+    bool shouldGrantVote(const raft::VoteRequest* req);
+
+    int voteBy(const int nodeid);
+
+    void printRaftNodes();
 
     void setState(int st) {
         state_ = st;
@@ -123,7 +123,6 @@ private:
     int randTimeoutElection(){
         return randint(1000, 3000)*1000;
     }
-
 
 private:
     int id_; //raft group id
