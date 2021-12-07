@@ -73,39 +73,6 @@ int Raft::writeAhead(raft::LogEntry *e) {
     return 0;
 }
 
-int Raft::changeMember(raft::RaftLogType type, const raft::Peer *peer) {
-    if(reconf_idx_!=-1){
-        fprintf(stderr, "warning, conflict, as reconf_idx_ != -1\n");
-        return -1;
-    }
-
-    /*
-    if(type==raft::LOGTYPE_ADD_NODE){
-        address_t addr(peer->ip().c_str(), int(peer->port()));
-        addRaftNode(peer->nodeid(), addr, false);
-        fprintf(stderr, "add member,nodeid:%d, port:%d\n", peer->nodeid(), peer->port());
-    }else if(type==raft::LOGTYPE_REMOVE_NODE){
-        delRaftNode(peer->nodeid());
-        fprintf(stderr, "del member,nodeid:%d\n", peer->nodeid());
-    } else {
-        fprintf(stderr, "changeMember failed. type:%d\n", int(type));
-        return -1;
-    }
-    */
-
-    std::string data;
-    peer->SerializeToString(&data);
-
-    raft::LogEntry * e = newLogEntry(type, term_, 1+getCurrentIndex(), data);
-
-    reconf_idx_ = e->index();
-    fprintf(stderr, "[RAFT] append ChangeMember entry, type:%d, term:%d, index:%d\n", e->type(), e->term(), e->index());
-
-    writeAhead(e);
-    sendAppendEntries();
-    return 0;
-}
-
 void Raft::sendAppendEntries(){
     for (auto &it : nodes_) {
         RaftNode *node = it.second;
@@ -393,21 +360,36 @@ int Raft::applyEntry(){
 
 void Raft::recvConfChangeRequest(const raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp){
     auto p = &req->peer();
-    printf("@@@@@@changeMember, raftid:%d, nodeid:%d, ip:%s, port:%d\n", p->raftid(), p->nodeid(), p->ip().c_str(), p->port());
+    fprintf(stderr, "[On ChangeMember] raftid:%d, nodeid:%d, ip:%s, port:%d\n", p->raftid(), p->nodeid(), p->ip().c_str(), p->port());
 
-    changeMember(req->type(), &req->peer());
-    rsp->set_success(true);
-    rsp->set_term(term_);
-    const address_t *addr = local_->GetAddress();
+    if(reconf_idx_!=-1){
+        fprintf(stderr, "warning, conflict, as reconf_idx_ != -1\n");
+        rsp->set_success(false);
+        return;
+    }
+
+    std::string data;
+    req->peer().SerializeToString(&data);
+    raft::LogEntry * e = newLogEntry(req->type(), term_, 1+getCurrentIndex(), data);
+    fprintf(stderr, "[RAFT] append ChangeMember entry, type:%d, term:%d, index:%d\n", e->type(), e->term(), e->index());
+
+    writeAhead(e);
+    reconf_idx_ = e->index();
+
+    sendAppendEntries();
+
     raft::Peer *peer = new raft::Peer;
     {
+        const address_t *addr = local_->GetAddress();
         peer->set_raftid(id_);
         peer->set_nodeid(local_->GetNodeId());
         peer->set_ip(addr->ip);
         peer->set_port(addr->port);
     }
-    rsp->set_allocated_peer(peer);
 
+    rsp->set_success(true);
+    rsp->set_term(term_);
+    rsp->set_allocated_peer(peer);
 }
 
 void Raft::recvConfChangeResponse(raft::MemberChangeResponse *rsp){

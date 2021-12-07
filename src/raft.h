@@ -32,8 +32,6 @@ public:
     }
 
 private: //for leader
-    int changeMember(raft::RaftLogType type, const raft::Peer *peer);
-
     void sendAppendEntries();
 
     void sendAppendEntries(RaftNode *node);
