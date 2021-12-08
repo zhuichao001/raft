@@ -16,7 +16,7 @@ public:
     virtual int Apply(const std::string data) = 0;
     virtual int ApplyMemberChange(const ConfChange &at, uint64_t index) = 0;
     virtual uint64_t GetAppliedIndex() = 0;
-    virtual int LeaderOver(uint64_t term, uint64_t leader) = 0;
+    virtual int OnTransferLeader(bool isleader) = 0;
 };
 
 #endif

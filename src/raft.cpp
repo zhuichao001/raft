@@ -40,15 +40,15 @@ Raft::Raft(const RaftOptions &opt):
     lasttime_election_ = 0;
     ticker_ = opt.clocker->run_every(std::bind(&Raft::tick, this), 100*1000);
 
-    stoped = false;
+    stoped_ = false;
 }
 
 int Raft::Propose(const std::string &data){
-    if(!isLeader()){
+    if(!IsLeader()){
         return -1;
     }
 
-    if(stoped){
+    if(IsStoped()){
         return -1;
     }
 
@@ -339,6 +339,7 @@ int Raft::applyEntry(){
             if(peer.nodeid()!=local_->GetNodeId()){
                 address_t addr(peer.ip().c_str(), peer.port());
                 addRaftNode(peer.nodeid(), addr, false);
+                //TODO: application::ChangeMember
             }
             fprintf(stderr, "[RAFT apply] confchange peer, add nodeid:%d, ip:%s, port:%d\n", peer.nodeid(), peer.ip().c_str(), peer.port());
             printRaftNodes();
@@ -358,44 +359,29 @@ int Raft::applyEntry(){
     return 0;
 }
 
-void Raft::recvConfChangeRequest(const raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp){
-    auto p = &req->peer();
-    fprintf(stderr, "[On ChangeMember] raftid:%d, nodeid:%d, ip:%s, port:%d\n", p->raftid(), p->nodeid(), p->ip().c_str(), p->port());
+int Raft::MembersChange(const raft::RaftLogType &type, const raft::Peer &p){
+    if(!IsLeader()){
+        return -1;
+    }
+
+    if(IsStoped()){
+        return -1;
+    }
 
     if(reconf_idx_!=-1){
-        fprintf(stderr, "warning, conflict, as reconf_idx_ != -1\n");
-        rsp->set_success(false);
-        return;
+        fprintf(stderr, "warning, last MembersChange is not complete.\n");
+        return -1;
     }
+
+    fprintf(stderr, "[On ChangeMember] raftid:%d, nodeid:%d, ip:%s, port:%d\n", p.raftid(), p.nodeid(), p.ip().c_str(), p.port());
 
     std::string data;
-    req->peer().SerializeToString(&data);
-    raft::LogEntry * e = newLogEntry(req->type(), term_, 1+getCurrentIndex(), data);
-    fprintf(stderr, "[RAFT] append ChangeMember entry, type:%d, term:%d, index:%d\n", e->type(), e->term(), e->index());
-
-    writeAhead(e);
+    p.SerializeToString(&data);
+    raft::LogEntry * e = newLogEntry(type, term_, 1+getCurrentIndex(), data);
     reconf_idx_ = e->index();
-
+    writeAhead(e);
     sendAppendEntries();
-
-    raft::Peer *peer = new raft::Peer;
-    {
-        const address_t *addr = local_->GetAddress();
-        peer->set_raftid(id_);
-        peer->set_nodeid(local_->GetNodeId());
-        peer->set_ip(addr->ip);
-        peer->set_port(addr->port);
-    }
-
-    rsp->set_success(true);
-    rsp->set_term(term_);
-    rsp->set_allocated_peer(peer);
-}
-
-void Raft::recvConfChangeResponse(raft::MemberChangeResponse *rsp){
-    raft::Peer *peer = rsp->mutable_peer();
-    address_t addr(peer->ip().c_str(), int(peer->port()));
-    leader_ = addRaftNode(peer->nodeid(), addr, false);
+    return 0;
 }
 
 void Raft::tick(){
@@ -440,9 +426,15 @@ void Raft::becomeLeader(){ //for candidator
         node->SetMatchIndex(0);
         sendAppendEntries(node);
     }
+
+    app_->OnTransferLeader(true);
 }
 
 void Raft::becomeFollower(){
+    if(IsLeader()){
+        app_->OnTransferLeader(false);
+    }
+
     lasttime_heartbeat_ = microsec();
     setState(RAFT_STATE::FOLLOWER);
     fprintf(stderr, "becoming follower, leader:%d, term:%d\n", leader_->GetNodeId(), term_);
@@ -624,7 +616,7 @@ RaftNode *Raft::addRaftNode(int nodeid, const address_t &addr, bool is_self, boo
 
 int Raft::delRaftNode(int nodeid){
     if (nodeid == local_->GetNodeId()){
-        stoped = true;
+        stoped_ = true;
     }
     if (leader_!=nullptr && nodeid==leader_->GetNodeId()){
         leader_ = nullptr;

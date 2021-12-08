@@ -104,7 +104,7 @@ public:
         }
         out->set_raftid(in->raftid());
 
-        if(raft->isStoped()){
+        if(raft->IsStoped()){
             rsp->seterrcode(-201);
             return -1;
         }
@@ -118,10 +118,13 @@ public:
                 raft->recvVoteRequest(&in->vt_req(), out->mutable_vt_rsp());
                 break;
             case raft::RaftMessage::kMcReq:
-                printf("MSGTYPE_CONFCHANGE_REQUEST deal\n");
-                raft->recvConfChangeRequest(&in->mc_req(), out->mutable_mc_rsp());
+                fprintf(stderr, "MSGTYPE_CONFCHANGE_REQUEST deal\n");
+                if(raft->MembersChange(in->mc_req().type(), in->mc_req().peer())<0){
+                    fprintf(stderr, "[RAFT SERVER] MembersChange FAILED\n");
+                }
+                break;
             default:
-                fprintf(stderr, "unknown msg type:%d\n", in->msg_case());
+                fprintf(stderr, "[RAFT SERVER] unknown msg type:%d\n", in->msg_case());
         }
 
         std::string tmp;

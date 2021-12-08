@@ -27,8 +27,14 @@ public:
 
     int Propose(const std::string &data);
 
+    int MembersChange(const raft::RaftLogType &type, const raft::Peer &peer);
+
     bool IsLeader(){
         return leader_ == local_;
+    }
+
+    bool IsStoped(){
+        return stoped_;
     }
 
 private: //for leader
@@ -39,8 +45,8 @@ private: //for leader
     int recvAppendEntriesResponse(const raft::AppendEntriesResponse *r);
 
     //for external topology management
-    void recvConfChangeRequest(const raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp);
-    void recvConfChangeResponse(raft::MemberChangeResponse *rsp);
+    //void recvConfChangeRequest(const raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp);
+    //void recvConfChangeResponse(raft::MemberChangeResponse *rsp);
 
 private: //for follower
     void tick();
@@ -122,10 +128,6 @@ private: //common
         return randint(1000, 3000)*1000;
     }
 
-    bool isStoped(){
-        return stoped;
-    }
-
 private:
     int id_; //raft group id
     RaftStateMachine *app_;
@@ -152,7 +154,7 @@ private:
     std::map<const int, RaftNode*> nodes_;
     RaftLog log_;
 
-    bool stoped;
+    bool stoped_;
 
     friend class Transport;
     friend class RaftServer;

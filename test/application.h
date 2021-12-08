@@ -22,8 +22,8 @@ public:
         return applied_index_;
     }
 
-    int LeaderOver(uint64_t term, uint64_t leader) override {
-        fprintf(stderr, "leader over, term:%d, leader:%d\n", term, leader);
+    int OnTransferLeader(bool isleader) override {
+        fprintf(stderr, "leader transfer, isleader:%d\n", isleader);
         return 0;
     }
 

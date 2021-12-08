@@ -61,7 +61,7 @@ int Transport::Receive(response_t *rsp){
             raf->recvVoteResponse(msg.mutable_vt_rsp());
             break;
         case raft::RaftMessage::kMcRsp:
-            raf->recvConfChangeResponse(msg.mutable_mc_rsp());
+            //raf->recvConfChangeResponse(msg.mutable_mc_rsp());
             break;
         default:
             fprintf(stderr, "unknown msg type:%d\n", msg.msg_case());
