@@ -44,10 +44,6 @@ private: //for leader
 
     int recvAppendEntriesResponse(const raft::AppendEntriesResponse *r);
 
-    //for external topology management
-    //void recvConfChangeRequest(const raft::MemberChangeRequest *req, raft::MemberChangeResponse *rsp);
-    //void recvConfChangeResponse(raft::MemberChangeResponse *rsp);
-
 private: //for follower
     void tick();
 

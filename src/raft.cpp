@@ -339,7 +339,7 @@ int Raft::applyEntry(){
             if(peer.nodeid()!=local_->GetNodeId()){
                 address_t addr(peer.ip().c_str(), peer.port());
                 addRaftNode(peer.nodeid(), addr, false);
-                //TODO: application::ChangeMember
+                app_->ApplyMemberAdd(peer);
             }
             fprintf(stderr, "[RAFT apply] confchange peer, add nodeid:%d, ip:%s, port:%d\n", peer.nodeid(), peer.ip().c_str(), peer.port());
             printRaftNodes();
@@ -347,6 +347,10 @@ int Raft::applyEntry(){
             raft::Peer peer;
             peer.ParseFromString(e->data());
             delRaftNode(peer.nodeid());
+            if(peer.nodeid()==local_->GetNodeId()){
+                stoped_ = true;
+            }
+            app_->ApplyMemberDel(peer);
             fprintf(stderr, "[RAFT apply] confchange peer, del nodeid:%d\n", peer.nodeid());
             printRaftNodes();
         }

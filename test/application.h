@@ -13,8 +13,13 @@ public:
         return 0;
     }
 
-    int ApplyMemberChange(const ConfChange &at, uint64_t index) override {
-        fprintf(stderr, "member change: %d %d %d\n", at.action, at.nodeid, at.peerid);
+    int ApplyMemberAdd(const raft::Peer &peer) override {
+        fprintf(stderr, "incoming peer: \n");
+        return 0;
+    }
+
+    int ApplyMemberDel(const raft::Peer &peer) override {
+        fprintf(stderr, "incoming peer: \n");
         return 0;
     }
 
