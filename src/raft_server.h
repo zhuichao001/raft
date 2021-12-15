@@ -112,15 +112,18 @@ public:
         switch(in->msg_case()){
             case raft::RaftMessage::kAeReq:
                 raft->recvAppendEntries(in->mutable_ae_req(), out->mutable_ae_rsp());
-                //TODO release stoped RaftNode
                 break;
             case raft::RaftMessage::kVtReq:
                 raft->recvVoteRequest(&in->vt_req(), out->mutable_vt_rsp());
                 break;
             case raft::RaftMessage::kMcReq:
-                fprintf(stderr, "MSGTYPE_CONFCHANGE_REQUEST deal\n");
-                if(raft->MembersChange(in->mc_req().type(), in->mc_req().peer())<0){
-                    fprintf(stderr, "[RAFT SERVER] MembersChange FAILED\n");
+                if(raft->membersChange(in->mc_req().type(), in->mc_req().peer())<0){
+                    fprintf(stderr, "[RAFT SERVER] Change Members FAILED\n");
+                }
+                break;
+            case raft::RaftMessage::kMlReq:
+                if(raft->membersList(out->mutable_ml_rsp())<0){
+                    fprintf(stderr, "[RAFT SERVER] Query Members FAILED\n");
                 }
                 break;
             default:
@@ -136,6 +139,7 @@ public:
 private:
     engine_t *eng_;
     std::map<uint64_t, Raft*> rafts_;
+    std::map<uint64_t, vector<raft::Peer*>> peers_;
     Transport *trans_;
 
     friend Transport;

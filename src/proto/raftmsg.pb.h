@@ -117,15 +117,16 @@ extern VoteResponseDefaultTypeInternal _VoteResponse_default_instance_;
 namespace raft {
 
 enum RaftState {
-  FOLLOWER = 0,
-  CANDIDATE = 1,
-  LEADER = 2,
-  LEANER = 3,
+  UNKNOWN = 0,
+  LEADER = 1,
+  FOLLOWER = 2,
+  CANDIDATE = 3,
+  LEANER = 4,
   RaftState_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
   RaftState_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
 bool RaftState_IsValid(int value);
-const RaftState RaftState_MIN = FOLLOWER;
+const RaftState RaftState_MIN = UNKNOWN;
 const RaftState RaftState_MAX = LEANER;
 const int RaftState_ARRAYSIZE = RaftState_MAX + 1;
 

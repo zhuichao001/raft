@@ -516,15 +516,15 @@ void AddDescriptorsImpl() {
       "\007 \001(\0132\032.raft.MemberChangeResponseH\000\022*\n\006m"
       "l_req\030\010 \001(\0132\030.raft.MembersListRequestH\000\022"
       "+\n\006ml_rsp\030\t \001(\0132\031.raft.MembersListRespon"
-      "seH\000B\005\n\003msg*@\n\tRaftState\022\014\n\010FOLLOWER\020\000\022\r"
-      "\n\tCANDIDATE\020\001\022\n\n\006LEADER\020\002\022\n\n\006LEANER\020\003*\212\001"
-      "\n\013RaftLogType\022\022\n\016LOGTYPE_NORMAL\020\000\022\036\n\032LOG"
-      "TYPE_ADD_NONVOTING_NODE\020\001\022\024\n\020LOGTYPE_ADD"
-      "_NODE\020\002\022\027\n\023LOGTYPE_REMOVE_NODE\020\003\022\030\n\024LOGT"
-      "YPE_PROMOTE_NODE\020\004b\006proto3"
+      "seH\000B\005\n\003msg*M\n\tRaftState\022\013\n\007UNKNOWN\020\000\022\n\n"
+      "\006LEADER\020\001\022\014\n\010FOLLOWER\020\002\022\r\n\tCANDIDATE\020\003\022\n"
+      "\n\006LEANER\020\004*\212\001\n\013RaftLogType\022\022\n\016LOGTYPE_NO"
+      "RMAL\020\000\022\036\n\032LOGTYPE_ADD_NONVOTING_NODE\020\001\022\024"
+      "\n\020LOGTYPE_ADD_NODE\020\002\022\027\n\023LOGTYPE_REMOVE_N"
+      "ODE\020\003\022\030\n\024LOGTYPE_PROMOTE_NODE\020\004b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 1506);
+      descriptor, 1519);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "raftmsg.proto", &protobuf_RegisterTypes);
 }
@@ -551,6 +551,7 @@ bool RaftState_IsValid(int value) {
     case 1:
     case 2:
     case 3:
+    case 4:
       return true;
     default:
       return false;

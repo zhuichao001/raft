@@ -141,21 +141,24 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
         msg->prev_log_index(),
         msg->prev_log_term());
 
+    if(nodes_.find(msg->nodeid()) == nodes_.end()){
+        rsp->set_success(-1);
+        return -1;
+    }
+
     if (isCandidate() && term_ == msg->term()) {
         fprintf(stderr, "[RAFT] candidate become follower\n");
         voted_for_ = -1;
-        becomeFollower();
+        becomeFollower(nodes_[msg->nodeid()]);
     } else if (term_ < msg->term()) { //join
         fprintf(stderr, "[RAFT] become new follower because less term\n");
         term_ = msg->term();
-        becomeFollower();
+        becomeFollower(nodes_[msg->nodeid()]);
     } else if (term_ > msg->term()) {
         fprintf(stderr, "[RAFT] discard, msg's term:%d < local term_:%d", msg->term(), term_);
         rsp->set_current_index(getCurrentIndex());
         return -1;
     }
-
-    leader_ = nodes_[msg->nodeid()];
 
     if (msg->prev_log_index() > 0) {
         fprintf(stderr, "prev_log_index:%d\n", msg->prev_log_index());
@@ -248,7 +251,7 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
 
     if (term_ < r->term()) {
         term_ = r->term();
-        becomeFollower(); //initial state
+        becomeFollower(peer); //initial state
         return 0;
     } else if (term_ > r->term()) {
         return 0;
@@ -363,7 +366,22 @@ int Raft::applyEntry(){
     return 0;
 }
 
-int Raft::MembersChange(const raft::RaftLogType &type, const raft::Peer &p){
+int Raft::membersList(raft::MembersListResponse *rsp){
+    rsp->set_success(true);
+    rsp->set_term(term_);
+    for (auto &it : nodes_) {
+        RaftNode *node = it.second;
+        raft::Peer * p = rsp->add_peers();
+        p->set_raftid(id_);
+        p->set_nodeid(node->GetNodeId());
+        p->set_ip(node->GetAddress()->ip);
+        p->set_port(node->GetAddress()->port);
+        p->set_state(node->GetState());
+    }
+    return 0;
+}
+
+int Raft::membersChange(const raft::RaftLogType &type, const raft::Peer &p){
     if(!IsLeader()){
         return -1;
     }
@@ -416,7 +434,12 @@ void Raft::tick(){
 
 void Raft::becomeLeader(){ //for candidator
     fprintf(stderr, "becoming leader term:%d\n", term_);
-    setState(raft::LEADER);
+
+    if(leader_!=nullptr){
+        leader_->SetState(raft::FOLLOWER);
+    }
+    local_->SetState(raft::LEADER);
+
     leader_ = local_;
     clearVotes();
 
@@ -434,18 +457,29 @@ void Raft::becomeLeader(){ //for candidator
     app_->OnTransferLeader(true);
 }
 
-void Raft::becomeFollower(){
+void Raft::becomeFollower(RaftNode *senior){
     if(IsLeader()){
         app_->OnTransferLeader(false);
     }
 
+    leader_ = senior;
+    if(leader_!=nullptr){
+        leader_->SetState(raft::LEADER);
+    }
+
+    local_->SetState(raft::FOLLOWER);
+
     lasttime_heartbeat_ = microsec();
-    setState(raft::FOLLOWER);
-    fprintf(stderr, "becoming follower, leader:%d, term:%d\n", leader_->GetNodeId(), term_);
+    fprintf(stderr, "[RAFT] becoming follower, leader:%d, term:%d\n", leader_->GetNodeId(), term_);
 }
 
 void Raft::becomeCandidate(){
-    setState(raft::CANDIDATE);
+    if(leader_!=nullptr){
+        leader_->SetState(raft::UNKNOWN); //unclear previous leader's state
+    }
+    leader_ = nullptr;
+
+    local_->SetState(raft::CANDIDATE);
     timeout_election_ =  randTimeoutElection();
 
     term_ += 1;
@@ -546,7 +580,6 @@ int Raft::recvVoteRequest(const raft::VoteRequest *req, raft::VoteResponse *rsp)
     if (term_ < req->term()) {
         fprintf(stderr, "yes %d become follower of %d\n", local_->GetNodeId(), req->candidate());
         term_ = req->term();
-        becomeFollower();
     }
 
     if (shouldGrantVote(req)) {
@@ -554,8 +587,9 @@ int Raft::recvVoteRequest(const raft::VoteRequest *req, raft::VoteResponse *rsp)
         assert(!isLeader() && !isCandidate());
 
         voteBy(req->candidate());
+        becomeFollower(nullptr);
+
         rsp->set_agree(true);
-        leader_ = nullptr;
         fprintf(stderr, "yes I vote %d\n", req->candidate());
     } else { 
         rsp->set_agree(false);
@@ -576,7 +610,7 @@ int Raft::recvVoteResponse(const raft::VoteResponse *r) {
     if (term_ < r->term()) {   
         fprintf(stderr, "yes candidate become follower, %d <%d\n", term_, r->term());
         term_ = r->term();
-        becomeFollower();
+        becomeFollower(nullptr);
         return 0;
     } else if (term_ > r->term()) {
         //we should ignore an old message caused by bad network
@@ -606,7 +640,7 @@ bool Raft::winQuorumVotes() {
 }
 
 RaftNode *Raft::addRaftNode(int nodeid, const address_t &addr, bool is_self, bool is_voting){
-    if (nodes_.find(nodeid) != nodes_.end()){
+    if (nodes_.find(nodeid) != nodes_.end()){ //has exist
         return nodes_[nodeid];
     }
 
@@ -622,9 +656,11 @@ int Raft::delRaftNode(int nodeid){
     if (nodeid == local_->GetNodeId()){
         stoped_ = true;
     }
+
     if (leader_!=nullptr && nodeid==leader_->GetNodeId()){
         leader_ = nullptr;
     }
+
     if (nodes_.find(nodeid) != nodes_.end()){
          delete nodes_[nodeid];
     }

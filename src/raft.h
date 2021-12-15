@@ -20,8 +20,6 @@ public:
 
     int Propose(const std::string &data);
 
-    int MembersChange(const raft::RaftLogType &type, const raft::Peer &peer);
-
     bool IsLeader(){
         return leader_ == local_;
     }
@@ -37,6 +35,8 @@ private: //for leader
 
     int recvAppendEntriesResponse(const raft::AppendEntriesResponse *r);
 
+    int membersChange(const raft::RaftLogType &type, const raft::Peer &peer);
+
 private: //for follower
     void tick();
 
@@ -51,7 +51,7 @@ private: //for follower
 private: //for candidate
     void becomeLeader();
 
-    void becomeFollower();
+    void becomeFollower(RaftNode *senior);
 
     bool winQuorumVotes();
 
@@ -68,15 +68,13 @@ private: //common
 
     int delRaftNode(int nodeid);
 
+    int membersList(raft::MembersListResponse *rsp);
+
     bool shouldGrantVote(const raft::VoteRequest* req);
 
     int voteBy(const int nodeid);
 
     void printRaftNodes();
-
-    void setState(raft::RaftState st) {
-        state_ = st;
-    }
 
     uint64_t getCurrentIndex(){
         return log_.getCurrentIndex();
@@ -142,6 +140,7 @@ private:
     lotus::timer_t *ticker_;
 
     std::map<const int, RaftNode*> nodes_;
+
     RaftLog log_;
 
     bool stoped_;
