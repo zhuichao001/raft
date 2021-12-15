@@ -24,7 +24,7 @@ Raft::Raft(const RaftOptions &opt):
 
     term_ = 0;
     voted_for_ = -1;
-    state_ = RAFT_STATE::FOLLOWER;
+    state_ = raft::FOLLOWER;
 
     commit_idx_ = 0;
     applied_idx_ = 0;
@@ -33,11 +33,12 @@ Raft::Raft(const RaftOptions &opt):
     leader_ = nullptr;
     local_ = addRaftNode(opt.nodeid, opt.addr, true);
 
+    lasttime_heartbeat_ = microsec();
+    lasttime_election_ = 0;
+
     timeout_election_ =  randTimeoutElection();
     timeout_request_ = 200*1000;
     timeout_heartbeat_ = 5000*1000;
-    lasttime_heartbeat_ = microsec();
-    lasttime_election_ = 0;
     ticker_ = opt.clocker->run_every(std::bind(&Raft::tick, this), 100*1000);
 
     stoped_ = false;
@@ -89,10 +90,7 @@ void Raft::sendAppendEntries(RaftNode *to){
     req->set_term(term_);
     req->set_commit(commit_idx_);
 
-    fprintf(stderr, "||| send nodeid:%d, term:%d, commit_idx:%d\n", req->nodeid(), req->term(), req->commit());
-
-    req->set_prev_log_term(0);
-    req->set_prev_log_index(0);
+    fprintf(stderr, "{Raft] leader append entries,  nodeid:%d term:%d commit_idx:%d\n", req->nodeid(), req->term(), req->commit());
 
     int next_idx = to->GetNextIndex();
     const raft::LogEntry* nex = log_.getEntry(next_idx);
@@ -102,19 +100,22 @@ void Raft::sendAppendEntries(RaftNode *to){
         e->set_index(nex->index());
         e->set_type(nex->type());
         e->set_data(nex->data());
-        fprintf(stderr, "[RAFT] get a LOG term:%d,index:%d,type:%d\n", nex->term(), nex->index(), nex->type());
+        fprintf(stderr, "[RAFT] leader prepare a LOG term:%d,index:%d,type:%d\n", nex->term(), nex->index(), nex->type());
     } else {
         //TODO: NEED TO SNAPSHOT
         fprintf(stderr, "WARNING, getEntry null, next_idx=%d\n", next_idx);
     }
 
+    req->set_prev_log_term(0);
+    req->set_prev_log_index(0);
     if (next_idx > 1) {
-        req->set_prev_log_index(next_idx - 1);
-        const raft::LogEntry * prev = log_.getEntry(next_idx - 1);
+        int prev_idx = next_idx - 1;
+        req->set_prev_log_index(prev_idx);
+        const raft::LogEntry * prev = log_.getEntry(prev_idx);
         if (prev) {
             req->set_prev_log_term(prev->term());
         } else {
-            fprintf(stderr, "WARNING, get prev Entry null, prev_idx=%d\n", next_idx-1);
+            fprintf(stderr, "WARNING, get prev Entry null, prev_idx=%d\n", prev_idx);
         }
     }
 
@@ -131,7 +132,6 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     rsp->set_first_index(0);
     rsp->set_term(term_);
 
-    //print request
     fprintf(stderr, "Receive AppendEntries local-nodeid: %lx, from:%d term:%d commit:%d curidx:%d pli:%d plt:%d\n",
         local_->GetNodeId(),
         msg->nodeid(),
@@ -144,18 +144,18 @@ int Raft::recvAppendEntries(const raft::AppendEntriesRequest *msg, raft::AppendE
     if (isCandidate() && term_ == msg->term()) {
         fprintf(stderr, "[RAFT] candidate become follower\n");
         voted_for_ = -1;
-        leader_ = nodes_[msg->nodeid()];
         becomeFollower();
-    } else if (term_ < msg->term()) {
+    } else if (term_ < msg->term()) { //join
         fprintf(stderr, "[RAFT] become new follower because less term\n");
-        leader_ = nodes_[msg->nodeid()];
-        assert(leader_!=nullptr);
+        term_ = msg->term();
         becomeFollower();
     } else if (term_ > msg->term()) {
-        fprintf(stderr, "msg's term:%d < local term_:%d", msg->term(), term_);
+        fprintf(stderr, "[RAFT] discard, msg's term:%d < local term_:%d", msg->term(), term_);
         rsp->set_current_index(getCurrentIndex());
         return -1;
     }
+
+    leader_ = nodes_[msg->nodeid()];
 
     if (msg->prev_log_index() > 0) {
         fprintf(stderr, "prev_log_index:%d\n", msg->prev_log_index());
@@ -390,19 +390,19 @@ int Raft::MembersChange(const raft::RaftLogType &type, const raft::Peer &p){
 
 void Raft::tick(){
     switch(state_){
-        case RAFT_STATE::FOLLOWER:
+        case raft::FOLLOWER:
             if (microsec()-lasttime_heartbeat_ >= timeout_heartbeat_) {
                 fprintf(stderr, "[RAFT] tick timeout, FOLLOWER startElection\n");
                 startElection();
             }
             break;
-        case RAFT_STATE::CANDIDATE:
+        case raft::CANDIDATE:
             if (microsec()-lasttime_election_ >= timeout_election_) {
                 fprintf(stderr, "[RAFT] tick timeout, CANDIDATE restart Election\n");
                 startElection();
             }
             break;
-        case RAFT_STATE::LEADER:
+        case raft::LEADER:
             if (microsec()-lasttime_heartbeat_ >= 2*timeout_heartbeat_/3) {
                 lasttime_heartbeat_ = microsec();
                 fprintf(stderr, "[RAFT] tick timeout, LEADER send heartbeat\n");
@@ -416,7 +416,7 @@ void Raft::tick(){
 
 void Raft::becomeLeader(){ //for candidator
     fprintf(stderr, "becoming leader term:%d\n", term_);
-    setState(RAFT_STATE::LEADER);
+    setState(raft::LEADER);
     leader_ = local_;
     clearVotes();
 
@@ -440,12 +440,12 @@ void Raft::becomeFollower(){
     }
 
     lasttime_heartbeat_ = microsec();
-    setState(RAFT_STATE::FOLLOWER);
+    setState(raft::FOLLOWER);
     fprintf(stderr, "becoming follower, leader:%d, term:%d\n", leader_->GetNodeId(), term_);
 }
 
 void Raft::becomeCandidate(){
-    setState(RAFT_STATE::CANDIDATE);
+    setState(raft::CANDIDATE);
     timeout_election_ =  randTimeoutElection();
 
     term_ += 1;

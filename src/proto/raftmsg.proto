@@ -2,11 +2,20 @@ syntax = "proto3";
 
 package raft;
 
+enum RaftState {
+    NONE = 0;
+    LEADER = 1;
+    FOLLOWER = 2;
+    CANDIDATE = 3;
+    LEANER = 4;
+};
+
 enum RaftLogType {
     LOGTYPE_NORMAL = 0;
     LOGTYPE_ADD_NONVOTING_NODE = 1;
     LOGTYPE_ADD_NODE = 2;
     LOGTYPE_REMOVE_NODE = 3;
+    LOGTYPE_PROMOTE_NODE = 4; //promote some node to be leader
 };
 
 message LogEntry {
@@ -16,28 +25,15 @@ message LogEntry {
     bytes data = 4;
 };
 
-message LogEntryResponse {
-    uint64 term = 1;
-    uint64 index = 2;
-};
-
 message Peer {
-    uint64 raftid =1;
-    uint64 nodeid =2;
-    string ip =3;
-    uint32 port =4;
+    uint64 raftid = 1;
+    uint64 nodeid = 2;
+    string ip = 3;
+    uint32 port = 4;
+    RaftState state = 5;
 };
 
-message MemberChangeRequest {
-    RaftLogType type = 1;
-    Peer peer = 2;
-};
-
-message MemberChangeResponse {
-    bool success = 1;
-    uint64 term = 2;
-    Peer peer = 3;
-};
+/////////////////////////
 
 message VoteRequest {
     uint64 term = 1;
@@ -71,6 +67,27 @@ message AppendEntriesResponse {
     uint64 first_index = 5;
 };
 
+message MemberChangeRequest {
+    RaftLogType type = 1;
+    Peer peer = 2;
+};
+
+message MemberChangeResponse {
+    bool success = 1;
+    uint64 term = 2;
+    Peer peer = 3;
+};
+
+message MembersListRequest {
+    uint64 raftid = 1;
+};
+
+message MembersListResponse {
+    bool success = 1;
+    uint64 term = 2;
+    repeated Peer peers = 3;
+};
+
 message RaftMessage {
     uint32 raftid = 1;
     oneof msg {
@@ -82,5 +99,8 @@ message RaftMessage {
 
         MemberChangeRequest mc_req  = 6;
         MemberChangeResponse mc_rsp = 7;
+
+        MembersListRequest ml_req  = 8;
+        MembersListResponse ml_rsp = 9;
     }
 };

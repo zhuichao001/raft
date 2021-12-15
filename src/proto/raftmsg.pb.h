@@ -37,7 +37,7 @@ namespace protobuf_raftmsg_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[10];
+  static const ::google::protobuf::internal::ParseTable schema[11];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
@@ -45,14 +45,8 @@ struct TableStruct {
 void AddDescriptors();
 void InitDefaultsLogEntryImpl();
 void InitDefaultsLogEntry();
-void InitDefaultsLogEntryResponseImpl();
-void InitDefaultsLogEntryResponse();
 void InitDefaultsPeerImpl();
 void InitDefaultsPeer();
-void InitDefaultsMemberChangeRequestImpl();
-void InitDefaultsMemberChangeRequest();
-void InitDefaultsMemberChangeResponseImpl();
-void InitDefaultsMemberChangeResponse();
 void InitDefaultsVoteRequestImpl();
 void InitDefaultsVoteRequest();
 void InitDefaultsVoteResponseImpl();
@@ -61,18 +55,27 @@ void InitDefaultsAppendEntriesRequestImpl();
 void InitDefaultsAppendEntriesRequest();
 void InitDefaultsAppendEntriesResponseImpl();
 void InitDefaultsAppendEntriesResponse();
+void InitDefaultsMemberChangeRequestImpl();
+void InitDefaultsMemberChangeRequest();
+void InitDefaultsMemberChangeResponseImpl();
+void InitDefaultsMemberChangeResponse();
+void InitDefaultsMembersListRequestImpl();
+void InitDefaultsMembersListRequest();
+void InitDefaultsMembersListResponseImpl();
+void InitDefaultsMembersListResponse();
 void InitDefaultsRaftMessageImpl();
 void InitDefaultsRaftMessage();
 inline void InitDefaults() {
   InitDefaultsLogEntry();
-  InitDefaultsLogEntryResponse();
   InitDefaultsPeer();
-  InitDefaultsMemberChangeRequest();
-  InitDefaultsMemberChangeResponse();
   InitDefaultsVoteRequest();
   InitDefaultsVoteResponse();
   InitDefaultsAppendEntriesRequest();
   InitDefaultsAppendEntriesResponse();
+  InitDefaultsMemberChangeRequest();
+  InitDefaultsMemberChangeResponse();
+  InitDefaultsMembersListRequest();
+  InitDefaultsMembersListResponse();
   InitDefaultsRaftMessage();
 }
 }  // namespace protobuf_raftmsg_2eproto
@@ -86,15 +89,18 @@ extern AppendEntriesResponseDefaultTypeInternal _AppendEntriesResponse_default_i
 class LogEntry;
 class LogEntryDefaultTypeInternal;
 extern LogEntryDefaultTypeInternal _LogEntry_default_instance_;
-class LogEntryResponse;
-class LogEntryResponseDefaultTypeInternal;
-extern LogEntryResponseDefaultTypeInternal _LogEntryResponse_default_instance_;
 class MemberChangeRequest;
 class MemberChangeRequestDefaultTypeInternal;
 extern MemberChangeRequestDefaultTypeInternal _MemberChangeRequest_default_instance_;
 class MemberChangeResponse;
 class MemberChangeResponseDefaultTypeInternal;
 extern MemberChangeResponseDefaultTypeInternal _MemberChangeResponse_default_instance_;
+class MembersListRequest;
+class MembersListRequestDefaultTypeInternal;
+extern MembersListRequestDefaultTypeInternal _MembersListRequest_default_instance_;
+class MembersListResponse;
+class MembersListResponseDefaultTypeInternal;
+extern MembersListResponseDefaultTypeInternal _MembersListResponse_default_instance_;
 class Peer;
 class PeerDefaultTypeInternal;
 extern PeerDefaultTypeInternal _Peer_default_instance_;
@@ -110,17 +116,41 @@ extern VoteResponseDefaultTypeInternal _VoteResponse_default_instance_;
 }  // namespace raft
 namespace raft {
 
+enum RaftState {
+  FOLLOWER = 0,
+  CANDIDATE = 1,
+  LEADER = 2,
+  LEANER = 3,
+  RaftState_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
+  RaftState_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
+};
+bool RaftState_IsValid(int value);
+const RaftState RaftState_MIN = FOLLOWER;
+const RaftState RaftState_MAX = LEANER;
+const int RaftState_ARRAYSIZE = RaftState_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* RaftState_descriptor();
+inline const ::std::string& RaftState_Name(RaftState value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    RaftState_descriptor(), value);
+}
+inline bool RaftState_Parse(
+    const ::std::string& name, RaftState* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<RaftState>(
+    RaftState_descriptor(), name, value);
+}
 enum RaftLogType {
   LOGTYPE_NORMAL = 0,
   LOGTYPE_ADD_NONVOTING_NODE = 1,
   LOGTYPE_ADD_NODE = 2,
   LOGTYPE_REMOVE_NODE = 3,
+  LOGTYPE_PROMOTE_NODE = 4,
   RaftLogType_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
   RaftLogType_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
 bool RaftLogType_IsValid(int value);
 const RaftLogType RaftLogType_MIN = LOGTYPE_NORMAL;
-const RaftLogType RaftLogType_MAX = LOGTYPE_REMOVE_NODE;
+const RaftLogType RaftLogType_MAX = LOGTYPE_PROMOTE_NODE;
 const int RaftLogType_ARRAYSIZE = RaftLogType_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* RaftLogType_descriptor();
@@ -263,112 +293,6 @@ class LogEntry : public ::google::protobuf::Message /* @@protoc_insertion_point(
 };
 // -------------------------------------------------------------------
 
-class LogEntryResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.LogEntryResponse) */ {
- public:
-  LogEntryResponse();
-  virtual ~LogEntryResponse();
-
-  LogEntryResponse(const LogEntryResponse& from);
-
-  inline LogEntryResponse& operator=(const LogEntryResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  #if LANG_CXX11
-  LogEntryResponse(LogEntryResponse&& from) noexcept
-    : LogEntryResponse() {
-    *this = ::std::move(from);
-  }
-
-  inline LogEntryResponse& operator=(LogEntryResponse&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-  #endif
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const LogEntryResponse& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const LogEntryResponse* internal_default_instance() {
-    return reinterpret_cast<const LogEntryResponse*>(
-               &_LogEntryResponse_default_instance_);
-  }
-  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    1;
-
-  void Swap(LogEntryResponse* other);
-  friend void swap(LogEntryResponse& a, LogEntryResponse& b) {
-    a.Swap(&b);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline LogEntryResponse* New() const PROTOBUF_FINAL { return New(NULL); }
-
-  LogEntryResponse* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
-  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const LogEntryResponse& from);
-  void MergeFrom(const LogEntryResponse& from);
-  void Clear() PROTOBUF_FINAL;
-  bool IsInitialized() const PROTOBUF_FINAL;
-
-  size_t ByteSizeLong() const PROTOBUF_FINAL;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
-  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(LogEntryResponse* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // uint64 term = 1;
-  void clear_term();
-  static const int kTermFieldNumber = 1;
-  ::google::protobuf::uint64 term() const;
-  void set_term(::google::protobuf::uint64 value);
-
-  // uint64 index = 2;
-  void clear_index();
-  static const int kIndexFieldNumber = 2;
-  ::google::protobuf::uint64 index() const;
-  void set_index(::google::protobuf::uint64 value);
-
-  // @@protoc_insertion_point(class_scope:raft.LogEntryResponse)
- private:
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::uint64 term_;
-  ::google::protobuf::uint64 index_;
-  mutable int _cached_size_;
-  friend struct ::protobuf_raftmsg_2eproto::TableStruct;
-  friend void ::protobuf_raftmsg_2eproto::InitDefaultsLogEntryResponseImpl();
-};
-// -------------------------------------------------------------------
-
 class Peer : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.Peer) */ {
  public:
   Peer();
@@ -404,7 +328,7 @@ class Peer : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
                &_Peer_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    2;
+    1;
 
   void Swap(Peer* other);
   friend void swap(Peer& a, Peer& b) {
@@ -483,6 +407,12 @@ class Peer : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   ::google::protobuf::uint32 port() const;
   void set_port(::google::protobuf::uint32 value);
 
+  // .raft.RaftState state = 5;
+  void clear_state();
+  static const int kStateFieldNumber = 5;
+  ::raft::RaftState state() const;
+  void set_state(::raft::RaftState value);
+
   // @@protoc_insertion_point(class_scope:raft.Peer)
  private:
 
@@ -491,234 +421,10 @@ class Peer : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   ::google::protobuf::uint64 raftid_;
   ::google::protobuf::uint64 nodeid_;
   ::google::protobuf::uint32 port_;
+  int state_;
   mutable int _cached_size_;
   friend struct ::protobuf_raftmsg_2eproto::TableStruct;
   friend void ::protobuf_raftmsg_2eproto::InitDefaultsPeerImpl();
-};
-// -------------------------------------------------------------------
-
-class MemberChangeRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.MemberChangeRequest) */ {
- public:
-  MemberChangeRequest();
-  virtual ~MemberChangeRequest();
-
-  MemberChangeRequest(const MemberChangeRequest& from);
-
-  inline MemberChangeRequest& operator=(const MemberChangeRequest& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  #if LANG_CXX11
-  MemberChangeRequest(MemberChangeRequest&& from) noexcept
-    : MemberChangeRequest() {
-    *this = ::std::move(from);
-  }
-
-  inline MemberChangeRequest& operator=(MemberChangeRequest&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-  #endif
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const MemberChangeRequest& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const MemberChangeRequest* internal_default_instance() {
-    return reinterpret_cast<const MemberChangeRequest*>(
-               &_MemberChangeRequest_default_instance_);
-  }
-  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    3;
-
-  void Swap(MemberChangeRequest* other);
-  friend void swap(MemberChangeRequest& a, MemberChangeRequest& b) {
-    a.Swap(&b);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline MemberChangeRequest* New() const PROTOBUF_FINAL { return New(NULL); }
-
-  MemberChangeRequest* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
-  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const MemberChangeRequest& from);
-  void MergeFrom(const MemberChangeRequest& from);
-  void Clear() PROTOBUF_FINAL;
-  bool IsInitialized() const PROTOBUF_FINAL;
-
-  size_t ByteSizeLong() const PROTOBUF_FINAL;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
-  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(MemberChangeRequest* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // .raft.Peer peer = 2;
-  bool has_peer() const;
-  void clear_peer();
-  static const int kPeerFieldNumber = 2;
-  const ::raft::Peer& peer() const;
-  ::raft::Peer* release_peer();
-  ::raft::Peer* mutable_peer();
-  void set_allocated_peer(::raft::Peer* peer);
-
-  // .raft.RaftLogType type = 1;
-  void clear_type();
-  static const int kTypeFieldNumber = 1;
-  ::raft::RaftLogType type() const;
-  void set_type(::raft::RaftLogType value);
-
-  // @@protoc_insertion_point(class_scope:raft.MemberChangeRequest)
- private:
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::raft::Peer* peer_;
-  int type_;
-  mutable int _cached_size_;
-  friend struct ::protobuf_raftmsg_2eproto::TableStruct;
-  friend void ::protobuf_raftmsg_2eproto::InitDefaultsMemberChangeRequestImpl();
-};
-// -------------------------------------------------------------------
-
-class MemberChangeResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.MemberChangeResponse) */ {
- public:
-  MemberChangeResponse();
-  virtual ~MemberChangeResponse();
-
-  MemberChangeResponse(const MemberChangeResponse& from);
-
-  inline MemberChangeResponse& operator=(const MemberChangeResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  #if LANG_CXX11
-  MemberChangeResponse(MemberChangeResponse&& from) noexcept
-    : MemberChangeResponse() {
-    *this = ::std::move(from);
-  }
-
-  inline MemberChangeResponse& operator=(MemberChangeResponse&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-  #endif
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const MemberChangeResponse& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const MemberChangeResponse* internal_default_instance() {
-    return reinterpret_cast<const MemberChangeResponse*>(
-               &_MemberChangeResponse_default_instance_);
-  }
-  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    4;
-
-  void Swap(MemberChangeResponse* other);
-  friend void swap(MemberChangeResponse& a, MemberChangeResponse& b) {
-    a.Swap(&b);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline MemberChangeResponse* New() const PROTOBUF_FINAL { return New(NULL); }
-
-  MemberChangeResponse* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
-  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const MemberChangeResponse& from);
-  void MergeFrom(const MemberChangeResponse& from);
-  void Clear() PROTOBUF_FINAL;
-  bool IsInitialized() const PROTOBUF_FINAL;
-
-  size_t ByteSizeLong() const PROTOBUF_FINAL;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
-  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(MemberChangeResponse* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // .raft.Peer peer = 3;
-  bool has_peer() const;
-  void clear_peer();
-  static const int kPeerFieldNumber = 3;
-  const ::raft::Peer& peer() const;
-  ::raft::Peer* release_peer();
-  ::raft::Peer* mutable_peer();
-  void set_allocated_peer(::raft::Peer* peer);
-
-  // uint64 term = 2;
-  void clear_term();
-  static const int kTermFieldNumber = 2;
-  ::google::protobuf::uint64 term() const;
-  void set_term(::google::protobuf::uint64 value);
-
-  // bool success = 1;
-  void clear_success();
-  static const int kSuccessFieldNumber = 1;
-  bool success() const;
-  void set_success(bool value);
-
-  // @@protoc_insertion_point(class_scope:raft.MemberChangeResponse)
- private:
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::raft::Peer* peer_;
-  ::google::protobuf::uint64 term_;
-  bool success_;
-  mutable int _cached_size_;
-  friend struct ::protobuf_raftmsg_2eproto::TableStruct;
-  friend void ::protobuf_raftmsg_2eproto::InitDefaultsMemberChangeResponseImpl();
 };
 // -------------------------------------------------------------------
 
@@ -757,7 +463,7 @@ class VoteRequest : public ::google::protobuf::Message /* @@protoc_insertion_poi
                &_VoteRequest_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    5;
+    2;
 
   void Swap(VoteRequest* other);
   friend void swap(VoteRequest& a, VoteRequest& b) {
@@ -877,7 +583,7 @@ class VoteResponse : public ::google::protobuf::Message /* @@protoc_insertion_po
                &_VoteResponse_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    6;
+    3;
 
   void Swap(VoteResponse* other);
   friend void swap(VoteResponse& a, VoteResponse& b) {
@@ -990,7 +696,7 @@ class AppendEntriesRequest : public ::google::protobuf::Message /* @@protoc_inse
                &_AppendEntriesRequest_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    7;
+    4;
 
   void Swap(AppendEntriesRequest* other);
   friend void swap(AppendEntriesRequest& a, AppendEntriesRequest& b) {
@@ -1130,7 +836,7 @@ class AppendEntriesResponse : public ::google::protobuf::Message /* @@protoc_ins
                &_AppendEntriesResponse_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    8;
+    5;
 
   void Swap(AppendEntriesResponse* other);
   friend void swap(AppendEntriesResponse& a, AppendEntriesResponse& b) {
@@ -1222,6 +928,449 @@ class AppendEntriesResponse : public ::google::protobuf::Message /* @@protoc_ins
 };
 // -------------------------------------------------------------------
 
+class MemberChangeRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.MemberChangeRequest) */ {
+ public:
+  MemberChangeRequest();
+  virtual ~MemberChangeRequest();
+
+  MemberChangeRequest(const MemberChangeRequest& from);
+
+  inline MemberChangeRequest& operator=(const MemberChangeRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  MemberChangeRequest(MemberChangeRequest&& from) noexcept
+    : MemberChangeRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline MemberChangeRequest& operator=(MemberChangeRequest&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MemberChangeRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const MemberChangeRequest* internal_default_instance() {
+    return reinterpret_cast<const MemberChangeRequest*>(
+               &_MemberChangeRequest_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    6;
+
+  void Swap(MemberChangeRequest* other);
+  friend void swap(MemberChangeRequest& a, MemberChangeRequest& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline MemberChangeRequest* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  MemberChangeRequest* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const MemberChangeRequest& from);
+  void MergeFrom(const MemberChangeRequest& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(MemberChangeRequest* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .raft.Peer peer = 2;
+  bool has_peer() const;
+  void clear_peer();
+  static const int kPeerFieldNumber = 2;
+  const ::raft::Peer& peer() const;
+  ::raft::Peer* release_peer();
+  ::raft::Peer* mutable_peer();
+  void set_allocated_peer(::raft::Peer* peer);
+
+  // .raft.RaftLogType type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::raft::RaftLogType type() const;
+  void set_type(::raft::RaftLogType value);
+
+  // @@protoc_insertion_point(class_scope:raft.MemberChangeRequest)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::raft::Peer* peer_;
+  int type_;
+  mutable int _cached_size_;
+  friend struct ::protobuf_raftmsg_2eproto::TableStruct;
+  friend void ::protobuf_raftmsg_2eproto::InitDefaultsMemberChangeRequestImpl();
+};
+// -------------------------------------------------------------------
+
+class MemberChangeResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.MemberChangeResponse) */ {
+ public:
+  MemberChangeResponse();
+  virtual ~MemberChangeResponse();
+
+  MemberChangeResponse(const MemberChangeResponse& from);
+
+  inline MemberChangeResponse& operator=(const MemberChangeResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  MemberChangeResponse(MemberChangeResponse&& from) noexcept
+    : MemberChangeResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline MemberChangeResponse& operator=(MemberChangeResponse&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MemberChangeResponse& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const MemberChangeResponse* internal_default_instance() {
+    return reinterpret_cast<const MemberChangeResponse*>(
+               &_MemberChangeResponse_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    7;
+
+  void Swap(MemberChangeResponse* other);
+  friend void swap(MemberChangeResponse& a, MemberChangeResponse& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline MemberChangeResponse* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  MemberChangeResponse* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const MemberChangeResponse& from);
+  void MergeFrom(const MemberChangeResponse& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(MemberChangeResponse* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .raft.Peer peer = 3;
+  bool has_peer() const;
+  void clear_peer();
+  static const int kPeerFieldNumber = 3;
+  const ::raft::Peer& peer() const;
+  ::raft::Peer* release_peer();
+  ::raft::Peer* mutable_peer();
+  void set_allocated_peer(::raft::Peer* peer);
+
+  // uint64 term = 2;
+  void clear_term();
+  static const int kTermFieldNumber = 2;
+  ::google::protobuf::uint64 term() const;
+  void set_term(::google::protobuf::uint64 value);
+
+  // bool success = 1;
+  void clear_success();
+  static const int kSuccessFieldNumber = 1;
+  bool success() const;
+  void set_success(bool value);
+
+  // @@protoc_insertion_point(class_scope:raft.MemberChangeResponse)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::raft::Peer* peer_;
+  ::google::protobuf::uint64 term_;
+  bool success_;
+  mutable int _cached_size_;
+  friend struct ::protobuf_raftmsg_2eproto::TableStruct;
+  friend void ::protobuf_raftmsg_2eproto::InitDefaultsMemberChangeResponseImpl();
+};
+// -------------------------------------------------------------------
+
+class MembersListRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.MembersListRequest) */ {
+ public:
+  MembersListRequest();
+  virtual ~MembersListRequest();
+
+  MembersListRequest(const MembersListRequest& from);
+
+  inline MembersListRequest& operator=(const MembersListRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  MembersListRequest(MembersListRequest&& from) noexcept
+    : MembersListRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline MembersListRequest& operator=(MembersListRequest&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MembersListRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const MembersListRequest* internal_default_instance() {
+    return reinterpret_cast<const MembersListRequest*>(
+               &_MembersListRequest_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    8;
+
+  void Swap(MembersListRequest* other);
+  friend void swap(MembersListRequest& a, MembersListRequest& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline MembersListRequest* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  MembersListRequest* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const MembersListRequest& from);
+  void MergeFrom(const MembersListRequest& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(MembersListRequest* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // uint64 raftid = 1;
+  void clear_raftid();
+  static const int kRaftidFieldNumber = 1;
+  ::google::protobuf::uint64 raftid() const;
+  void set_raftid(::google::protobuf::uint64 value);
+
+  // @@protoc_insertion_point(class_scope:raft.MembersListRequest)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::uint64 raftid_;
+  mutable int _cached_size_;
+  friend struct ::protobuf_raftmsg_2eproto::TableStruct;
+  friend void ::protobuf_raftmsg_2eproto::InitDefaultsMembersListRequestImpl();
+};
+// -------------------------------------------------------------------
+
+class MembersListResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.MembersListResponse) */ {
+ public:
+  MembersListResponse();
+  virtual ~MembersListResponse();
+
+  MembersListResponse(const MembersListResponse& from);
+
+  inline MembersListResponse& operator=(const MembersListResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  MembersListResponse(MembersListResponse&& from) noexcept
+    : MembersListResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline MembersListResponse& operator=(MembersListResponse&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const MembersListResponse& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const MembersListResponse* internal_default_instance() {
+    return reinterpret_cast<const MembersListResponse*>(
+               &_MembersListResponse_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    9;
+
+  void Swap(MembersListResponse* other);
+  friend void swap(MembersListResponse& a, MembersListResponse& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline MembersListResponse* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  MembersListResponse* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const MembersListResponse& from);
+  void MergeFrom(const MembersListResponse& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(MembersListResponse* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .raft.Peer peers = 3;
+  int peers_size() const;
+  void clear_peers();
+  static const int kPeersFieldNumber = 3;
+  const ::raft::Peer& peers(int index) const;
+  ::raft::Peer* mutable_peers(int index);
+  ::raft::Peer* add_peers();
+  ::google::protobuf::RepeatedPtrField< ::raft::Peer >*
+      mutable_peers();
+  const ::google::protobuf::RepeatedPtrField< ::raft::Peer >&
+      peers() const;
+
+  // uint64 term = 2;
+  void clear_term();
+  static const int kTermFieldNumber = 2;
+  ::google::protobuf::uint64 term() const;
+  void set_term(::google::protobuf::uint64 value);
+
+  // bool success = 1;
+  void clear_success();
+  static const int kSuccessFieldNumber = 1;
+  bool success() const;
+  void set_success(bool value);
+
+  // @@protoc_insertion_point(class_scope:raft.MembersListResponse)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::raft::Peer > peers_;
+  ::google::protobuf::uint64 term_;
+  bool success_;
+  mutable int _cached_size_;
+  friend struct ::protobuf_raftmsg_2eproto::TableStruct;
+  friend void ::protobuf_raftmsg_2eproto::InitDefaultsMembersListResponseImpl();
+};
+// -------------------------------------------------------------------
+
 class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:raft.RaftMessage) */ {
  public:
   RaftMessage();
@@ -1258,6 +1407,8 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
     kAeRsp = 5,
     kMcReq = 6,
     kMcRsp = 7,
+    kMlReq = 8,
+    kMlRsp = 9,
     MSG_NOT_SET = 0,
   };
 
@@ -1267,7 +1418,7 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
                &_RaftMessage_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    9;
+    10;
 
   void Swap(RaftMessage* other);
   friend void swap(RaftMessage& a, RaftMessage& b) {
@@ -1374,6 +1525,24 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::raft::MemberChangeResponse* mutable_mc_rsp();
   void set_allocated_mc_rsp(::raft::MemberChangeResponse* mc_rsp);
 
+  // .raft.MembersListRequest ml_req = 8;
+  bool has_ml_req() const;
+  void clear_ml_req();
+  static const int kMlReqFieldNumber = 8;
+  const ::raft::MembersListRequest& ml_req() const;
+  ::raft::MembersListRequest* release_ml_req();
+  ::raft::MembersListRequest* mutable_ml_req();
+  void set_allocated_ml_req(::raft::MembersListRequest* ml_req);
+
+  // .raft.MembersListResponse ml_rsp = 9;
+  bool has_ml_rsp() const;
+  void clear_ml_rsp();
+  static const int kMlRspFieldNumber = 9;
+  const ::raft::MembersListResponse& ml_rsp() const;
+  ::raft::MembersListResponse* release_ml_rsp();
+  ::raft::MembersListResponse* mutable_ml_rsp();
+  void set_allocated_ml_rsp(::raft::MembersListResponse* ml_rsp);
+
   MsgCase msg_case() const;
   // @@protoc_insertion_point(class_scope:raft.RaftMessage)
  private:
@@ -1383,6 +1552,8 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
   void set_has_ae_rsp();
   void set_has_mc_req();
   void set_has_mc_rsp();
+  void set_has_ml_req();
+  void set_has_ml_rsp();
 
   inline bool has_msg() const;
   void clear_msg();
@@ -1398,6 +1569,8 @@ class RaftMessage : public ::google::protobuf::Message /* @@protoc_insertion_poi
     ::raft::AppendEntriesResponse* ae_rsp_;
     ::raft::MemberChangeRequest* mc_req_;
     ::raft::MemberChangeResponse* mc_rsp_;
+    ::raft::MembersListRequest* ml_req_;
+    ::raft::MembersListResponse* ml_rsp_;
   } msg_;
   mutable int _cached_size_;
   ::google::protobuf::uint32 _oneof_case_[1];
@@ -1513,38 +1686,6 @@ inline void LogEntry::set_allocated_data(::std::string* data) {
 
 // -------------------------------------------------------------------
 
-// LogEntryResponse
-
-// uint64 term = 1;
-inline void LogEntryResponse::clear_term() {
-  term_ = GOOGLE_ULONGLONG(0);
-}
-inline ::google::protobuf::uint64 LogEntryResponse::term() const {
-  // @@protoc_insertion_point(field_get:raft.LogEntryResponse.term)
-  return term_;
-}
-inline void LogEntryResponse::set_term(::google::protobuf::uint64 value) {
-  
-  term_ = value;
-  // @@protoc_insertion_point(field_set:raft.LogEntryResponse.term)
-}
-
-// uint64 index = 2;
-inline void LogEntryResponse::clear_index() {
-  index_ = GOOGLE_ULONGLONG(0);
-}
-inline ::google::protobuf::uint64 LogEntryResponse::index() const {
-  // @@protoc_insertion_point(field_get:raft.LogEntryResponse.index)
-  return index_;
-}
-inline void LogEntryResponse::set_index(::google::protobuf::uint64 value) {
-  
-  index_ = value;
-  // @@protoc_insertion_point(field_set:raft.LogEntryResponse.index)
-}
-
-// -------------------------------------------------------------------
-
 // Peer
 
 // uint64 raftid = 1;
@@ -1642,154 +1783,18 @@ inline void Peer::set_port(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:raft.Peer.port)
 }
 
-// -------------------------------------------------------------------
-
-// MemberChangeRequest
-
-// .raft.RaftLogType type = 1;
-inline void MemberChangeRequest::clear_type() {
-  type_ = 0;
+// .raft.RaftState state = 5;
+inline void Peer::clear_state() {
+  state_ = 0;
 }
-inline ::raft::RaftLogType MemberChangeRequest::type() const {
-  // @@protoc_insertion_point(field_get:raft.MemberChangeRequest.type)
-  return static_cast< ::raft::RaftLogType >(type_);
+inline ::raft::RaftState Peer::state() const {
+  // @@protoc_insertion_point(field_get:raft.Peer.state)
+  return static_cast< ::raft::RaftState >(state_);
 }
-inline void MemberChangeRequest::set_type(::raft::RaftLogType value) {
+inline void Peer::set_state(::raft::RaftState value) {
   
-  type_ = value;
-  // @@protoc_insertion_point(field_set:raft.MemberChangeRequest.type)
-}
-
-// .raft.Peer peer = 2;
-inline bool MemberChangeRequest::has_peer() const {
-  return this != internal_default_instance() && peer_ != NULL;
-}
-inline void MemberChangeRequest::clear_peer() {
-  if (GetArenaNoVirtual() == NULL && peer_ != NULL) {
-    delete peer_;
-  }
-  peer_ = NULL;
-}
-inline const ::raft::Peer& MemberChangeRequest::peer() const {
-  const ::raft::Peer* p = peer_;
-  // @@protoc_insertion_point(field_get:raft.MemberChangeRequest.peer)
-  return p != NULL ? *p : *reinterpret_cast<const ::raft::Peer*>(
-      &::raft::_Peer_default_instance_);
-}
-inline ::raft::Peer* MemberChangeRequest::release_peer() {
-  // @@protoc_insertion_point(field_release:raft.MemberChangeRequest.peer)
-  
-  ::raft::Peer* temp = peer_;
-  peer_ = NULL;
-  return temp;
-}
-inline ::raft::Peer* MemberChangeRequest::mutable_peer() {
-  
-  if (peer_ == NULL) {
-    peer_ = new ::raft::Peer;
-  }
-  // @@protoc_insertion_point(field_mutable:raft.MemberChangeRequest.peer)
-  return peer_;
-}
-inline void MemberChangeRequest::set_allocated_peer(::raft::Peer* peer) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
-  if (message_arena == NULL) {
-    delete peer_;
-  }
-  if (peer) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
-    if (message_arena != submessage_arena) {
-      peer = ::google::protobuf::internal::GetOwnedMessage(
-          message_arena, peer, submessage_arena);
-    }
-    
-  } else {
-    
-  }
-  peer_ = peer;
-  // @@protoc_insertion_point(field_set_allocated:raft.MemberChangeRequest.peer)
-}
-
-// -------------------------------------------------------------------
-
-// MemberChangeResponse
-
-// bool success = 1;
-inline void MemberChangeResponse::clear_success() {
-  success_ = false;
-}
-inline bool MemberChangeResponse::success() const {
-  // @@protoc_insertion_point(field_get:raft.MemberChangeResponse.success)
-  return success_;
-}
-inline void MemberChangeResponse::set_success(bool value) {
-  
-  success_ = value;
-  // @@protoc_insertion_point(field_set:raft.MemberChangeResponse.success)
-}
-
-// uint64 term = 2;
-inline void MemberChangeResponse::clear_term() {
-  term_ = GOOGLE_ULONGLONG(0);
-}
-inline ::google::protobuf::uint64 MemberChangeResponse::term() const {
-  // @@protoc_insertion_point(field_get:raft.MemberChangeResponse.term)
-  return term_;
-}
-inline void MemberChangeResponse::set_term(::google::protobuf::uint64 value) {
-  
-  term_ = value;
-  // @@protoc_insertion_point(field_set:raft.MemberChangeResponse.term)
-}
-
-// .raft.Peer peer = 3;
-inline bool MemberChangeResponse::has_peer() const {
-  return this != internal_default_instance() && peer_ != NULL;
-}
-inline void MemberChangeResponse::clear_peer() {
-  if (GetArenaNoVirtual() == NULL && peer_ != NULL) {
-    delete peer_;
-  }
-  peer_ = NULL;
-}
-inline const ::raft::Peer& MemberChangeResponse::peer() const {
-  const ::raft::Peer* p = peer_;
-  // @@protoc_insertion_point(field_get:raft.MemberChangeResponse.peer)
-  return p != NULL ? *p : *reinterpret_cast<const ::raft::Peer*>(
-      &::raft::_Peer_default_instance_);
-}
-inline ::raft::Peer* MemberChangeResponse::release_peer() {
-  // @@protoc_insertion_point(field_release:raft.MemberChangeResponse.peer)
-  
-  ::raft::Peer* temp = peer_;
-  peer_ = NULL;
-  return temp;
-}
-inline ::raft::Peer* MemberChangeResponse::mutable_peer() {
-  
-  if (peer_ == NULL) {
-    peer_ = new ::raft::Peer;
-  }
-  // @@protoc_insertion_point(field_mutable:raft.MemberChangeResponse.peer)
-  return peer_;
-}
-inline void MemberChangeResponse::set_allocated_peer(::raft::Peer* peer) {
-  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
-  if (message_arena == NULL) {
-    delete peer_;
-  }
-  if (peer) {
-    ::google::protobuf::Arena* submessage_arena = NULL;
-    if (message_arena != submessage_arena) {
-      peer = ::google::protobuf::internal::GetOwnedMessage(
-          message_arena, peer, submessage_arena);
-    }
-    
-  } else {
-    
-  }
-  peer_ = peer;
-  // @@protoc_insertion_point(field_set_allocated:raft.MemberChangeResponse.peer)
+  state_ = value;
+  // @@protoc_insertion_point(field_set:raft.Peer.state)
 }
 
 // -------------------------------------------------------------------
@@ -2078,6 +2083,236 @@ inline void AppendEntriesResponse::set_first_index(::google::protobuf::uint64 va
 
 // -------------------------------------------------------------------
 
+// MemberChangeRequest
+
+// .raft.RaftLogType type = 1;
+inline void MemberChangeRequest::clear_type() {
+  type_ = 0;
+}
+inline ::raft::RaftLogType MemberChangeRequest::type() const {
+  // @@protoc_insertion_point(field_get:raft.MemberChangeRequest.type)
+  return static_cast< ::raft::RaftLogType >(type_);
+}
+inline void MemberChangeRequest::set_type(::raft::RaftLogType value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:raft.MemberChangeRequest.type)
+}
+
+// .raft.Peer peer = 2;
+inline bool MemberChangeRequest::has_peer() const {
+  return this != internal_default_instance() && peer_ != NULL;
+}
+inline void MemberChangeRequest::clear_peer() {
+  if (GetArenaNoVirtual() == NULL && peer_ != NULL) {
+    delete peer_;
+  }
+  peer_ = NULL;
+}
+inline const ::raft::Peer& MemberChangeRequest::peer() const {
+  const ::raft::Peer* p = peer_;
+  // @@protoc_insertion_point(field_get:raft.MemberChangeRequest.peer)
+  return p != NULL ? *p : *reinterpret_cast<const ::raft::Peer*>(
+      &::raft::_Peer_default_instance_);
+}
+inline ::raft::Peer* MemberChangeRequest::release_peer() {
+  // @@protoc_insertion_point(field_release:raft.MemberChangeRequest.peer)
+  
+  ::raft::Peer* temp = peer_;
+  peer_ = NULL;
+  return temp;
+}
+inline ::raft::Peer* MemberChangeRequest::mutable_peer() {
+  
+  if (peer_ == NULL) {
+    peer_ = new ::raft::Peer;
+  }
+  // @@protoc_insertion_point(field_mutable:raft.MemberChangeRequest.peer)
+  return peer_;
+}
+inline void MemberChangeRequest::set_allocated_peer(::raft::Peer* peer) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete peer_;
+  }
+  if (peer) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      peer = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, peer, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  peer_ = peer;
+  // @@protoc_insertion_point(field_set_allocated:raft.MemberChangeRequest.peer)
+}
+
+// -------------------------------------------------------------------
+
+// MemberChangeResponse
+
+// bool success = 1;
+inline void MemberChangeResponse::clear_success() {
+  success_ = false;
+}
+inline bool MemberChangeResponse::success() const {
+  // @@protoc_insertion_point(field_get:raft.MemberChangeResponse.success)
+  return success_;
+}
+inline void MemberChangeResponse::set_success(bool value) {
+  
+  success_ = value;
+  // @@protoc_insertion_point(field_set:raft.MemberChangeResponse.success)
+}
+
+// uint64 term = 2;
+inline void MemberChangeResponse::clear_term() {
+  term_ = GOOGLE_ULONGLONG(0);
+}
+inline ::google::protobuf::uint64 MemberChangeResponse::term() const {
+  // @@protoc_insertion_point(field_get:raft.MemberChangeResponse.term)
+  return term_;
+}
+inline void MemberChangeResponse::set_term(::google::protobuf::uint64 value) {
+  
+  term_ = value;
+  // @@protoc_insertion_point(field_set:raft.MemberChangeResponse.term)
+}
+
+// .raft.Peer peer = 3;
+inline bool MemberChangeResponse::has_peer() const {
+  return this != internal_default_instance() && peer_ != NULL;
+}
+inline void MemberChangeResponse::clear_peer() {
+  if (GetArenaNoVirtual() == NULL && peer_ != NULL) {
+    delete peer_;
+  }
+  peer_ = NULL;
+}
+inline const ::raft::Peer& MemberChangeResponse::peer() const {
+  const ::raft::Peer* p = peer_;
+  // @@protoc_insertion_point(field_get:raft.MemberChangeResponse.peer)
+  return p != NULL ? *p : *reinterpret_cast<const ::raft::Peer*>(
+      &::raft::_Peer_default_instance_);
+}
+inline ::raft::Peer* MemberChangeResponse::release_peer() {
+  // @@protoc_insertion_point(field_release:raft.MemberChangeResponse.peer)
+  
+  ::raft::Peer* temp = peer_;
+  peer_ = NULL;
+  return temp;
+}
+inline ::raft::Peer* MemberChangeResponse::mutable_peer() {
+  
+  if (peer_ == NULL) {
+    peer_ = new ::raft::Peer;
+  }
+  // @@protoc_insertion_point(field_mutable:raft.MemberChangeResponse.peer)
+  return peer_;
+}
+inline void MemberChangeResponse::set_allocated_peer(::raft::Peer* peer) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete peer_;
+  }
+  if (peer) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      peer = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, peer, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  peer_ = peer;
+  // @@protoc_insertion_point(field_set_allocated:raft.MemberChangeResponse.peer)
+}
+
+// -------------------------------------------------------------------
+
+// MembersListRequest
+
+// uint64 raftid = 1;
+inline void MembersListRequest::clear_raftid() {
+  raftid_ = GOOGLE_ULONGLONG(0);
+}
+inline ::google::protobuf::uint64 MembersListRequest::raftid() const {
+  // @@protoc_insertion_point(field_get:raft.MembersListRequest.raftid)
+  return raftid_;
+}
+inline void MembersListRequest::set_raftid(::google::protobuf::uint64 value) {
+  
+  raftid_ = value;
+  // @@protoc_insertion_point(field_set:raft.MembersListRequest.raftid)
+}
+
+// -------------------------------------------------------------------
+
+// MembersListResponse
+
+// bool success = 1;
+inline void MembersListResponse::clear_success() {
+  success_ = false;
+}
+inline bool MembersListResponse::success() const {
+  // @@protoc_insertion_point(field_get:raft.MembersListResponse.success)
+  return success_;
+}
+inline void MembersListResponse::set_success(bool value) {
+  
+  success_ = value;
+  // @@protoc_insertion_point(field_set:raft.MembersListResponse.success)
+}
+
+// uint64 term = 2;
+inline void MembersListResponse::clear_term() {
+  term_ = GOOGLE_ULONGLONG(0);
+}
+inline ::google::protobuf::uint64 MembersListResponse::term() const {
+  // @@protoc_insertion_point(field_get:raft.MembersListResponse.term)
+  return term_;
+}
+inline void MembersListResponse::set_term(::google::protobuf::uint64 value) {
+  
+  term_ = value;
+  // @@protoc_insertion_point(field_set:raft.MembersListResponse.term)
+}
+
+// repeated .raft.Peer peers = 3;
+inline int MembersListResponse::peers_size() const {
+  return peers_.size();
+}
+inline void MembersListResponse::clear_peers() {
+  peers_.Clear();
+}
+inline const ::raft::Peer& MembersListResponse::peers(int index) const {
+  // @@protoc_insertion_point(field_get:raft.MembersListResponse.peers)
+  return peers_.Get(index);
+}
+inline ::raft::Peer* MembersListResponse::mutable_peers(int index) {
+  // @@protoc_insertion_point(field_mutable:raft.MembersListResponse.peers)
+  return peers_.Mutable(index);
+}
+inline ::raft::Peer* MembersListResponse::add_peers() {
+  // @@protoc_insertion_point(field_add:raft.MembersListResponse.peers)
+  return peers_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::raft::Peer >*
+MembersListResponse::mutable_peers() {
+  // @@protoc_insertion_point(field_mutable_list:raft.MembersListResponse.peers)
+  return &peers_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::raft::Peer >&
+MembersListResponse::peers() const {
+  // @@protoc_insertion_point(field_list:raft.MembersListResponse.peers)
+  return peers_;
+}
+
+// -------------------------------------------------------------------
+
 // RaftMessage
 
 // uint32 raftid = 1;
@@ -2334,6 +2569,86 @@ inline ::raft::MemberChangeResponse* RaftMessage::mutable_mc_rsp() {
   return msg_.mc_rsp_;
 }
 
+// .raft.MembersListRequest ml_req = 8;
+inline bool RaftMessage::has_ml_req() const {
+  return msg_case() == kMlReq;
+}
+inline void RaftMessage::set_has_ml_req() {
+  _oneof_case_[0] = kMlReq;
+}
+inline void RaftMessage::clear_ml_req() {
+  if (has_ml_req()) {
+    delete msg_.ml_req_;
+    clear_has_msg();
+  }
+}
+inline ::raft::MembersListRequest* RaftMessage::release_ml_req() {
+  // @@protoc_insertion_point(field_release:raft.RaftMessage.ml_req)
+  if (has_ml_req()) {
+    clear_has_msg();
+      ::raft::MembersListRequest* temp = msg_.ml_req_;
+    msg_.ml_req_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline const ::raft::MembersListRequest& RaftMessage::ml_req() const {
+  // @@protoc_insertion_point(field_get:raft.RaftMessage.ml_req)
+  return has_ml_req()
+      ? *msg_.ml_req_
+      : *reinterpret_cast< ::raft::MembersListRequest*>(&::raft::_MembersListRequest_default_instance_);
+}
+inline ::raft::MembersListRequest* RaftMessage::mutable_ml_req() {
+  if (!has_ml_req()) {
+    clear_msg();
+    set_has_ml_req();
+    msg_.ml_req_ = new ::raft::MembersListRequest;
+  }
+  // @@protoc_insertion_point(field_mutable:raft.RaftMessage.ml_req)
+  return msg_.ml_req_;
+}
+
+// .raft.MembersListResponse ml_rsp = 9;
+inline bool RaftMessage::has_ml_rsp() const {
+  return msg_case() == kMlRsp;
+}
+inline void RaftMessage::set_has_ml_rsp() {
+  _oneof_case_[0] = kMlRsp;
+}
+inline void RaftMessage::clear_ml_rsp() {
+  if (has_ml_rsp()) {
+    delete msg_.ml_rsp_;
+    clear_has_msg();
+  }
+}
+inline ::raft::MembersListResponse* RaftMessage::release_ml_rsp() {
+  // @@protoc_insertion_point(field_release:raft.RaftMessage.ml_rsp)
+  if (has_ml_rsp()) {
+    clear_has_msg();
+      ::raft::MembersListResponse* temp = msg_.ml_rsp_;
+    msg_.ml_rsp_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline const ::raft::MembersListResponse& RaftMessage::ml_rsp() const {
+  // @@protoc_insertion_point(field_get:raft.RaftMessage.ml_rsp)
+  return has_ml_rsp()
+      ? *msg_.ml_rsp_
+      : *reinterpret_cast< ::raft::MembersListResponse*>(&::raft::_MembersListResponse_default_instance_);
+}
+inline ::raft::MembersListResponse* RaftMessage::mutable_ml_rsp() {
+  if (!has_ml_rsp()) {
+    clear_msg();
+    set_has_ml_rsp();
+    msg_.ml_rsp_ = new ::raft::MembersListResponse;
+  }
+  // @@protoc_insertion_point(field_mutable:raft.RaftMessage.ml_rsp)
+  return msg_.ml_rsp_;
+}
+
 inline bool RaftMessage::has_msg() const {
   return msg_case() != MSG_NOT_SET;
 }
@@ -2364,6 +2679,8 @@ inline RaftMessage::MsgCase RaftMessage::msg_case() const {
 
 // -------------------------------------------------------------------
 
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -2372,6 +2689,11 @@ inline RaftMessage::MsgCase RaftMessage::msg_case() const {
 namespace google {
 namespace protobuf {
 
+template <> struct is_proto_enum< ::raft::RaftState> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::raft::RaftState>() {
+  return ::raft::RaftState_descriptor();
+}
 template <> struct is_proto_enum< ::raft::RaftLogType> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::raft::RaftLogType>() {

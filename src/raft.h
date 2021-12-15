@@ -13,13 +13,6 @@
 #include "lotus/timer.h"
 #include "proto/raftmsg.pb.h"
 
-enum RAFT_STATE {
-    NONE = 0,
-    LEADER = 1,
-    FOLLOWER = 2,
-    CANDIDATE = 3,
-    LEANER = 4,
-};
 
 class Raft{
 public:
@@ -81,7 +74,7 @@ private: //common
 
     void printRaftNodes();
 
-    void setState(int st) {
+    void setState(raft::RaftState st) {
         state_ = st;
     }
 
@@ -101,15 +94,15 @@ private: //common
     }
 
     bool isLeader(){
-        return RAFT_STATE::LEADER == state_;
+        return raft::LEADER == state_;
     }
 
     bool isFollower(){
-        return RAFT_STATE::FOLLOWER == state_;
+        return raft::FOLLOWER == state_;
     }
 
     bool isCandidate(){
-        return RAFT_STATE::CANDIDATE == state_;
+        return raft::CANDIDATE == state_;
     }
 
     bool isAlreadyVoted(){
@@ -129,9 +122,9 @@ private:
     RaftStateMachine *app_;
     std::shared_ptr<Transport> trans_;
 
-    uint64_t term_;     // current term
-    int voted_for_;     // candidate propose vote 
-    int state_;         // FOLLOWER, LEADER, CANDIDATE
+    uint64_t term_;         // current term
+    int voted_for_;         // candidate propose vote 
+    raft::RaftState state_; // FOLLOWER, LEADER, CANDIDATE
 
     uint64_t commit_idx_;
     uint64_t applied_idx_;
@@ -140,11 +133,12 @@ private:
     RaftNode *leader_;
     RaftNode *local_;
 
+    uint64_t lasttime_heartbeat_;
+    uint64_t lasttime_election_;
+
     uint64_t timeout_election_;
     uint64_t timeout_request_;
     uint64_t timeout_heartbeat_;
-    uint64_t lasttime_heartbeat_;
-    uint64_t lasttime_election_;
     lotus::timer_t *ticker_;
 
     std::map<const int, RaftNode*> nodes_;
