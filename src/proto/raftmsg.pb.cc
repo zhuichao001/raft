@@ -417,6 +417,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::MembersListResponse, success_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::MembersListResponse, term_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::MembersListResponse, raftid_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::MembersListResponse, peers_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::raft::RaftMessage, _internal_metadata_),
@@ -445,7 +446,7 @@ static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROT
   { 64, -1, sizeof(::raft::MemberChangeResponse)},
   { 72, -1, sizeof(::raft::MembersListRequest)},
   { 78, -1, sizeof(::raft::MembersListResponse)},
-  { 86, -1, sizeof(::raft::RaftMessage)},
+  { 87, -1, sizeof(::raft::RaftMessage)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -504,27 +505,28 @@ void AddDescriptorsImpl() {
       "\n\004peer\030\002 \001(\0132\n.raft.Peer\"O\n\024MemberChange"
       "Response\022\017\n\007success\030\001 \001(\010\022\014\n\004term\030\002 \001(\004\022"
       "\030\n\004peer\030\003 \001(\0132\n.raft.Peer\"$\n\022MembersList"
-      "Request\022\016\n\006raftid\030\001 \001(\004\"O\n\023MembersListRe"
-      "sponse\022\017\n\007success\030\001 \001(\010\022\014\n\004term\030\002 \001(\004\022\031\n"
-      "\005peers\030\003 \003(\0132\n.raft.Peer\"\200\003\n\013RaftMessage"
-      "\022\016\n\006raftid\030\001 \001(\r\022#\n\006vt_req\030\002 \001(\0132\021.raft."
-      "VoteRequestH\000\022$\n\006vt_rsp\030\003 \001(\0132\022.raft.Vot"
-      "eResponseH\000\022,\n\006ae_req\030\004 \001(\0132\032.raft.Appen"
-      "dEntriesRequestH\000\022-\n\006ae_rsp\030\005 \001(\0132\033.raft"
-      ".AppendEntriesResponseH\000\022+\n\006mc_req\030\006 \001(\013"
-      "2\031.raft.MemberChangeRequestH\000\022,\n\006mc_rsp\030"
-      "\007 \001(\0132\032.raft.MemberChangeResponseH\000\022*\n\006m"
-      "l_req\030\010 \001(\0132\030.raft.MembersListRequestH\000\022"
-      "+\n\006ml_rsp\030\t \001(\0132\031.raft.MembersListRespon"
-      "seH\000B\005\n\003msg*M\n\tRaftState\022\013\n\007UNKNOWN\020\000\022\n\n"
-      "\006LEADER\020\001\022\014\n\010FOLLOWER\020\002\022\r\n\tCANDIDATE\020\003\022\n"
-      "\n\006LEANER\020\004*\212\001\n\013RaftLogType\022\022\n\016LOGTYPE_NO"
-      "RMAL\020\000\022\036\n\032LOGTYPE_ADD_NONVOTING_NODE\020\001\022\024"
-      "\n\020LOGTYPE_ADD_NODE\020\002\022\027\n\023LOGTYPE_REMOVE_N"
-      "ODE\020\003\022\030\n\024LOGTYPE_PROMOTE_NODE\020\004b\006proto3"
+      "Request\022\016\n\006raftid\030\001 \001(\004\"_\n\023MembersListRe"
+      "sponse\022\017\n\007success\030\001 \001(\010\022\014\n\004term\030\002 \001(\004\022\016\n"
+      "\006raftid\030\003 \001(\004\022\031\n\005peers\030\004 \003(\0132\n.raft.Peer"
+      "\"\200\003\n\013RaftMessage\022\016\n\006raftid\030\001 \001(\r\022#\n\006vt_r"
+      "eq\030\002 \001(\0132\021.raft.VoteRequestH\000\022$\n\006vt_rsp\030"
+      "\003 \001(\0132\022.raft.VoteResponseH\000\022,\n\006ae_req\030\004 "
+      "\001(\0132\032.raft.AppendEntriesRequestH\000\022-\n\006ae_"
+      "rsp\030\005 \001(\0132\033.raft.AppendEntriesResponseH\000"
+      "\022+\n\006mc_req\030\006 \001(\0132\031.raft.MemberChangeRequ"
+      "estH\000\022,\n\006mc_rsp\030\007 \001(\0132\032.raft.MemberChang"
+      "eResponseH\000\022*\n\006ml_req\030\010 \001(\0132\030.raft.Membe"
+      "rsListRequestH\000\022+\n\006ml_rsp\030\t \001(\0132\031.raft.M"
+      "embersListResponseH\000B\005\n\003msg*M\n\tRaftState"
+      "\022\013\n\007UNKNOWN\020\000\022\n\n\006LEADER\020\001\022\014\n\010FOLLOWER\020\002\022"
+      "\r\n\tCANDIDATE\020\003\022\n\n\006LEANER\020\004*\212\001\n\013RaftLogTy"
+      "pe\022\022\n\016LOGTYPE_NORMAL\020\000\022\036\n\032LOGTYPE_ADD_NO"
+      "NVOTING_NODE\020\001\022\024\n\020LOGTYPE_ADD_NODE\020\002\022\027\n\023"
+      "LOGTYPE_REMOVE_NODE\020\003\022\030\n\024LOGTYPE_PROMOTE"
+      "_NODE\020\004b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 1519);
+      descriptor, 1535);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "raftmsg.proto", &protobuf_RegisterTypes);
 }
@@ -3695,6 +3697,7 @@ void MembersListResponse::InitAsDefaultInstance() {
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int MembersListResponse::kSuccessFieldNumber;
 const int MembersListResponse::kTermFieldNumber;
+const int MembersListResponse::kRaftidFieldNumber;
 const int MembersListResponse::kPeersFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
@@ -3807,10 +3810,24 @@ bool MembersListResponse::MergePartialFromCodedStream(
         break;
       }
 
-      // repeated .raft.Peer peers = 3;
+      // uint64 raftid = 3;
       case 3: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(24u /* 24 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &raftid_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated .raft.Peer peers = 4;
+      case 4: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(34u /* 34 & 0xFF */)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(input, add_peers()));
         } else {
           goto handle_unusual;
@@ -3854,11 +3871,16 @@ void MembersListResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->term(), output);
   }
 
-  // repeated .raft.Peer peers = 3;
+  // uint64 raftid = 3;
+  if (this->raftid() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->raftid(), output);
+  }
+
+  // repeated .raft.Peer peers = 4;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->peers_size()); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->peers(static_cast<int>(i)), output);
+      4, this->peers(static_cast<int>(i)), output);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -3885,12 +3907,17 @@ void MembersListResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->term(), target);
   }
 
-  // repeated .raft.Peer peers = 3;
+  // uint64 raftid = 3;
+  if (this->raftid() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->raftid(), target);
+  }
+
+  // repeated .raft.Peer peers = 4;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->peers_size()); i < n; i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
-        3, this->peers(static_cast<int>(i)), deterministic, target);
+        4, this->peers(static_cast<int>(i)), deterministic, target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -3910,7 +3937,7 @@ size_t MembersListResponse::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
-  // repeated .raft.Peer peers = 3;
+  // repeated .raft.Peer peers = 4;
   {
     unsigned int count = static_cast<unsigned int>(this->peers_size());
     total_size += 1UL * count;
@@ -3926,6 +3953,13 @@ size_t MembersListResponse::ByteSizeLong() const {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::UInt64Size(
         this->term());
+  }
+
+  // uint64 raftid = 3;
+  if (this->raftid() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::UInt64Size(
+        this->raftid());
   }
 
   // bool success = 1;
@@ -3966,6 +4000,9 @@ void MembersListResponse::MergeFrom(const MembersListResponse& from) {
   if (from.term() != 0) {
     set_term(from.term());
   }
+  if (from.raftid() != 0) {
+    set_raftid(from.raftid());
+  }
   if (from.success() != 0) {
     set_success(from.success());
   }
@@ -3997,6 +4034,7 @@ void MembersListResponse::InternalSwap(MembersListResponse* other) {
   using std::swap;
   peers_.InternalSwap(&other->peers_);
   swap(term_, other->term_);
+  swap(raftid_, other->raftid_);
   swap(success_, other->success_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);

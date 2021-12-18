@@ -63,6 +63,8 @@ int Transport::Receive(response_t *rsp){
         case raft::RaftMessage::kMcRsp:
             //raf->recvConfChangeResponse(msg.mutable_mc_rsp());
             break;
+        case raft::RaftMessage::kMlRsp:
+            raft_server_->OnMembersListResponse(msg.mutable_ml_rsp());
         default:
             fprintf(stderr, "unknown msg type:%d\n", msg.msg_case());
     }

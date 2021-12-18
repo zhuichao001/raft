@@ -369,6 +369,7 @@ int Raft::applyEntry(){
 int Raft::membersList(raft::MembersListResponse *rsp){
     rsp->set_success(true);
     rsp->set_term(term_);
+    rsp->set_raftid(id_);
     for (auto &it : nodes_) {
         RaftNode *node = it.second;
         raft::Peer * p = rsp->add_peers();

@@ -1335,10 +1335,10 @@ class MembersListResponse : public ::google::protobuf::Message /* @@protoc_inser
 
   // accessors -------------------------------------------------------
 
-  // repeated .raft.Peer peers = 3;
+  // repeated .raft.Peer peers = 4;
   int peers_size() const;
   void clear_peers();
-  static const int kPeersFieldNumber = 3;
+  static const int kPeersFieldNumber = 4;
   const ::raft::Peer& peers(int index) const;
   ::raft::Peer* mutable_peers(int index);
   ::raft::Peer* add_peers();
@@ -1353,6 +1353,12 @@ class MembersListResponse : public ::google::protobuf::Message /* @@protoc_inser
   ::google::protobuf::uint64 term() const;
   void set_term(::google::protobuf::uint64 value);
 
+  // uint64 raftid = 3;
+  void clear_raftid();
+  static const int kRaftidFieldNumber = 3;
+  ::google::protobuf::uint64 raftid() const;
+  void set_raftid(::google::protobuf::uint64 value);
+
   // bool success = 1;
   void clear_success();
   static const int kSuccessFieldNumber = 1;
@@ -1365,6 +1371,7 @@ class MembersListResponse : public ::google::protobuf::Message /* @@protoc_inser
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::RepeatedPtrField< ::raft::Peer > peers_;
   ::google::protobuf::uint64 term_;
+  ::google::protobuf::uint64 raftid_;
   bool success_;
   mutable int _cached_size_;
   friend struct ::protobuf_raftmsg_2eproto::TableStruct;
@@ -2282,7 +2289,21 @@ inline void MembersListResponse::set_term(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:raft.MembersListResponse.term)
 }
 
-// repeated .raft.Peer peers = 3;
+// uint64 raftid = 3;
+inline void MembersListResponse::clear_raftid() {
+  raftid_ = GOOGLE_ULONGLONG(0);
+}
+inline ::google::protobuf::uint64 MembersListResponse::raftid() const {
+  // @@protoc_insertion_point(field_get:raft.MembersListResponse.raftid)
+  return raftid_;
+}
+inline void MembersListResponse::set_raftid(::google::protobuf::uint64 value) {
+  
+  raftid_ = value;
+  // @@protoc_insertion_point(field_set:raft.MembersListResponse.raftid)
+}
+
+// repeated .raft.Peer peers = 4;
 inline int MembersListResponse::peers_size() const {
   return peers_.size();
 }

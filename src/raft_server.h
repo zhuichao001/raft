@@ -38,7 +38,11 @@ public:
     }
 
     int Remove(int64_t raftid) {
-        rafts_.erase(raftid); //TODO
+        if(rafts_.find(raftid)==rafts_.end()){
+            return -1;
+        }
+        rafts_[raftid]->Stop();
+        rafts_.erase(raftid);
         return 0; 
     }
 
@@ -55,8 +59,6 @@ public:
         p->set_ip(local_addr->ip);
         p->set_port(local_addr->port);
 
-        fprintf(stderr, "|||#### raftid:%d, nodeid:%d, ip:%s, port:%d\n", p->raftid(), p->nodeid(), p->ip().c_str(), p->port());
-
         msg->set_allocated_mc_req(mc_req);
 
         if(trans_->Send(leader_addr, msg)==0){
@@ -64,13 +66,13 @@ public:
                     p->raftid(), p->nodeid(), p->ip().c_str(), p->port());
             return 0;
         } else {
-            fprintf(stderr, "Error!FAILED TO JOIN CLUSTER raftid=%d, nodeid=%d leader=%s:%d\n", 
+            fprintf(stderr, "FAILED TO JOIN CLUSTER raftid=%d, nodeid=%d leader=%s:%d\n", 
                     p->raftid(), p->nodeid(), p->ip().c_str(), p->port());
             return -1;
         }
     }
 
-    int MemberList(int raftid, address_t *addr, std::vector<raft::Peer>){
+    int SyncGetMemberList(int raftid, address_t *addr, std::vector<raft::Peer>){
         auto msg = std::make_shared<raft::RaftMessage>();
         msg->set_raftid(raftid);
         auto ml_req = new raft::MembersListRequest;
@@ -80,6 +82,22 @@ public:
             return -1;
         }
         return 0;
+    }
+
+    void OnMembersListResponse(raft::MembersListResponse *rsp){
+        for(auto p: rsp->peers()){
+            if(peers_.find(rsp->raftid()) == peers_.end()){
+                peers_[rsp->raftid()] = std::vector<raft::Peer*>();
+            }
+            raft::Peer *neo = new raft::Peer;
+            neo->set_raftid(p.raftid());
+            neo->set_nodeid(p.nodeid());
+            neo->set_ip(p.ip());
+            neo->set_port(p.port());
+            neo->set_state(p.state());
+
+            peers_[rsp->raftid()].push_back(neo);
+        }
     }
 
     Raft *GetRaft(int64_t raftid) {

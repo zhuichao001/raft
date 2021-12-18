@@ -28,6 +28,10 @@ public:
         return stoped_;
     }
 
+    void Stop(){
+        stoped_ = true;
+    }
+
 private: //for leader
     void sendAppendEntries();
 
