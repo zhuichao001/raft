@@ -43,7 +43,6 @@ public:
     }
 
     int ChangeMember(int raftid, raft::RaftLogType type, address_t *leader_addr, address_t *local_addr, int nodeid){
-
         auto msg = std::make_shared<raft::RaftMessage>();
         msg->set_raftid(raftid);
 
@@ -69,6 +68,18 @@ public:
                     p->raftid(), p->nodeid(), p->ip().c_str(), p->port());
             return -1;
         }
+    }
+
+    int MemberList(int raftid, address_t *addr, std::vector<raft::Peer>){
+        auto msg = std::make_shared<raft::RaftMessage>();
+        msg->set_raftid(raftid);
+        auto ml_req = new raft::MembersListRequest;
+        ml_req->set_raftid(raftid);
+        msg->set_allocated_ml_req(ml_req);
+        if(trans_->Send(addr, msg)<0){
+            return -1;
+        }
+        return 0;
     }
 
     Raft *GetRaft(int64_t raftid) {
