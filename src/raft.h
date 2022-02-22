@@ -35,7 +35,7 @@ public:
 private: //for leader
     void sendAppendEntries();
 
-    void sendAppendEntries(RaftNode *node);
+    void sendAppendEntriesTo(RaftNode *node);
 
     int recvAppendEntriesResponse(const raft::AppendEntriesResponse *r);
 

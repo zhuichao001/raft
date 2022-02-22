@@ -80,11 +80,11 @@ void Raft::sendAppendEntries(){
         if (node == local_) {
             continue;
         }
-        sendAppendEntries(node);
+        sendAppendEntriesTo(node);
     }
 }
 
-void Raft::sendAppendEntries(RaftNode *to){
+void Raft::sendAppendEntriesTo(RaftNode *to){
     auto req = new raft::AppendEntriesRequest;
     req->set_nodeid(local_->GetNodeId());
     req->set_term(term_);
@@ -267,7 +267,7 @@ int Raft::recvAppendEntriesResponse(const raft::AppendEntriesResponse *r) {
             peer->SetNextIndex(next_idx - 1);
         }
 
-        sendAppendEntries(peer);
+        sendAppendEntriesTo(peer);
         return 0;
     }
 
@@ -452,7 +452,7 @@ void Raft::becomeLeader(){ //for candidator
 
         node->SetNextIndex(getCurrentIndex() + 1);
         node->SetMatchIndex(0);
-        sendAppendEntries(node);
+        sendAppendEntriesTo(node);
     }
 
     app_->OnTransferLeader(true);
