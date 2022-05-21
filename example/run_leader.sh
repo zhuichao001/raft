@@ -1,1 +1,1 @@
-./server --nodeid 1
+./build/server --nodeid 1

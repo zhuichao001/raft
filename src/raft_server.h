@@ -117,8 +117,11 @@ public:
     }
 
 public:
-    int process(request_t *req, response_t *rsp) override {
+    int process(session_t *session) override {
+        response_t response;
+        response_t *rsp = &response;
         fprintf(stderr, "rpc server process.\n");
+        request_t *req = session->request();
         fprintf(stderr, "RECEIVE:%s len=%d\n", req->data(), req->len());
 
         auto in = std::make_shared<raft::RaftMessage>();
@@ -162,6 +165,7 @@ public:
         std::string tmp;
         out->SerializeToString(&tmp);
         rsp->setbody(tmp.c_str(), tmp.size());
+        session->reply(rsp);
         return 0;
     }
 

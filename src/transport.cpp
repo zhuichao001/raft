@@ -25,7 +25,7 @@ int Transport::Start(address_t *addr, service_t *svr){
 int Transport::Send(const address_t *addr, const std::shared_ptr<raft::RaftMessage> msg){
     int64_t hip = addr->to_long();
     if(clients_.find(hip)==clients_.end()){
-        dialer_t *cli = eng_->open(addr);
+        std::shared_ptr<dialer_t> cli = eng_->dial(addr);
         if(cli!=nullptr){
             clients_[hip] = cli;
         } else {
@@ -41,12 +41,12 @@ int Transport::Send(const address_t *addr, const std::shared_ptr<raft::RaftMessa
     request_t req;
     req.setbody(tmp.c_str(), tmp.size());
 
-    RpcCallback callback = std::bind(&Transport::Receive, this, std::placeholders::_1);
+    RpcCallback callback = std::bind(&Transport::Receive, this, std::placeholders::_1, std::placeholders::_2);
     clients_[hip]->call(&req, callback);
     return 0;
 }
 
-int Transport::Receive(response_t *rsp){
+int Transport::Receive(request_t *req, response_t *rsp){
     raft::RaftMessage msg;
     msg.ParseFromString(rsp->data());
     Raft *raf = raft_server_->GetRaft(msg.raftid());
