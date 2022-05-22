@@ -7,18 +7,13 @@ public:
     virtual ~Application(){
     }
 
-    int Apply(const std::string data) override {
+    int Apply(const std::string data, int raft_index, RaftError error) override {
         fprintf(stderr, "Apply :%s\n", data.c_str());
         msg_ = data;
         return 0;
     }
 
-    int ApplyMemberAdd(const raft::Peer &peer) override {
-        fprintf(stderr, "incoming peer: \n");
-        return 0;
-    }
-
-    int ApplyMemberDel(const raft::Peer &peer) override {
+    int ApplyMemberChange(const raft::Peer &peer, ConfChangeType cctype,int raft_index, RaftError error) override {
         fprintf(stderr, "incoming peer: \n");
         return 0;
     }
