@@ -1,6 +1,6 @@
 #include <string>
-#include "raft.h"
-#include "raft_sm.h"
+#include "raft/raft.h"
+#include "raft/raft_sm.h"
 
 class Application: public RaftStateMachine{
 public:

@@ -17,10 +17,12 @@ set(CXX_FLAGS
  )
 
 include_directories(../../../zhuichao001/wal)
-include_directories(../../../zhuichao001/lotus/)
 
-include_directories(../src)
-add_subdirectory(../src raft_lib_dir)
+include_directories(../../../zhuichao001/lotus/)
+add_subdirectory(../../../zhuichao001/lotus/lotus lotus_lib_dir)
+
+include_directories(../)
+add_subdirectory(../raft raft_lib_dir)
 
 add_executable(server ./main.cpp)
-target_link_libraries(server raft pthread protobuf)
+target_link_libraries(server raft lotus pthread protobuf)
