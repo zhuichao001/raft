@@ -15,7 +15,6 @@ class response_t;
 class Transport {
 public:
     Transport(engine_t *eng, RaftServer *rs);
-    int Start(address_t *addr, service_t *svr);
     int Send(const address_t *addr, const std::shared_ptr<raft::RaftMessage> msg);
 private:
     int Receive(request_t *req, response_t *rsp);
@@ -23,7 +22,7 @@ private:
     engine_t *eng_;
     RaftServer *raft_server_;
     std::map<uint64_t, std::shared_ptr<dialer_t>> clients_;
-    std::map<const address_t *, service_t *> servers_;
+    //std::map<const address_t *, service_t *> servers_;
 };
 
 #endif

@@ -13,15 +13,6 @@ Transport::Transport(engine_t *eng, RaftServer *rs):
     raft_server_(rs){
 }
 
-int Transport::Start(address_t *addr, service_t *svr){
-    if (addr == nullptr){
-        return -1;
-    }
-    servers_[addr] = svr;
-    eng_->start(addr, svr);
-    return 0;
-}
-
 int Transport::Send(const address_t *addr, const std::shared_ptr<raft::RaftMessage> msg){
     int64_t hip = addr->to_long();
     if(clients_.find(hip)==clients_.end()){

@@ -67,20 +67,22 @@ std::string input(){
 int main(int argc, char *argv[]){
     parse_opt(argc, argv);
 
+    address_t addr("0.0.0.0", local_port);
     RaftServer ras(&eng);
+    eng.start(&addr, &ras);
+    std::thread th([=, &ras]{
+        ras.Start();
+    });
+
     Application app;
     RaftOptions opt;
     {
-        opt.addr = address_t("0.0.0.0", local_port);
+        opt.addr = addr;
         opt.raftid = raftid;
         opt.nodeid = nodeid;
         opt.stm = &app;
     }
-
     ras.Create(opt, &app.raft_);
-    std::thread th([=,&ras]{
-        ras.Start();
-    });
 
     if(leader_port!=0){ //join a leader
         address_t leader_addr(local_ip.c_str(), leader_port);

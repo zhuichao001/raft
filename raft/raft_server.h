@@ -2,6 +2,7 @@
 #define _RAFT_SERVER_H_
 
 #include <string>
+#include <mutex>
 #include <functional>
 #include <stdio.h>
 #include "lotus/service.h"
@@ -26,11 +27,11 @@ public:
             return -1;
         }
 
-        trans_->Start(&opt.addr, dynamic_cast<service_t*>(this));
-
         //why the order affects timer's regular work
         opt.clocker = eng_;
         opt.tran = trans_;
+
+        std::unique_lock<std::mutex> lock{mutex_};
         rafts_[opt.raftid] = new Raft(opt);
 
         *raft = rafts_[opt.raftid];
@@ -38,6 +39,7 @@ public:
     }
 
     int Remove(int64_t raftid) {
+        std::unique_lock<std::mutex> lock{mutex_};
         if(rafts_.find(raftid)==rafts_.end()){
             return -1;
         }
@@ -96,11 +98,15 @@ public:
             neo->set_port(p.port());
             neo->set_state(p.state());
 
-            peers_[rsp->raftid()].push_back(neo);
+            {
+                std::unique_lock<std::mutex> lock{mutex_};
+                peers_[rsp->raftid()].push_back(neo);
+            }
         }
     }
 
     Raft *GetRaft(int64_t raftid) {
+        std::unique_lock<std::mutex> lock{mutex_};
         auto it = rafts_.find(raftid);
         if (it!=rafts_.end()) {
             return it->second;
@@ -171,10 +177,12 @@ public:
 
 private:
     engine_t *eng_;
-    std::map<uint64_t, Raft*> rafts_;
-    std::map<uint64_t, vector<raft::Peer*>> peers_;
-    Transport *trans_;
 
+    std::map<uint64_t, Raft*> rafts_;  //guard by mutex_
+    std::map<uint64_t, vector<raft::Peer*>> peers_; //guard by mutex_
+    std::mutex mutex_;
+
+    Transport *trans_;
     friend Transport;
 };
 
