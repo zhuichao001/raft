@@ -12,13 +12,27 @@ typedef struct {
     int type;   //0:normal, 1:leaner
 } ConfChange;
 
+
+enum RaftError{
+    RAFT_OK = 0,
+    RAFT_ERR_NO_LEADER =1,
+    RAFT_ERR_BUSY =2,
+};
+
+enum ConfChangeType{
+    ADD_PEER = 1,
+    DEL_PEER = 2,
+};
+
 class RaftStateMachine{
 public:
-    virtual int Apply(const std::string data) = 0;
-    virtual int ApplyMemberAdd(const raft::Peer &peer) = 0;
-    virtual int ApplyMemberDel(const raft::Peer &peer) = 0;
+    virtual int Apply(const std::string data, int raft_index, RaftError error) = 0;
+    virtual int ApplyMemberChange(const raft::Peer &peer, ConfChangeType cctype,int raft_index, RaftError error) = 0;
     virtual uint64_t GetAppliedIndex() = 0;
     virtual int OnTransferLeader(bool isleader) = 0;
+
+    //GetSnapshotReader() =0;
+    //GetSnapshotWriter() =0;
 };
 
 #endif

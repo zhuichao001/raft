@@ -53,8 +53,8 @@ int Raft::Propose(const std::string &data){
         return -1;
     }
 
-    if(nodes_.size()==1){
-        app_->Apply(data);
+    if(nodes_.size()==1){ //FIXME
+        app_->Apply(data, ++applied_idx_, RAFT_OK);
         return 0;
     }
 
@@ -90,7 +90,7 @@ void Raft::sendAppendEntriesTo(RaftNode *to){
     req->set_term(term_);
     req->set_commit(commit_idx_);
 
-    fprintf(stderr, "{Raft] leader append entries,  nodeid:%d term:%d commit_idx:%d\n", req->nodeid(), req->term(), req->commit());
+    fprintf(stderr, "[Raft] leader append entries,  nodeid:%d term:%d commit_idx:%d\n", req->nodeid(), req->term(), req->commit());
 
     int next_idx = to->GetNextIndex();
     const raft::LogEntry* nex = log_.getEntry(next_idx);
@@ -335,14 +335,14 @@ int Raft::applyEntry(){
 
         if(e->type()==raft::LOGTYPE_NORMAL){
             fprintf(stderr, "[RAFT apply] normal applied_idx: %d, logidx: %d size: %d\n", applied_idx_, e->index(), e->data().size());
-            app_->Apply(e->data());
+            app_->Apply(e->data(), idx, RAFT_OK);
         }else if(e->type()==raft::LOGTYPE_ADD_NODE){
             raft::Peer peer;
             peer.ParseFromString(e->data());
             if(peer.nodeid()!=local_->GetNodeId()){
                 address_t addr(peer.ip().c_str(), peer.port());
                 addRaftNode(peer.nodeid(), addr, false);
-                app_->ApplyMemberAdd(peer);
+                app_->ApplyMemberChange(peer, ADD_PEER, idx, RAFT_OK);
             }
             fprintf(stderr, "[RAFT apply] confchange peer, add nodeid:%d, ip:%s, port:%d\n", peer.nodeid(), peer.ip().c_str(), peer.port());
             printRaftNodes();
@@ -353,7 +353,7 @@ int Raft::applyEntry(){
             if(peer.nodeid()==local_->GetNodeId()){
                 stoped_ = true;
             }
-            app_->ApplyMemberDel(peer);
+            app_->ApplyMemberChange(peer, DEL_PEER, idx, RAFT_OK);
             fprintf(stderr, "[RAFT apply] confchange peer, del nodeid:%d\n", peer.nodeid());
             printRaftNodes();
         }
