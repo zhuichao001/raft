@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "lotus/service.h"
 #include "lotus/engine.h"
-#include "lotus/protocol.h"
+#include "lotus/protocol/rpc.h"
 #include "proto/raftmsg.pb.h"
 #include "transport.h"
 #include "raft.h"
@@ -15,9 +15,10 @@
 #include "options.h"
 
 
-class RaftServer : public service_t {
+class RaftServer : public service_t<rpc_request_t, rpc_response_t> {
 public:
     RaftServer(engine_t *eng):
+        service_t<rpc_request_t, rpc_response_t>(std::bind(&RaftServer::process, this, std::placeholders::_1)),
         eng_(eng){
         trans_ = new Transport(eng_, this);
     }
@@ -123,11 +124,11 @@ public:
     }
 
 public:
-    int process(session_t *session) override {
-        response_t response;
-        response_t *rsp = &response;
+    int process(session_t<rpc_request_t, rpc_response_t> *session) {
+        rpc_response_t response;
+        rpc_response_t *rsp = &response;
         fprintf(stderr, "rpc server process.\n");
-        request_t *req = session->request();
+        rpc_request_t *req = session->request();
         fprintf(stderr, "RECEIVE:%s len=%d\n", req->data(), req->len());
 
         auto in = std::make_shared<raft::RaftMessage>();

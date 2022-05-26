@@ -40,8 +40,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR Peer::Peer(
     ::_pbi::ConstantInitialized)
   : ip_(&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{})
-  , raftid_(uint64_t{0u})
-  , nodeid_(uint64_t{0u})
+  , raftid_(0)
+  , nodeid_(0)
   , port_(0u)
   , state_(0)
 {}
@@ -72,7 +72,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR VoteResponse::VoteResponse(
     ::_pbi::ConstantInitialized)
   : term_(uint64_t{0u})
-  , nodeid_(uint64_t{0u})
+  , nodeid_(0)
   , agree_(false){}
 struct VoteResponseDefaultTypeInternal {
   PROTOBUF_CONSTEXPR VoteResponseDefaultTypeInternal()
@@ -86,11 +86,11 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR AppendEntriesRequest::AppendEntriesRequest(
     ::_pbi::ConstantInitialized)
   : entries_()
-  , nodeid_(uint64_t{0u})
   , term_(uint64_t{0u})
   , commit_(uint64_t{0u})
   , prev_log_term_(uint64_t{0u})
-  , prev_log_index_(uint64_t{0u}){}
+  , prev_log_index_(uint64_t{0u})
+  , nodeid_(0){}
 struct AppendEntriesRequestDefaultTypeInternal {
   PROTOBUF_CONSTEXPR AppendEntriesRequestDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -102,11 +102,11 @@ struct AppendEntriesRequestDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 AppendEntriesRequestDefaultTypeInternal _AppendEntriesRequest_default_instance_;
 PROTOBUF_CONSTEXPR AppendEntriesResponse::AppendEntriesResponse(
     ::_pbi::ConstantInitialized)
-  : nodeid_(uint64_t{0u})
+  : success_(false)
+  , nodeid_(0)
   , term_(uint64_t{0u})
   , current_index_(uint64_t{0u})
-  , first_index_(uint64_t{0u})
-  , success_(false){}
+  , first_index_(uint64_t{0u}){}
 struct AppendEntriesResponseDefaultTypeInternal {
   PROTOBUF_CONSTEXPR AppendEntriesResponseDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -336,18 +336,18 @@ const char descriptor_table_protodef_raftmsg_2eproto[] PROTOBUF_SECTION_VARIABLE
   "\n\rraftmsg.proto\022\004raft\"V\n\010LogEntry\022\037\n\004typ"
   "e\030\001 \001(\0162\021.raft.RaftLogType\022\014\n\004term\030\002 \001(\004"
   "\022\r\n\005index\030\003 \001(\004\022\014\n\004data\030\004 \001(\014\"`\n\004Peer\022\016\n"
-  "\006raftid\030\001 \001(\004\022\016\n\006nodeid\030\002 \001(\004\022\n\n\002ip\030\003 \001("
+  "\006raftid\030\001 \001(\005\022\016\n\006nodeid\030\002 \001(\005\022\n\n\002ip\030\003 \001("
   "\t\022\014\n\004port\030\004 \001(\r\022\036\n\005state\030\005 \001(\0162\017.raft.Ra"
   "ftState\"U\n\013VoteRequest\022\014\n\004term\030\001 \001(\004\022\021\n\t"
   "candidate\030\002 \001(\004\022\021\n\tlast_term\030\003 \001(\004\022\022\n\nla"
   "st_index\030\004 \001(\004\";\n\014VoteResponse\022\014\n\004term\030\001"
-  " \001(\004\022\016\n\006nodeid\030\002 \001(\004\022\r\n\005agree\030\003 \001(\010\"\224\001\n\024"
-  "AppendEntriesRequest\022\016\n\006nodeid\030\001 \001(\004\022\014\n\004"
+  " \001(\004\022\016\n\006nodeid\030\002 \001(\005\022\r\n\005agree\030\003 \001(\010\"\224\001\n\024"
+  "AppendEntriesRequest\022\016\n\006nodeid\030\001 \001(\005\022\014\n\004"
   "term\030\002 \001(\004\022\016\n\006commit\030\003 \001(\004\022\025\n\rprev_log_t"
   "erm\030\004 \001(\004\022\026\n\016prev_log_index\030\005 \001(\004\022\037\n\007ent"
   "ries\030\006 \003(\0132\016.raft.LogEntry\"r\n\025AppendEntr"
   "iesResponse\022\017\n\007success\030\001 \001(\010\022\016\n\006nodeid\030\002"
-  " \001(\004\022\014\n\004term\030\003 \001(\004\022\025\n\rcurrent_index\030\004 \001("
+  " \001(\005\022\014\n\004term\030\003 \001(\004\022\025\n\rcurrent_index\030\004 \001("
   "\004\022\023\n\013first_index\030\005 \001(\004\"P\n\023MemberChangeRe"
   "quest\022\037\n\004type\030\001 \001(\0162\021.raft.RaftLogType\022\030"
   "\n\004peer\030\002 \001(\0132\n.raft.Peer\"O\n\024MemberChange"
@@ -776,18 +776,18 @@ const char* Peer::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // uint64 raftid = 1;
+      // int32 raftid = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          raftid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          raftid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // uint64 nodeid = 2;
+      // int32 nodeid = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
-          nodeid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          nodeid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -848,16 +848,16 @@ uint8_t* Peer::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // uint64 raftid = 1;
+  // int32 raftid = 1;
   if (this->_internal_raftid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_raftid(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_raftid(), target);
   }
 
-  // uint64 nodeid = 2;
+  // int32 nodeid = 2;
   if (this->_internal_nodeid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(2, this->_internal_nodeid(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_nodeid(), target);
   }
 
   // string ip = 3;
@@ -906,14 +906,14 @@ size_t Peer::ByteSizeLong() const {
         this->_internal_ip());
   }
 
-  // uint64 raftid = 1;
+  // int32 raftid = 1;
   if (this->_internal_raftid() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_raftid());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_raftid());
   }
 
-  // uint64 nodeid = 2;
+  // int32 nodeid = 2;
   if (this->_internal_nodeid() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_nodeid());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_nodeid());
   }
 
   // uint32 port = 4;
@@ -1321,10 +1321,10 @@ const char* VoteResponse::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
         } else
           goto handle_unusual;
         continue;
-      // uint64 nodeid = 2;
+      // int32 nodeid = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
-          nodeid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          nodeid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1372,10 +1372,10 @@ uint8_t* VoteResponse::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_term(), target);
   }
 
-  // uint64 nodeid = 2;
+  // int32 nodeid = 2;
   if (this->_internal_nodeid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(2, this->_internal_nodeid(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_nodeid(), target);
   }
 
   // bool agree = 3;
@@ -1405,9 +1405,9 @@ size_t VoteResponse::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_term());
   }
 
-  // uint64 nodeid = 2;
+  // int32 nodeid = 2;
   if (this->_internal_nodeid() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_nodeid());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_nodeid());
   }
 
   // bool agree = 3;
@@ -1494,17 +1494,17 @@ AppendEntriesRequest::AppendEntriesRequest(const AppendEntriesRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       entries_(from.entries_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&nodeid_, &from.nodeid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&prev_log_index_) -
-    reinterpret_cast<char*>(&nodeid_)) + sizeof(prev_log_index_));
+  ::memcpy(&term_, &from.term_,
+    static_cast<size_t>(reinterpret_cast<char*>(&nodeid_) -
+    reinterpret_cast<char*>(&term_)) + sizeof(nodeid_));
   // @@protoc_insertion_point(copy_constructor:raft.AppendEntriesRequest)
 }
 
 inline void AppendEntriesRequest::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&nodeid_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&prev_log_index_) -
-    reinterpret_cast<char*>(&nodeid_)) + sizeof(prev_log_index_));
+    reinterpret_cast<char*>(&term_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&nodeid_) -
+    reinterpret_cast<char*>(&term_)) + sizeof(nodeid_));
 }
 
 AppendEntriesRequest::~AppendEntriesRequest() {
@@ -1531,9 +1531,9 @@ void AppendEntriesRequest::Clear() {
   (void) cached_has_bits;
 
   entries_.Clear();
-  ::memset(&nodeid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&prev_log_index_) -
-      reinterpret_cast<char*>(&nodeid_)) + sizeof(prev_log_index_));
+  ::memset(&term_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&nodeid_) -
+      reinterpret_cast<char*>(&term_)) + sizeof(nodeid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1543,10 +1543,10 @@ const char* AppendEntriesRequest::_InternalParse(const char* ptr, ::_pbi::ParseC
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // uint64 nodeid = 1;
+      // int32 nodeid = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          nodeid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          nodeid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1625,10 +1625,10 @@ uint8_t* AppendEntriesRequest::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // uint64 nodeid = 1;
+  // int32 nodeid = 1;
   if (this->_internal_nodeid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_nodeid(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_nodeid(), target);
   }
 
   // uint64 term = 2;
@@ -1686,11 +1686,6 @@ size_t AppendEntriesRequest::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // uint64 nodeid = 1;
-  if (this->_internal_nodeid() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_nodeid());
-  }
-
   // uint64 term = 2;
   if (this->_internal_term() != 0) {
     total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_term());
@@ -1709,6 +1704,11 @@ size_t AppendEntriesRequest::ByteSizeLong() const {
   // uint64 prev_log_index = 5;
   if (this->_internal_prev_log_index() != 0) {
     total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_prev_log_index());
+  }
+
+  // int32 nodeid = 1;
+  if (this->_internal_nodeid() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_nodeid());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1734,9 +1734,6 @@ void AppendEntriesRequest::MergeFrom(const AppendEntriesRequest& from) {
   (void) cached_has_bits;
 
   entries_.MergeFrom(from.entries_);
-  if (from._internal_nodeid() != 0) {
-    _internal_set_nodeid(from._internal_nodeid());
-  }
   if (from._internal_term() != 0) {
     _internal_set_term(from._internal_term());
   }
@@ -1748,6 +1745,9 @@ void AppendEntriesRequest::MergeFrom(const AppendEntriesRequest& from) {
   }
   if (from._internal_prev_log_index() != 0) {
     _internal_set_prev_log_index(from._internal_prev_log_index());
+  }
+  if (from._internal_nodeid() != 0) {
+    _internal_set_nodeid(from._internal_nodeid());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -1768,11 +1768,11 @@ void AppendEntriesRequest::InternalSwap(AppendEntriesRequest* other) {
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   entries_.InternalSwap(&other->entries_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(AppendEntriesRequest, prev_log_index_)
-      + sizeof(AppendEntriesRequest::prev_log_index_)
-      - PROTOBUF_FIELD_OFFSET(AppendEntriesRequest, nodeid_)>(
-          reinterpret_cast<char*>(&nodeid_),
-          reinterpret_cast<char*>(&other->nodeid_));
+      PROTOBUF_FIELD_OFFSET(AppendEntriesRequest, nodeid_)
+      + sizeof(AppendEntriesRequest::nodeid_)
+      - PROTOBUF_FIELD_OFFSET(AppendEntriesRequest, term_)>(
+          reinterpret_cast<char*>(&term_),
+          reinterpret_cast<char*>(&other->term_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata AppendEntriesRequest::GetMetadata() const {
@@ -1796,17 +1796,17 @@ AppendEntriesResponse::AppendEntriesResponse(::PROTOBUF_NAMESPACE_ID::Arena* are
 AppendEntriesResponse::AppendEntriesResponse(const AppendEntriesResponse& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&nodeid_, &from.nodeid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&success_) -
-    reinterpret_cast<char*>(&nodeid_)) + sizeof(success_));
+  ::memcpy(&success_, &from.success_,
+    static_cast<size_t>(reinterpret_cast<char*>(&first_index_) -
+    reinterpret_cast<char*>(&success_)) + sizeof(first_index_));
   // @@protoc_insertion_point(copy_constructor:raft.AppendEntriesResponse)
 }
 
 inline void AppendEntriesResponse::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&nodeid_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&success_) -
-    reinterpret_cast<char*>(&nodeid_)) + sizeof(success_));
+    reinterpret_cast<char*>(&success_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&first_index_) -
+    reinterpret_cast<char*>(&success_)) + sizeof(first_index_));
 }
 
 AppendEntriesResponse::~AppendEntriesResponse() {
@@ -1832,9 +1832,9 @@ void AppendEntriesResponse::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  ::memset(&nodeid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&success_) -
-      reinterpret_cast<char*>(&nodeid_)) + sizeof(success_));
+  ::memset(&success_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&first_index_) -
+      reinterpret_cast<char*>(&success_)) + sizeof(first_index_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1852,10 +1852,10 @@ const char* AppendEntriesResponse::_InternalParse(const char* ptr, ::_pbi::Parse
         } else
           goto handle_unusual;
         continue;
-      // uint64 nodeid = 2;
+      // int32 nodeid = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
-          nodeid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          nodeid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1919,10 +1919,10 @@ uint8_t* AppendEntriesResponse::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteBoolToArray(1, this->_internal_success(), target);
   }
 
-  // uint64 nodeid = 2;
+  // int32 nodeid = 2;
   if (this->_internal_nodeid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(2, this->_internal_nodeid(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_nodeid(), target);
   }
 
   // uint64 term = 3;
@@ -1959,9 +1959,14 @@ size_t AppendEntriesResponse::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // uint64 nodeid = 2;
+  // bool success = 1;
+  if (this->_internal_success() != 0) {
+    total_size += 1 + 1;
+  }
+
+  // int32 nodeid = 2;
   if (this->_internal_nodeid() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_nodeid());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_nodeid());
   }
 
   // uint64 term = 3;
@@ -1977,11 +1982,6 @@ size_t AppendEntriesResponse::ByteSizeLong() const {
   // uint64 first_index = 5;
   if (this->_internal_first_index() != 0) {
     total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_first_index());
-  }
-
-  // bool success = 1;
-  if (this->_internal_success() != 0) {
-    total_size += 1 + 1;
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -2006,6 +2006,9 @@ void AppendEntriesResponse::MergeFrom(const AppendEntriesResponse& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from._internal_success() != 0) {
+    _internal_set_success(from._internal_success());
+  }
   if (from._internal_nodeid() != 0) {
     _internal_set_nodeid(from._internal_nodeid());
   }
@@ -2017,9 +2020,6 @@ void AppendEntriesResponse::MergeFrom(const AppendEntriesResponse& from) {
   }
   if (from._internal_first_index() != 0) {
     _internal_set_first_index(from._internal_first_index());
-  }
-  if (from._internal_success() != 0) {
-    _internal_set_success(from._internal_success());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -2039,11 +2039,11 @@ void AppendEntriesResponse::InternalSwap(AppendEntriesResponse* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(AppendEntriesResponse, success_)
-      + sizeof(AppendEntriesResponse::success_)
-      - PROTOBUF_FIELD_OFFSET(AppendEntriesResponse, nodeid_)>(
-          reinterpret_cast<char*>(&nodeid_),
-          reinterpret_cast<char*>(&other->nodeid_));
+      PROTOBUF_FIELD_OFFSET(AppendEntriesResponse, first_index_)
+      + sizeof(AppendEntriesResponse::first_index_)
+      - PROTOBUF_FIELD_OFFSET(AppendEntriesResponse, success_)>(
+          reinterpret_cast<char*>(&success_),
+          reinterpret_cast<char*>(&other->success_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata AppendEntriesResponse::GetMetadata() const {

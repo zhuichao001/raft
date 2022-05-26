@@ -473,22 +473,22 @@ class Peer final :
   std::string* _internal_mutable_ip();
   public:
 
-  // uint64 raftid = 1;
+  // int32 raftid = 1;
   void clear_raftid();
-  uint64_t raftid() const;
-  void set_raftid(uint64_t value);
+  int32_t raftid() const;
+  void set_raftid(int32_t value);
   private:
-  uint64_t _internal_raftid() const;
-  void _internal_set_raftid(uint64_t value);
+  int32_t _internal_raftid() const;
+  void _internal_set_raftid(int32_t value);
   public:
 
-  // uint64 nodeid = 2;
+  // int32 nodeid = 2;
   void clear_nodeid();
-  uint64_t nodeid() const;
-  void set_nodeid(uint64_t value);
+  int32_t nodeid() const;
+  void set_nodeid(int32_t value);
   private:
-  uint64_t _internal_nodeid() const;
-  void _internal_set_nodeid(uint64_t value);
+  int32_t _internal_nodeid() const;
+  void _internal_set_nodeid(int32_t value);
   public:
 
   // uint32 port = 4;
@@ -517,8 +517,8 @@ class Peer final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ip_;
-  uint64_t raftid_;
-  uint64_t nodeid_;
+  int32_t raftid_;
+  int32_t nodeid_;
   uint32_t port_;
   int state_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -834,13 +834,13 @@ class VoteResponse final :
   void _internal_set_term(uint64_t value);
   public:
 
-  // uint64 nodeid = 2;
+  // int32 nodeid = 2;
   void clear_nodeid();
-  uint64_t nodeid() const;
-  void set_nodeid(uint64_t value);
+  int32_t nodeid() const;
+  void set_nodeid(int32_t value);
   private:
-  uint64_t _internal_nodeid() const;
-  void _internal_set_nodeid(uint64_t value);
+  int32_t _internal_nodeid() const;
+  void _internal_set_nodeid(int32_t value);
   public:
 
   // bool agree = 3;
@@ -860,7 +860,7 @@ class VoteResponse final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   uint64_t term_;
-  uint64_t nodeid_;
+  int32_t nodeid_;
   bool agree_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_raftmsg_2eproto;
@@ -987,11 +987,11 @@ class AppendEntriesRequest final :
 
   enum : int {
     kEntriesFieldNumber = 6,
-    kNodeidFieldNumber = 1,
     kTermFieldNumber = 2,
     kCommitFieldNumber = 3,
     kPrevLogTermFieldNumber = 4,
     kPrevLogIndexFieldNumber = 5,
+    kNodeidFieldNumber = 1,
   };
   // repeated .raft.LogEntry entries = 6;
   int entries_size() const;
@@ -1010,15 +1010,6 @@ class AppendEntriesRequest final :
   ::raft::LogEntry* add_entries();
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::raft::LogEntry >&
       entries() const;
-
-  // uint64 nodeid = 1;
-  void clear_nodeid();
-  uint64_t nodeid() const;
-  void set_nodeid(uint64_t value);
-  private:
-  uint64_t _internal_nodeid() const;
-  void _internal_set_nodeid(uint64_t value);
-  public:
 
   // uint64 term = 2;
   void clear_term();
@@ -1056,6 +1047,15 @@ class AppendEntriesRequest final :
   void _internal_set_prev_log_index(uint64_t value);
   public:
 
+  // int32 nodeid = 1;
+  void clear_nodeid();
+  int32_t nodeid() const;
+  void set_nodeid(int32_t value);
+  private:
+  int32_t _internal_nodeid() const;
+  void _internal_set_nodeid(int32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:raft.AppendEntriesRequest)
  private:
   class _Internal;
@@ -1064,11 +1064,11 @@ class AppendEntriesRequest final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::raft::LogEntry > entries_;
-  uint64_t nodeid_;
   uint64_t term_;
   uint64_t commit_;
   uint64_t prev_log_term_;
   uint64_t prev_log_index_;
+  int32_t nodeid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_raftmsg_2eproto;
 };
@@ -1193,19 +1193,28 @@ class AppendEntriesResponse final :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kSuccessFieldNumber = 1,
     kNodeidFieldNumber = 2,
     kTermFieldNumber = 3,
     kCurrentIndexFieldNumber = 4,
     kFirstIndexFieldNumber = 5,
-    kSuccessFieldNumber = 1,
   };
-  // uint64 nodeid = 2;
-  void clear_nodeid();
-  uint64_t nodeid() const;
-  void set_nodeid(uint64_t value);
+  // bool success = 1;
+  void clear_success();
+  bool success() const;
+  void set_success(bool value);
   private:
-  uint64_t _internal_nodeid() const;
-  void _internal_set_nodeid(uint64_t value);
+  bool _internal_success() const;
+  void _internal_set_success(bool value);
+  public:
+
+  // int32 nodeid = 2;
+  void clear_nodeid();
+  int32_t nodeid() const;
+  void set_nodeid(int32_t value);
+  private:
+  int32_t _internal_nodeid() const;
+  void _internal_set_nodeid(int32_t value);
   public:
 
   // uint64 term = 3;
@@ -1235,15 +1244,6 @@ class AppendEntriesResponse final :
   void _internal_set_first_index(uint64_t value);
   public:
 
-  // bool success = 1;
-  void clear_success();
-  bool success() const;
-  void set_success(bool value);
-  private:
-  bool _internal_success() const;
-  void _internal_set_success(bool value);
-  public:
-
   // @@protoc_insertion_point(class_scope:raft.AppendEntriesResponse)
  private:
   class _Internal;
@@ -1251,11 +1251,11 @@ class AppendEntriesResponse final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  uint64_t nodeid_;
+  bool success_;
+  int32_t nodeid_;
   uint64_t term_;
   uint64_t current_index_;
   uint64_t first_index_;
-  bool success_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_raftmsg_2eproto;
 };
@@ -2383,42 +2383,42 @@ inline void LogEntry::set_allocated_data(std::string* data) {
 
 // Peer
 
-// uint64 raftid = 1;
+// int32 raftid = 1;
 inline void Peer::clear_raftid() {
-  raftid_ = uint64_t{0u};
+  raftid_ = 0;
 }
-inline uint64_t Peer::_internal_raftid() const {
+inline int32_t Peer::_internal_raftid() const {
   return raftid_;
 }
-inline uint64_t Peer::raftid() const {
+inline int32_t Peer::raftid() const {
   // @@protoc_insertion_point(field_get:raft.Peer.raftid)
   return _internal_raftid();
 }
-inline void Peer::_internal_set_raftid(uint64_t value) {
+inline void Peer::_internal_set_raftid(int32_t value) {
   
   raftid_ = value;
 }
-inline void Peer::set_raftid(uint64_t value) {
+inline void Peer::set_raftid(int32_t value) {
   _internal_set_raftid(value);
   // @@protoc_insertion_point(field_set:raft.Peer.raftid)
 }
 
-// uint64 nodeid = 2;
+// int32 nodeid = 2;
 inline void Peer::clear_nodeid() {
-  nodeid_ = uint64_t{0u};
+  nodeid_ = 0;
 }
-inline uint64_t Peer::_internal_nodeid() const {
+inline int32_t Peer::_internal_nodeid() const {
   return nodeid_;
 }
-inline uint64_t Peer::nodeid() const {
+inline int32_t Peer::nodeid() const {
   // @@protoc_insertion_point(field_get:raft.Peer.nodeid)
   return _internal_nodeid();
 }
-inline void Peer::_internal_set_nodeid(uint64_t value) {
+inline void Peer::_internal_set_nodeid(int32_t value) {
   
   nodeid_ = value;
 }
-inline void Peer::set_nodeid(uint64_t value) {
+inline void Peer::set_nodeid(int32_t value) {
   _internal_set_nodeid(value);
   // @@protoc_insertion_point(field_set:raft.Peer.nodeid)
 }
@@ -2621,22 +2621,22 @@ inline void VoteResponse::set_term(uint64_t value) {
   // @@protoc_insertion_point(field_set:raft.VoteResponse.term)
 }
 
-// uint64 nodeid = 2;
+// int32 nodeid = 2;
 inline void VoteResponse::clear_nodeid() {
-  nodeid_ = uint64_t{0u};
+  nodeid_ = 0;
 }
-inline uint64_t VoteResponse::_internal_nodeid() const {
+inline int32_t VoteResponse::_internal_nodeid() const {
   return nodeid_;
 }
-inline uint64_t VoteResponse::nodeid() const {
+inline int32_t VoteResponse::nodeid() const {
   // @@protoc_insertion_point(field_get:raft.VoteResponse.nodeid)
   return _internal_nodeid();
 }
-inline void VoteResponse::_internal_set_nodeid(uint64_t value) {
+inline void VoteResponse::_internal_set_nodeid(int32_t value) {
   
   nodeid_ = value;
 }
-inline void VoteResponse::set_nodeid(uint64_t value) {
+inline void VoteResponse::set_nodeid(int32_t value) {
   _internal_set_nodeid(value);
   // @@protoc_insertion_point(field_set:raft.VoteResponse.nodeid)
 }
@@ -2665,22 +2665,22 @@ inline void VoteResponse::set_agree(bool value) {
 
 // AppendEntriesRequest
 
-// uint64 nodeid = 1;
+// int32 nodeid = 1;
 inline void AppendEntriesRequest::clear_nodeid() {
-  nodeid_ = uint64_t{0u};
+  nodeid_ = 0;
 }
-inline uint64_t AppendEntriesRequest::_internal_nodeid() const {
+inline int32_t AppendEntriesRequest::_internal_nodeid() const {
   return nodeid_;
 }
-inline uint64_t AppendEntriesRequest::nodeid() const {
+inline int32_t AppendEntriesRequest::nodeid() const {
   // @@protoc_insertion_point(field_get:raft.AppendEntriesRequest.nodeid)
   return _internal_nodeid();
 }
-inline void AppendEntriesRequest::_internal_set_nodeid(uint64_t value) {
+inline void AppendEntriesRequest::_internal_set_nodeid(int32_t value) {
   
   nodeid_ = value;
 }
-inline void AppendEntriesRequest::set_nodeid(uint64_t value) {
+inline void AppendEntriesRequest::set_nodeid(int32_t value) {
   _internal_set_nodeid(value);
   // @@protoc_insertion_point(field_set:raft.AppendEntriesRequest.nodeid)
 }
@@ -2829,22 +2829,22 @@ inline void AppendEntriesResponse::set_success(bool value) {
   // @@protoc_insertion_point(field_set:raft.AppendEntriesResponse.success)
 }
 
-// uint64 nodeid = 2;
+// int32 nodeid = 2;
 inline void AppendEntriesResponse::clear_nodeid() {
-  nodeid_ = uint64_t{0u};
+  nodeid_ = 0;
 }
-inline uint64_t AppendEntriesResponse::_internal_nodeid() const {
+inline int32_t AppendEntriesResponse::_internal_nodeid() const {
   return nodeid_;
 }
-inline uint64_t AppendEntriesResponse::nodeid() const {
+inline int32_t AppendEntriesResponse::nodeid() const {
   // @@protoc_insertion_point(field_get:raft.AppendEntriesResponse.nodeid)
   return _internal_nodeid();
 }
-inline void AppendEntriesResponse::_internal_set_nodeid(uint64_t value) {
+inline void AppendEntriesResponse::_internal_set_nodeid(int32_t value) {
   
   nodeid_ = value;
 }
-inline void AppendEntriesResponse::set_nodeid(uint64_t value) {
+inline void AppendEntriesResponse::set_nodeid(int32_t value) {
   _internal_set_nodeid(value);
   // @@protoc_insertion_point(field_set:raft.AppendEntriesResponse.nodeid)
 }
