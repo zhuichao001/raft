@@ -5,9 +5,7 @@
 #include <mutex>
 #include <functional>
 #include <stdio.h>
-#include "lotus/service.h"
-#include "lotus/engine.h"
-#include "lotus/protocol/rpc.h"
+#include "lotus/lotus.h"
 #include "proto/raftmsg.pb.h"
 #include "transport.h"
 #include "raft.h"
@@ -15,10 +13,10 @@
 #include "options.h"
 
 
-class RaftServer : public service_t<rpc_request_t, rpc_response_t> {
+class RaftServer : public rpc_service_t {
 public:
     RaftServer(engine_t *eng):
-        service_t<rpc_request_t, rpc_response_t>(std::bind(&RaftServer::process, this, std::placeholders::_1)),
+        rpc_service_t(std::bind(&RaftServer::Process, this, std::placeholders::_1)),
         eng_(eng){
         trans_ = new Transport(eng_, this);
     }
@@ -124,7 +122,7 @@ public:
     }
 
 public:
-    int process(session_t<rpc_request_t, rpc_response_t> *session) {
+    int Process(rpc_session_t *session) {
         rpc_response_t response;
         rpc_response_t *rsp = &response;
         fprintf(stderr, "rpc server process.\n");
@@ -180,7 +178,7 @@ private:
     engine_t *eng_;
 
     std::map<uint64_t, Raft*> rafts_;  //guard by mutex_
-    std::map<uint64_t, vector<raft::Peer*>> peers_; //guard by mutex_
+    std::map<uint64_t, std::vector<raft::Peer*>> peers_; //guard by mutex_
     std::mutex mutex_;
 
     Transport *trans_;

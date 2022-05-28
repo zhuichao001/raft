@@ -91,7 +91,7 @@ int main(int argc, char *argv[]){
 
     while(true){
         if(app.IsLeader()){
-            string buf = input();
+            std::string buf = input();
             app.Set(std::string(buf));
             sleep(1);
             app.Get();

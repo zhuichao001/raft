@@ -25,7 +25,7 @@ int Transport::Send(const address_t *addr, const std::shared_ptr<raft::RaftMessa
         }
     }
 
-    string tmp;
+    std::string tmp;
     msg->SerializeToString(&tmp);
     fprintf(stderr, "SEND:%X len=%d\n", tmp.c_str(), tmp.size());
 
