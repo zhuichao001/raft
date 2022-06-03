@@ -39,7 +39,7 @@ Raft::Raft(const RaftOptions &opt):
     timeout_election_ =  randTimeoutElection();
     timeout_request_ = 200*1000;
     timeout_heartbeat_ = 5000*1000;
-    ticker_ = opt.clocker->run_every(std::bind(&Raft::tick, this), 100*1000);
+    ticker_ = opt.clocker->run_every(/*100ms*/100*1000, std::bind(&Raft::tick, this));
 
     stoped_ = false;
 }
