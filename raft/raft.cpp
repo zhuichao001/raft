@@ -30,8 +30,8 @@ Raft::Raft(const RaftOptions &opt):
     applied_idx_ = 0;
     reconf_idx_ = -1;
 
-    leader_ = nullptr;
     local_ = addRaftNode(opt.nodeid, opt.addr, true);
+    leader_ = (opt.leader==opt.nodeid) ? local_ : nullptr;
 
     lasttime_heartbeat_ = microsec();
     lasttime_election_ = 0;
