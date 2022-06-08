@@ -24,14 +24,16 @@ Raft::Raft(const RaftOptions &opt):
 
     term_ = 0;
     voted_for_ = -1;
-    state_ = raft::FOLLOWER;
 
     commit_idx_ = 0;
     applied_idx_ = 0;
     reconf_idx_ = -1;
 
+    leader_ = nullptr;
     local_ = addRaftNode(opt.nodeid, opt.addr, true);
-    leader_ = (opt.leader==opt.nodeid) ? local_ : nullptr;
+    if(opt.leader==opt.nodeid){
+        becomeLeader();
+    }
 
     lasttime_heartbeat_ = microsec();
     lasttime_election_ = 0;
@@ -46,14 +48,16 @@ Raft::Raft(const RaftOptions &opt):
 
 int Raft::Propose(const std::string &data){
     if(!IsLeader()){
+        fprintf(stderr, "[RAFT] Error, Can't Propose for not leader\n");
         return -1;
     }
 
     if(IsStoped()){
+        fprintf(stderr, "[RAFT] Error, Can't Propose for stoped\n");
         return -1;
     }
 
-    if(nodes_.size()==1){ //FIXME
+    if(nodes_.size()==1){
         app_->Apply(data, ++applied_idx_, RAFT_OK);
         return 0;
     }
@@ -408,23 +412,23 @@ int Raft::membersChange(const raft::RaftLogType &type, const raft::Peer &p){
 }
 
 void Raft::tick(){
-    switch(state_){
+    switch(local_->GetState()){
         case raft::FOLLOWER:
             if (microsec()-lasttime_heartbeat_ >= timeout_heartbeat_) {
-                fprintf(stderr, "[RAFT] tick timeout, FOLLOWER startElection\n");
+                //fprintf(stderr, "[RAFT] tick timeout, FOLLOWER startElection\n");
                 startElection();
             }
             break;
         case raft::CANDIDATE:
             if (microsec()-lasttime_election_ >= timeout_election_) {
-                fprintf(stderr, "[RAFT] tick timeout, CANDIDATE restart Election\n");
+                //fprintf(stderr, "[RAFT] tick timeout, CANDIDATE restart Election\n");
                 startElection();
             }
             break;
         case raft::LEADER:
             if (microsec()-lasttime_heartbeat_ >= 2*timeout_heartbeat_/3) {
                 lasttime_heartbeat_ = microsec();
-                fprintf(stderr, "[RAFT] tick timeout, LEADER send heartbeat\n");
+                //fprintf(stderr, "[RAFT] tick timeout, LEADER send heartbeat\n");
                 sendAppendEntries(); //heartbeat
             }
             break;
@@ -434,7 +438,7 @@ void Raft::tick(){
 }
 
 void Raft::becomeLeader(){ //for candidator
-    fprintf(stderr, "becoming leader term:%d\n", term_);
+    fprintf(stderr, "[RAFT] becoming leader term:%d\n", term_);
 
     if(leader_!=nullptr){
         leader_->SetState(raft::FOLLOWER);

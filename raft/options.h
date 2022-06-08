@@ -12,8 +12,8 @@ class timedriver_t;
 typedef struct {
     int raftid; //raft replicate group id
 
-    uint64_t nodeid;
-    uint64_t leader;
+    int32_t nodeid;
+    int32_t leader;
 
     address_t addr;
     Transport *tran;

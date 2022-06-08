@@ -125,9 +125,7 @@ public:
     int Process(rpc_session_t *session) {
         rpc_response_t response;
         rpc_response_t *rsp = &response;
-        fprintf(stderr, "rpc server process.\n");
         rpc_request_t *req = session->request();
-        fprintf(stderr, "RECEIVE:%s len=%d\n", req->data(), req->len());
 
         auto in = std::make_shared<raft::RaftMessage>();
         auto out = std::make_shared<raft::RaftMessage>();

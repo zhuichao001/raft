@@ -96,15 +96,15 @@ private: //common
     }
 
     bool isLeader(){
-        return raft::LEADER == state_;
+        return raft::LEADER == local_->GetState();
     }
 
     bool isFollower(){
-        return raft::FOLLOWER == state_;
+        return raft::FOLLOWER == local_->GetState();
     }
 
     bool isCandidate(){
-        return raft::CANDIDATE == state_;
+        return raft::CANDIDATE == local_->GetState();
     }
 
     bool isAlreadyVoted(){
@@ -126,7 +126,6 @@ private:
 
     uint64_t term_;         // current term
     int voted_for_;         // candidate propose vote 
-    raft::RaftState state_; // FOLLOWER, LEADER, CANDIDATE
 
     uint64_t commit_idx_;
     uint64_t applied_idx_;
